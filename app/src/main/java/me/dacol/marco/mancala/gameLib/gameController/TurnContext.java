@@ -1,8 +1,9 @@
 package me.dacol.marco.mancala.gameLib.gameController;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
+import java.util.Stack;
+
+import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
 
 /***
  * Here is published in which moment of the game we are,
@@ -13,9 +14,11 @@ import java.util.Observable;
  * - next turn or end game
  */
 public class TurnContext extends Observable {
-    // I know there is the Stack class in Java,
-    // but in this way i can implement the undo action
-    private List<Action> mActionList = new ArrayList<Action>();
+    // Right now is just a wrapper around a Stack object,
+    // but these gives room from improvements like keep the game history
+    // to allow the player to undo moves.
+    // It can also improve statistics.
+    private Stack<Action> mActionList = new Stack<Action>();
 
     // Singleton
     private static TurnContext sInstance = null;
@@ -27,13 +30,26 @@ public class TurnContext extends Observable {
         return sInstance;
     }
 
+    // Reinitialize the Action list at each turn in case it's not empty
     public void initialize() {
-        // TODO write initialization for the TurnContext
+        if (!mActionList.empty()) {
+            do {
+                mActionList.pop();
+            } while (!mActionList.empty());
+        }
     }
 
-    public void post(Action action) {
-        mActionList.add(action);
+    public void push(Action action) {
+        mActionList.push(action);
         setChanged();
         notifyObservers();
+    }
+
+    public Action pop() {
+        return mActionList.pop();
+    }
+
+    public Action peek() {
+        return mActionList.peek();
     }
 }

@@ -4,9 +4,6 @@ import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.player.Player;
 
-/**
- * Created by Dac on 26/11/14.
- */
 public class UpdateTurnContext implements Command {
 
     private TurnContext mTurnContext;

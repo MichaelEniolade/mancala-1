@@ -2,9 +2,6 @@ package me.dacol.marco.mancala.gameLib.board;
 
 import me.dacol.marco.mancala.gameLib.player.Player;
 
-/**
- * Created by Dac on 25/11/14.
- */
 public class Bowl extends Container {
 
     public Bowl(Player owner) {
