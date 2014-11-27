@@ -1,4 +1,4 @@
-package me.dacol.marco.mancala.gameLib.exception;
+package me.dacol.marco.mancala.gameLib.exceptions;
 
 public class playerBrainTypeUknownException extends Exception {
 

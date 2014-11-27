@@ -2,34 +2,42 @@ package me.dacol.marco.mancala.gameLib.player;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Stack;
 
+import me.dacol.marco.mancala.gameLib.board.Move;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
+import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.brains.Brain;
 
 public class Player implements Observer {
 
     private TurnContext mTurnContext;
     private Brain mBrain;
-    private Stack<Integer> mMoves; //keeps track of the player moves
+    private String mName;
 
-    public Player(TurnContext turnContext) {
+    public Player(TurnContext turnContext, String name) {
         mTurnContext = turnContext;
-        mMoves = new Stack<Integer>();
+        mName = name;
     }
 
     private void timeToPlay(ActivePlayer activePlayer) {
-        // get the board status, and ask the brain for a move
+        Move move = mBrain.makeMove(activePlayer.getBoardRepresentation());
+        sendMoveToBoard(move);
     }
 
     private void didAnInvalidMove(InvalidMove invalidMove) {
-        // get the board status and last move and ask a brain for a new move
+        mBrain.toggleLastMoveCameUpInvalid();
+        Move move = mBrain.makeMove(invalidMove.getBoardStatus());
+        sendMoveToBoard(move);
     }
 
     public void setBrain(Brain brain) {
-        this.mBrain = brain;
+        mBrain = brain;
+    }
+
+    private void sendMoveToBoard(Move move) {
+        mTurnContext.push(new MoveAction(move));
     }
 
     @Override
@@ -53,5 +61,4 @@ public class Player implements Observer {
             }
         }
     }
-
 }
