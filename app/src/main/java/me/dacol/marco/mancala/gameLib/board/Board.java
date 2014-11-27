@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import me.dacol.marco.mancala.gameLib.player.Player;
+
 public class Board implements Observer {
 
     List<Bowl> mBowls = new ArrayList<Bowl>();
@@ -37,5 +39,14 @@ public class Board implements Observer {
     @Override
     public void update(Observable observable, Object data) {
 
+    }
+
+    public boolean checkForWinner() {
+        //check if there is a winner in the current board siatuation
+        return false;
+    }
+
+    public Player getWinner() {
+        return null;
     }
 }
