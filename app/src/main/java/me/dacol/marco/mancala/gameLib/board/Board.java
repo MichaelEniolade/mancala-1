@@ -7,7 +7,7 @@ import java.util.Observer;
 
 import me.dacol.marco.mancala.gameLib.player.Player;
 
-public class Board implements Observer {
+public class Board implements Observer, StandardBoard<Container> {
 
     List<Bowl> mBowls = new ArrayList<Bowl>();
     List<Tray> mTrays = new ArrayList<Tray>();
@@ -36,10 +36,7 @@ public class Board implements Observer {
 
 
 
-    @Override
-    public void update(Observable observable, Object data) {
 
-    }
 
     public boolean checkForWinner() {
         //check if there is a winner in the current board siatuation
@@ -48,5 +45,15 @@ public class Board implements Observer {
 
     public Player getWinner() {
         return null;
+    }
+
+    @Override
+    public ArrayList<Container> getRepresentation() {
+        return null;
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+
     }
 }

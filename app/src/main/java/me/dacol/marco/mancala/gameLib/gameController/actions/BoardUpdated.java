@@ -11,7 +11,7 @@ public class BoardUpdated extends Action<Boolean> {
         super(load);
     }
 
-    public Boolean thereIsAWinner() {
+    public Boolean isGameEnded() {
         return getLoad();
     }
 

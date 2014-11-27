@@ -7,15 +7,19 @@ import java.util.Observer;
 import java.util.Random;
 
 import me.dacol.marco.mancala.gameLib.board.Board;
+import me.dacol.marco.mancala.gameLib.board.StandardBoard;
+import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
+import me.dacol.marco.mancala.gameLib.exceptions.playerBrainTypeUknownException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.Player;
+import me.dacol.marco.mancala.gameLib.player.PlayerFactory;
 
 public class Game implements Observer {
 
     private List<Player> mPlayers;
-    private Board mBoard;
+    private StandardBoard mBoard;
     private TurnContext mTurnContext;
 
     private int mPlayingPlayer;
@@ -66,7 +70,7 @@ public class Game implements Observer {
         }
 
         if (isEnded()) {
-            Player winningPlayer = getWinner();
+            Player winningPlayer = getWinner(); //TODO you have to take into account the square
             announceTheWinner(winningPlayer);
         } else {
             // TODO How can i end up here?!
@@ -74,9 +78,11 @@ public class Game implements Observer {
      }
 
     //---> Player methods
-    private void createPlayer() {
-        // player created and added to the game, player can be of two types
-        // Human and AI -> I need a player factory!
+    private void createPlayer(int type, String name) throws
+            playerBrainTypeUknownException, ToManyPlayerException {
+
+        Player player = PlayerFactory.makePlayer(type, mTurnContext, name);
+        addPlayer(player);
     }
 
     /**
@@ -84,12 +90,16 @@ public class Game implements Observer {
      *
      * @param player
      */
-    public void addPlayer(Player player) {
-        mPlayers.add(player);
-        mTurnContext.addObserver(player);
+    public void addPlayer(Player player) throws ToManyPlayerException {
+        if (mPlayers.size() < 2) {
+            mPlayers.add(player);
+            mTurnContext.addObserver(player);
+        } else {
+            throw new ToManyPlayerException();
+        }
     }
 
-    private void turnPlayer() {
+    private void PlayingPlayer() {
         if (mTurnNumber == 0) {
             chooseStartingPlayer();
         } else {
@@ -107,7 +117,7 @@ public class Game implements Observer {
     }
 
     private void updateTurnContext() {
-        mTurnContext.push(new ActivePlayer(mPlayers.get(mPlayingPlayer)));
+        mTurnContext.push(new ActivePlayer(mPlayers.get(mPlayingPlayer), mBoard.getRepresentation()));
     }
 
     /**
@@ -146,12 +156,12 @@ public class Game implements Observer {
             initializeBoard();
         }
 
-        turnPlayer();
+        PlayingPlayer();
         mTurnNumber += 1;
     }
 
-    private void checkForWinner(BoardUpdated boardUpdated) {
-        if (boardUpdated.thereIsAWinner()) {
+    private void checkForGameEnd(BoardUpdated boardUpdated) {
+        if (boardUpdated.isGameEnded()) {
             toggleEnd();
         }
     }
@@ -170,7 +180,8 @@ public class Game implements Observer {
         // qui vanno considerati solo gli ultimi eventi che questo oggetto può maneggiare.
         if (mTurnContext.peek() instanceof BoardUpdated) {
             BoardUpdated boardUpdated = (BoardUpdated) mTurnContext.pop();
-            checkForWinner(boardUpdated);
+            checkForGameEnd(boardUpdated);
         }
+        //TODO la board non dovrebbe postare nel context in caso di vincita?
     }
 }
