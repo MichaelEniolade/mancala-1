@@ -14,31 +14,34 @@ import me.dacol.marco.mancala.gameLib.player.Player;
  */
 public abstract class BaseBrain implements Brain {
 
-    private final int fNumberOfBowl = 6;
-    private final int fNumberOfTray = 1;
+    private int mNumberOfBowl;
+    private int mNumberOfTray;
 
     private Player mPlayer;
     private Stack<Move> mMoves;
     private boolean mInvalidMove;
 
-    public BaseBrain(Player player) {
+    public BaseBrain(Player player, int numberOfBowl, int numberOfTray) {
         mPlayer = player;
         mMoves = new Stack<Move>();
         mInvalidMove = false;
+        mNumberOfBowl = numberOfBowl;
+        mNumberOfTray = numberOfTray;
     }
 
+    // This method is very ugly, it's just for test purpose...
     @Override
     public Move makeMove(ArrayList<Container> boardStatus) {
         // very easy strategy, check which are his container and then chose a random bowl not empty.
         Move move;
 
-        int random = new Random().nextInt(fNumberOfBowl-1);
+        int random = new Random().nextInt(mNumberOfBowl);
 
         if(mInvalidMove) {
             Move lastInvalidMove = mMoves.pop();
-            if ((lastInvalidMove.getBowlNumber() == (random+fNumberOfBowl+fNumberOfTray-1))
+            if ((lastInvalidMove.getBowlNumber() == (random + mNumberOfBowl + mNumberOfTray -1))
                     || (lastInvalidMove.getBowlNumber() == random)) {
-                random = new Random().nextInt(fNumberOfBowl-1);
+                random = new Random().nextInt(mNumberOfBowl);
             }
         }
 
@@ -48,7 +51,10 @@ public abstract class BaseBrain implements Brain {
             move = new Move(random, mPlayer);
         } else {
             // so my player bowls are the ones after the tray of player one, bowl 1 of player2 is 6+1
-            move = new Move(random+fNumberOfBowl+fNumberOfTray-1, mPlayer);
+            // PAY ATTENTION! Here I'm passing the real position in the array of container, not only
+            // the bowl number.
+            // This can be a problem...maybe.
+            move = new Move(random+ mNumberOfBowl + mNumberOfTray -1, mPlayer);
         }
 
         mMoves.push(move); //Ok, this brain is dumb and cannot think of a strategy...but who cares!

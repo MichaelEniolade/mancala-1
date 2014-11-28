@@ -8,8 +8,9 @@ import java.util.Random;
 
 import me.dacol.marco.mancala.gameLib.board.Board;
 import me.dacol.marco.mancala.gameLib.board.StandardBoard;
+import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
+import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUknownException;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
-import me.dacol.marco.mancala.gameLib.exceptions.playerBrainTypeUknownException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
@@ -21,10 +22,14 @@ public class Game implements Observer {
     private List<Player> mPlayers;
     private StandardBoard mBoard;
     private TurnContext mTurnContext;
+    private PlayerFactory mPlayerFactory;
 
     private int mPlayingPlayer;
     private int mNextPlayer;
     private int mTurnNumber;
+    private int mNumberOfPlayers = 2;
+    private int mNumberOfBowls = 6;
+    private int mNumberOfTrays = 1;
 
     private boolean mEnded;
 
@@ -59,12 +64,13 @@ public class Game implements Observer {
         mPlayers = new ArrayList<Player>();
         mBoard = null;
         mTurnContext = null;
+        mPlayerFactory = new PlayerFactory(mTurnContext, mNumberOfBowls, mNumberOfTrays);
     }
 
     /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
-    public void start() {
+    public void start() throws NumberOfPlayersException {
         while (!isEnded()) {
             newTurn();
         }
@@ -79,9 +85,9 @@ public class Game implements Observer {
 
     //---> Player methods
     private void createPlayer(int type, String name) throws
-            playerBrainTypeUknownException, ToManyPlayerException {
+            PlayerBrainTypeUknownException, ToManyPlayerException {
 
-        Player player = PlayerFactory.makePlayer(type, mTurnContext, name);
+        Player player = mPlayerFactory.makePlayer(type, name);
         addPlayer(player);
     }
 
@@ -91,7 +97,7 @@ public class Game implements Observer {
      * @param player
      */
     public void addPlayer(Player player) throws ToManyPlayerException {
-        if (mPlayers.size() < 2) {
+        if (mPlayers.size() < mNumberOfPlayers) {
             mPlayers.add(player);
             mTurnContext.addObserver(player);
         } else {
@@ -143,13 +149,23 @@ public class Game implements Observer {
         mTurnContext.addObserver(this);
     }
 
-    private void initializeBoard() {
-        mBoard = Board.getInstance();
-        mBoard.initialSetup(mPlayers.size());
-        mTurnContext.addObserver(mBoard);
+    private void initializeBoard() throws NumberOfPlayersException {
+        if (mPlayers.size() == mNumberOfPlayers) {
+            mBoard = Board.getInstance();
+
+            mBoard.setup(mTurnContext, mNumberOfBowls, mNumberOfTrays)
+                    .registerPlayers(mPlayers)
+                    .buildBoard();
+
+            mTurnContext.addObserver(mBoard);
+        } else {
+            throw new NumberOfPlayersException("Number of player is: " + mPlayers.size()
+                    + ", it should be: " + mNumberOfPlayers);
+        }
+
     }
 
-    private void newTurn() {
+    private void newTurn() throws NumberOfPlayersException {
         mTurnContext.initialize();
 
         if (mTurnNumber == 0) {

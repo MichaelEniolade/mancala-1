@@ -4,8 +4,8 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class Move {
 
-    private int mBowlNumber;
-    private Player mPlayer;
+private int mBowlNumber;
+private Player mPlayer;
 
     /***
      * Standard Move representation

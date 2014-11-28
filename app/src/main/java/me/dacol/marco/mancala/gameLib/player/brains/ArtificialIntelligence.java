@@ -8,8 +8,8 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class ArtificialIntelligence extends BaseBrain {
 
-    public ArtificialIntelligence(Player player) {
-        super(player);
+    public ArtificialIntelligence(Player player, int numberOfBowl, int numberOfTray) {
+        super(player, numberOfBowl, numberOfTray);
     }
 
     @Override

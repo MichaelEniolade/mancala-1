@@ -8,8 +8,8 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class Human extends BaseBrain implements Brain {
 
-    public Human(Player player) {
-        super(player);
+    public Human(Player player, int numberOfBowl, int numberOfTray) {
+        super(player, numberOfBowl, numberOfTray);
     }
 
     @Override
