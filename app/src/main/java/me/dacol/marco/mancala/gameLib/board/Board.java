@@ -77,28 +77,29 @@ public class Board implements Observer, StandardBoard<Container> {
 
     // ---> Core rules for the game
     private void move(MoveAction moveAction) {
-        if (isAValidMove(moveAction)) {
-            executeMove(moveAction.getLoad());
+        Move move = moveAction.getLoad();
+        Container selectedContainer = getPlayerSelectedContainer(move.getBowlNumber());
+
+        if (isAValidMove(move.getPlayer(), selectedContainer)) {
+            executeMove(move, selectedContainer);
         } else {
             postOnTurnContext(new InvalidMove(
-                    moveAction.getLoad(),
+                    move,
                     getRepresentation(),
-                    moveAction.getLoad().getPlayer()
+                    move.getPlayer()
             ));
         }
     }
 
-    private boolean isAValidMove(MoveAction moveAction) {
-        Move move = moveAction.getLoad();
+    private boolean isAValidMove(Player player, Container selectedContainer) {
         boolean isValid = false;
         // When a move is invalid?
         // 1. the bowl have zero seeds in it
         // 2. the bowl is not owned by the player
         // 3. the player selected a tray
-        Container selectedContainer = getPlayerSelectedContainer(move.getBowlNumber());
         if ((selectedContainer instanceof Bowl)
-                && (selectedContainer.getOwner() == move.getPlayer())
-                && (selectedContainer.numberOfSeeds > 0)) {
+                && (selectedContainer.getOwner() == player)
+                && (selectedContainer.getNumberOfSeeds() > 0)) {
             isValid = true;
         }
         return isValid;
@@ -108,9 +109,37 @@ public class Board implements Observer, StandardBoard<Container> {
         return mContainers.get(number);
     }
 
-    private void executeMove(Move move) {
+    //TODO rewrite me in a non recursive way
+    private int spreadSeed(int containerNumber, int remainingSeeds) {
+        // If i have more than one seed to spread, I'm ok just spread it and call recursion
+        // If I have to spread the last seed, check the next container is a bowl?
+        // -- The playingPlayer (PP) is the owner of the bowl?
+        // ---- Yes, move the seed directly to the tray, and stole the opponent seeds in the specular
+        //      bowl and put them in the PP tray (if there are no seed in opponent bowl just go on)
+        // No, just put the seed there and go on with your life!
+        if (remainingSeeds > 1 ) {
+            mContainers.get(containerNumber).putOneSeed();
+            return spreadSeed(nextContainer(containerNumber), remainingSeeds - 1 );
+        } else if ( (remainingSeeds == 1) && (mContainers.get(containerNumber) instanceof Bowl) ) {
+            if (mContainers.get(containerNumber).getOwner() == player) {
+                //Move the seed in the tray and stole opponent seeds
+            }
+        } else {
+            mContainers.get(containerNumber).putOneSeed();
+            return -1;
+        }
+        return -1;
+    }
 
-        //TODO execute the move and then post the BoardUpdated action on the turn context
+    private int nextContainer(int actualContainerPosition) {
+        int totalNumberOfContainer = (mNumberOfBowls + mNumberOfTrays) * 2; //14 in my case, but remember it starts form 0!!
+        int nextContainer = actualContainerPosition + 1;
+
+        if ( nextContainer == totalNumberOfContainer) {
+            nextContainer = 0;
+        }
+
+        return  nextContainer;
     }
 
     private void postOnTurnContext(Action action) {

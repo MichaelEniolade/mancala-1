@@ -4,19 +4,24 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 
 public abstract class Container {
 
-    int numberOfSeeds = 0;
-    Player owner = null;
+    protected int mNumberOfSeeds = 0;
+    protected Player mOwner = null;
 
     public Container(Player owner) {
-        this.owner = owner;
+        mOwner = owner;
     }
 
     //Getters
     public int getNumberOfSeeds() {
-        return numberOfSeeds;
+        return mNumberOfSeeds;
     }
 
     public Player getOwner() {
-        return owner;
+        return mOwner;
+    }
+
+    // Setters
+    public void putOneSeed() {
+        mNumberOfSeeds += 1;
     }
 }
