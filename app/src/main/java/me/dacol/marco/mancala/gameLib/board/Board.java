@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.Player;
@@ -81,7 +82,9 @@ public class Board implements Observer, StandardBoard<Container> {
         Container selectedContainer = getPlayerSelectedContainer(move.getBowlNumber());
 
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
-            executeMove(move, selectedContainer);
+            spreadSeed(move.getBowlNumber(), selectedContainer.getNumberOfSeeds(), move.getPlayer());
+            //TODO this is a little confusing maybe I should integrate the position number in any container
+            postOnTurnContext(new BoardUpdated(getRepresentation(), checkForWinner())); //TODO check for winner....maybe it's best isGameEnded?
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
@@ -109,26 +112,40 @@ public class Board implements Observer, StandardBoard<Container> {
         return mContainers.get(number);
     }
 
-    //TODO rewrite me in a non recursive way
-    private int spreadSeed(int containerNumber, int remainingSeeds) {
-        // If i have more than one seed to spread, I'm ok just spread it and call recursion
+    //TODO this could look even better in a recursive way
+    private void spreadSeed(int containerNumber, int remainingSeeds, Player player) {
+        // If i have more than one seed to spread, I'm ok just spread it and go on
         // If I have to spread the last seed, check the next container is a bowl?
         // -- The playingPlayer (PP) is the owner of the bowl?
         // ---- Yes, move the seed directly to the tray, and stole the opponent seeds in the specular
         //      bowl and put them in the PP tray (if there are no seed in opponent bowl just go on)
         // No, just put the seed there and go on with your life!
-        if (remainingSeeds > 1 ) {
+        for ( ; remainingSeeds > 1; remainingSeeds--) {
             mContainers.get(containerNumber).putOneSeed();
-            return spreadSeed(nextContainer(containerNumber), remainingSeeds - 1 );
-        } else if ( (remainingSeeds == 1) && (mContainers.get(containerNumber) instanceof Bowl) ) {
-            if (mContainers.get(containerNumber).getOwner() == player) {
-                //Move the seed in the tray and stole opponent seeds
-            }
+            containerNumber = nextContainer(containerNumber);
+        }
+
+        if ( (remainingSeeds == 1)
+                && (mContainers.get(containerNumber) instanceof Bowl)
+                && (mContainers.get(containerNumber).getOwner() == player)
+                && (mContainers.get(containerNumber).getNumberOfSeeds() == 0) )
+        {
+            int wonSeeds = remainingSeeds;
+            wonSeeds += getOpponentContainer(containerNumber).getNumberOfSeeds();
+            getPlayerTray(player).putSeeds(wonSeeds);
         } else {
             mContainers.get(containerNumber).putOneSeed();
-            return -1;
         }
-        return -1;
+    }
+
+    private Tray getPlayerTray(Player player) {
+        //TODO get the player tray
+        return null;
+    }
+
+    private Container getOpponentContainer(int containerNumber) {
+        //TODO get the opposite container and return the number of seeds in it
+        return null;
     }
 
     private int nextContainer(int actualContainerPosition) {
