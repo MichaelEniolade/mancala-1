@@ -21,6 +21,7 @@ public class Board implements Observer, StandardBoard<Container> {
     private int mNumberOfTrays;
     private int mNumberOfPlayers;
     private TurnContext mTurnContext;
+    private Player mWinner;
 
     // Singleton
     private static Board sInstance = null;
@@ -84,7 +85,7 @@ public class Board implements Observer, StandardBoard<Container> {
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
             spreadSeed(move.getBowlNumber(), selectedContainer.getNumberOfSeeds(), move.getPlayer());
             //TODO this is a little confusing maybe I should integrate the position number in any container
-            postOnTurnContext(new BoardUpdated(getRepresentation(), checkForWinner())); //TODO check for winner....maybe it's best isGameEnded?
+            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded())); //TODO check for winner....maybe it's best naming it isGameEnded?
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
@@ -138,14 +139,26 @@ public class Board implements Observer, StandardBoard<Container> {
         }
     }
 
-    private Tray getPlayerTray(Player player) {
-        //TODO get the player tray
-        return null;
+    private Container getPlayerTray(Player player) {
+        // I know for how the arraylist its built that the tray are in the position 6 and 13
+        // just look for the matching one
+        int trayOnePosition = 6;
+        int trayTwoPosition = 13;
+        // Since I've only two player in this game, I guess it's tray number one
+        Container trayToReturn = mContainers.get(trayOnePosition);
+
+        if (mContainers.get(trayTwoPosition).getOwner() == player) {
+            trayToReturn = mContainers.get(trayTwoPosition);
+        }
+        return trayToReturn;
     }
 
     private Container getOpponentContainer(int containerNumber) {
-        //TODO get the opposite container and return the number of seeds in it
-        return null;
+        // The last bowl is in position 12, the first one in position 0
+        // So in order to get the opponent bowl I've to get the 12 - actual bowl position
+        // ATTENTION! TODO TEST CASE ON THIS
+        // Limit Case: last seeds is dropped in the bowl number zero of player one.
+        return mContainers.get(12 - containerNumber);
     }
 
     private int nextContainer(int actualContainerPosition) {
@@ -163,14 +176,40 @@ public class Board implements Observer, StandardBoard<Container> {
         mTurnContext.push(action);
     }
 
-    public boolean checkForWinner() {
-        //TODO check if there is a winner in the current board situation
-        return false;
+    public boolean isGameEnded() {
+        // A game is ended when all the bowl of one player are empty
+        // Just do the sum of the bowl of each player, if one is zero you are done
+        // Pay attention i do not reinizialize the index variable, since I'm going on...
+        //TODO sum the seeds in each bowl
+        int playerOneRemainingSeeds = 0;
+        int playerTwoRemainingSeeds = 0;
+        int i = 0;
+
+        boolean isEnded = false;
+        for ( ; i < 6; i++) {
+            playerOneRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
+        }
+
+        if (playerOneRemainingSeeds == 0) {
+            isEnded = true;
+
+        } else {
+            for (i += 1 ; i < 13; i++) {
+                playerTwoRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
+            }
+        }
+
+        //TODO should i call setWinner here?
+        return isEnded;
+    }
+
+    private void setWinner() {
+        //TODO calculate the winner
     }
 
     public Player getWinner() {
         //TODO return the winning player
-        return null;
+        return mWinner;
     }
 
     private ArrayList<Container> getRepresentation() {
