@@ -133,7 +133,7 @@ public class Board implements Observer, StandardBoard<Container> {
         // ---- Yes, move the seed directly to the tray, and stole the opponent seeds in the specular
         //      bowl and put them in the PP tray (if there are no seed in opponent bowl just go on)
         // No, just put the seed there and go on with your life!
-        for ( ; remainingSeeds > 1; remainingSeeds--) {
+        for (; remainingSeeds > 1; remainingSeeds--) {
             Log.d(LOG_TAG, "Remaining Seeds: " + remainingSeeds); //DEBUG
             mContainers.get(bowlNumber).putOneSeed();
             bowlNumber = nextContainer(bowlNumber);
@@ -144,6 +144,7 @@ public class Board implements Observer, StandardBoard<Container> {
                 && (mContainers.get(bowlNumber).getOwner() == player)
                 && (mContainers.get(bowlNumber).getNumberOfSeeds() == 0) )
         {
+
             int wonSeeds = remainingSeeds;
             wonSeeds += getOpponentContainer(bowlNumber).getNumberOfSeeds();
             getPlayerTray(player).putSeeds(wonSeeds);
