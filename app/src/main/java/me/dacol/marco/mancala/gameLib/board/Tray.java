@@ -9,7 +9,7 @@ public class Tray extends Container{
     }
 
     public void putSeeds(int quantity) {
-        this.numberOfSeeds += quantity;
+        this.mNumberOfSeeds += quantity;
     }
 
 }

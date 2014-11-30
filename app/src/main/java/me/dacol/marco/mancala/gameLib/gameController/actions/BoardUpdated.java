@@ -16,7 +16,7 @@ public class BoardUpdated extends Action<ArrayList> {
         this.mIsGameEnded = mIsGameEnded;
     }
 
-    public boolean isIsGameEnded() {
+    public boolean isGameEnded() {
         return mIsGameEnded;
     }
 }

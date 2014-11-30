@@ -76,7 +76,7 @@ public class Game implements Observer {
         }
 
         if (isEnded()) {
-            Player winningPlayer = getWinner(); //TODO you have to take into account the square
+            Player winningPlayer = getWinner();
             announceTheWinner(winningPlayer);
         } else {
             // TODO How can i end up here?!
@@ -193,11 +193,10 @@ public class Game implements Observer {
     //---> interfaces
     @Override
     public void update(Observable observable, Object data) {
-        // qui vanno considerati solo gli ultimi eventi che questo oggetto può maneggiare.
+        // Take into account only the events that this class can handle
         if (mTurnContext.peek() instanceof BoardUpdated) {
             BoardUpdated boardUpdated = (BoardUpdated) mTurnContext.pop();
             checkForGameEnd(boardUpdated);
         }
-        //TODO la board non dovrebbe postare nel context in caso di vincita?
     }
 }

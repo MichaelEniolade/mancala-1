@@ -22,6 +22,14 @@ public class Player implements Observer {
         mName = name;
     }
 
+    public void setBrain(Brain brain) {
+        mBrain = brain;
+    }
+
+    public boolean isHuman() {
+        return (mBrain instanceof Human);
+    }
+
     private void timeToPlay(ActivePlayer activePlayer) {
         Move move = mBrain.makeMove(activePlayer.getBoardRepresentation());
         sendMoveToBoard(move);
@@ -33,16 +41,8 @@ public class Player implements Observer {
         sendMoveToBoard(move);
     }
 
-    public void setBrain(Brain brain) {
-        mBrain = brain;
-    }
-
     private void sendMoveToBoard(Move move) {
         mTurnContext.push(new MoveAction(move));
-    }
-
-    public boolean isHuman() {
-        return (mBrain instanceof Human);
     }
 
     @Override

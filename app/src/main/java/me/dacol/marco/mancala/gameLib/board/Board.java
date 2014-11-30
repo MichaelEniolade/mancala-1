@@ -19,7 +19,6 @@ public class Board implements Observer, StandardBoard<Container> {
 
     private int mNumberOfBowls;
     private int mNumberOfTrays;
-    private int mNumberOfPlayers;
     private TurnContext mTurnContext;
     private Player mWinner;
 
@@ -77,6 +76,10 @@ public class Board implements Observer, StandardBoard<Container> {
 
     }
 
+    public Player getWinner() {
+        return mWinner;
+    }
+
     // ---> Core rules for the game
     private void move(MoveAction moveAction) {
         Move move = moveAction.getLoad();
@@ -85,7 +88,7 @@ public class Board implements Observer, StandardBoard<Container> {
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
             spreadSeed(move.getBowlNumber(), selectedContainer.getNumberOfSeeds(), move.getPlayer());
             //TODO this is a little confusing maybe I should integrate the position number in any container
-            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded())); //TODO check for winner....maybe it's best naming it isGameEnded?
+            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded()));
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
@@ -139,7 +142,7 @@ public class Board implements Observer, StandardBoard<Container> {
         }
     }
 
-    private Container getPlayerTray(Player player) {
+    private Tray getPlayerTray(Player player) {
         // I know for how the arraylist its built that the tray are in the position 6 and 13
         // just look for the matching one
         int trayOnePosition = 6;
@@ -150,7 +153,7 @@ public class Board implements Observer, StandardBoard<Container> {
         if (mContainers.get(trayTwoPosition).getOwner() == player) {
             trayToReturn = mContainers.get(trayTwoPosition);
         }
-        return trayToReturn;
+        return (Tray) trayToReturn; // Cast I'm sure it is a tray because of the way i build the board
     }
 
     private Container getOpponentContainer(int containerNumber) {
@@ -176,11 +179,10 @@ public class Board implements Observer, StandardBoard<Container> {
         mTurnContext.push(action);
     }
 
-    public boolean isGameEnded() {
+    private boolean isGameEnded() {
         // A game is ended when all the bowl of one player are empty
         // Just do the sum of the bowl of each player, if one is zero you are done
         // Pay attention i do not reinizialize the index variable, since I'm going on...
-        //TODO sum the seeds in each bowl
         int playerOneRemainingSeeds = 0;
         int playerTwoRemainingSeeds = 0;
         int i = 0;
@@ -197,22 +199,33 @@ public class Board implements Observer, StandardBoard<Container> {
             for (i += 1 ; i < 13; i++) {
                 playerTwoRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
             }
+
+            if (playerTwoRemainingSeeds == 0) {
+                isEnded = true;
+            }
         }
 
-        //TODO should i call setWinner here?
+        // If the game is ended i have a result
+        if (isEnded) {
+            setWinner();
+        }
+
         return isEnded;
     }
 
     private void setWinner() {
-        //TODO calculate the winner
+        // I can have 3 ending state,
+        // player one wins, player two wins, even game
+        // default case, if this is null it means that the game is even
+        mWinner = null;
+        if (mContainers.get(6).getNumberOfSeeds() > mContainers.get(13).getNumberOfSeeds()) {
+            mWinner = mContainers.get(6).getOwner();
+        } else if (mContainers.get(6).getNumberOfSeeds() < mContainers.get(13).getNumberOfSeeds()) {
+            mWinner = mContainers.get(13).getOwner();
+        }
     }
 
-    public Player getWinner() {
-        //TODO return the winning player
-        return mWinner;
-    }
-
-    private ArrayList<Container> getRepresentation() {
+    public ArrayList<Container> getRepresentation() {
         return mContainers;
     }
 
