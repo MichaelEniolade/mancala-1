@@ -1,6 +1,6 @@
 package me.dacol.marco.mancala.gameLib.player;
 
-import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUknownException;
+import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.player.brains.ArtificialIntelligence;
 import me.dacol.marco.mancala.gameLib.player.brains.Human;
@@ -22,10 +22,10 @@ public class PlayerFactory {
      * Factory to define which kind of player is going to play the game
      * @param type, taken from the constant define in PlayerType
      * @return the player with his own brain
-     * @throws me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUknownException, if the kind of brain choosen is not available
+     * @throws me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException, if the kind of brain choosen is not available
      */
     public Player makePlayer(int type, String name)
-            throws PlayerBrainTypeUknownException {
+            throws PlayerBrainTypeUnknownException {
 
         Player player = new Player(mTurnContext, name);
 
@@ -37,7 +37,7 @@ public class PlayerFactory {
                 player.setBrain(new ArtificialIntelligence(player, mNumberOfBowl, mNumberOfTray));
                 break;
             default:
-                throw new PlayerBrainTypeUknownException();
+                throw new PlayerBrainTypeUnknownException();
         }
 
         return player;

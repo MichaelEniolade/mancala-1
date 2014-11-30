@@ -1,14 +1,21 @@
 package me.dacol.marco.mancala;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import android.test.suitebuilder.TestSuiteBuilder;
 
-/**
- * Created by Dac on 30/11/14.
- */
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({GameTest.class, BoardTest.class, PlayerTest.class})
+
+
 public class GameLibraryTestSuite {
+    public static Test suite() {
+        TestSuite testSuiteBuilder = new TestSuiteBuilder(GameLibraryTestSuite.class)
+                .includeAllPackagesUnderHere()
+                .build();
+        return testSuiteBuilder;
+    }
 
+    public GameLibraryTestSuite() {
+        super();
+    }
 }

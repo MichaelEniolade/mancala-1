@@ -45,6 +45,10 @@ public class Player implements Observer {
         mTurnContext.push(new MoveAction(move));
     }
 
+    public String getmName() {
+        return mName;
+    }
+
     @Override
     public void update(Observable observable, Object data) {
         if (mTurnContext.peek() instanceof ActivePlayer) {
