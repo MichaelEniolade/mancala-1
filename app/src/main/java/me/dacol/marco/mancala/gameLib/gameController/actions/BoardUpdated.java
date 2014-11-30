@@ -10,13 +10,19 @@ import java.util.ArrayList;
 public class BoardUpdated extends Action<ArrayList> {
 
     private boolean mIsGameEnded;
+    private boolean mAnotherRound;
 
-    public BoardUpdated(ArrayList load, boolean mIsGameEnded) {
+    public BoardUpdated(ArrayList load, boolean isGameEnded, boolean anotherRound) {
         super(load);
-        this.mIsGameEnded = mIsGameEnded;
+        mIsGameEnded = isGameEnded;
+        mAnotherRound = anotherRound;
     }
 
     public boolean isGameEnded() {
         return mIsGameEnded;
+    }
+
+    public boolean isAnotherRound() {
+        return mAnotherRound;
     }
 }

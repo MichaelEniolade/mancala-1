@@ -9,7 +9,7 @@ import java.util.Random;
 import me.dacol.marco.mancala.gameLib.board.Board;
 import me.dacol.marco.mancala.gameLib.board.StandardBoard;
 import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
-import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUknownException;
+import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
@@ -35,8 +35,9 @@ public class Game implements Observer {
 
     // Singleton
     private static Game sInstance = null;
+    private boolean mAnotherRoundForPlayer;
 
-    public Game getInstance() {
+    public static Game getInstance() {
         if (sInstance == null) {
             sInstance = new Game();
         }
@@ -56,7 +57,7 @@ public class Game implements Observer {
     /**
      * Run before starting a game, has the job to initialize a new game
      */
-    public void setup() {
+    private void setup() {
         mPlayingPlayer = 0;
         mNextPlayer = 0;
         mTurnNumber = 0;
@@ -65,6 +66,7 @@ public class Game implements Observer {
         mBoard = null;
         mTurnContext = null;
         mPlayerFactory = new PlayerFactory(mTurnContext, mNumberOfBowls, mNumberOfTrays);
+        mAnotherRoundForPlayer = false;
     }
 
     /**
@@ -85,7 +87,7 @@ public class Game implements Observer {
 
     //---> Player methods
     private void createPlayer(int type, String name) throws
-            PlayerBrainTypeUknownException, ToManyPlayerException {
+            PlayerBrainTypeUnknownException, ToManyPlayerException {
 
         Player player = mPlayerFactory.makePlayer(type, name);
         addPlayer(player);
@@ -130,9 +132,13 @@ public class Game implements Observer {
      * Switch the two player, right now it supports only a 2 player game
      */
     private void updatePlayingPlayer() {
-        int temp = mPlayingPlayer;
-        mPlayingPlayer = mNextPlayer;
-        mNextPlayer = temp;
+        if (!mAnotherRoundForPlayer) {
+            int temp = mPlayingPlayer;
+            mPlayingPlayer = mNextPlayer;
+            mNextPlayer = temp;
+        } else {
+            togglePlayerAnotherRound();
+        }
     }
 
     private Player getWinner() {
@@ -180,6 +186,13 @@ public class Game implements Observer {
         if (boardUpdated.isGameEnded()) {
             toggleEnd();
         }
+        if (boardUpdated.isAnotherRound()) {
+            togglePlayerAnotherRound();
+        }
+    }
+
+    private void togglePlayerAnotherRound() {
+        mAnotherRoundForPlayer = !mAnotherRoundForPlayer;
     }
 
     private void toggleEnd() {
@@ -188,6 +201,10 @@ public class Game implements Observer {
 
     private boolean isEnded() {
         return mEnded;
+    }
+
+    public TurnContext getTurnContext() {
+        return mTurnContext;
     }
 
     //---> interfaces

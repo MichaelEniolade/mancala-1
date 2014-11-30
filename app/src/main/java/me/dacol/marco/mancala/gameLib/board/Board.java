@@ -1,5 +1,7 @@
 package me.dacol.marco.mancala.gameLib.board;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -13,6 +15,8 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class Board implements Observer, StandardBoard<Container> {
+
+    private final static String LOG_TAG = "board_manager";
 
     ArrayList<Container> mContainers;
     List<Player> mPlayers;
@@ -64,14 +68,13 @@ public class Board implements Observer, StandardBoard<Container> {
             mContainers.add(new Bowl(mPlayers.get(humanPlayerPosition)));
         }
 
-        position +=1;
         mContainers.add(new Tray(mPlayers.get(humanPlayerPosition)));
 
-        for (position += 1; position < (position + mNumberOfBowls); position++) {
+        // TODO take out that 6 from here, put it in a better place
+        for (position = 7; position < (6 + mNumberOfBowls); position++) {
             mContainers.add(new Bowl(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
         }
 
-        position +=1;
         mContainers.add(new Tray(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
 
     }
@@ -86,9 +89,10 @@ public class Board implements Observer, StandardBoard<Container> {
         Container selectedContainer = getPlayerSelectedContainer(move.getBowlNumber());
 
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
-            spreadSeed(move.getBowlNumber(), selectedContainer.getNumberOfSeeds(), move.getPlayer());
+            boolean anotherRound = spreadSeedFrom(move.getBowlNumber());
+
             //TODO this is a little confusing maybe I should integrate the position number in any container
-            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded()));
+            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded(),anotherRound));
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
@@ -117,7 +121,12 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     //TODO this could look even better in a recursive way
-    private void spreadSeed(int containerNumber, int remainingSeeds, Player player) {
+    private boolean spreadSeedFrom(int containerNumber) {
+        int remainingSeeds = ((Bowl) mContainers.get(containerNumber)).emptyBowl();
+        Player player = mContainers.get(containerNumber).getOwner();
+        boolean lastSeedInPlayerTray = false;
+
+        int bowlNumber = nextContainer(containerNumber);
         // If i have more than one seed to spread, I'm ok just spread it and go on
         // If I have to spread the last seed, check the next container is a bowl?
         // -- The playingPlayer (PP) is the owner of the bowl?
@@ -125,21 +134,27 @@ public class Board implements Observer, StandardBoard<Container> {
         //      bowl and put them in the PP tray (if there are no seed in opponent bowl just go on)
         // No, just put the seed there and go on with your life!
         for ( ; remainingSeeds > 1; remainingSeeds--) {
-            mContainers.get(containerNumber).putOneSeed();
-            containerNumber = nextContainer(containerNumber);
+            Log.d(LOG_TAG, "Remaining Seeds: " + remainingSeeds); //DEBUG
+            mContainers.get(bowlNumber).putOneSeed();
+            bowlNumber = nextContainer(bowlNumber);
         }
 
         if ( (remainingSeeds == 1)
-                && (mContainers.get(containerNumber) instanceof Bowl)
-                && (mContainers.get(containerNumber).getOwner() == player)
-                && (mContainers.get(containerNumber).getNumberOfSeeds() == 0) )
+                && (mContainers.get(bowlNumber) instanceof Bowl)
+                && (mContainers.get(bowlNumber).getOwner() == player)
+                && (mContainers.get(bowlNumber).getNumberOfSeeds() == 0) )
         {
             int wonSeeds = remainingSeeds;
-            wonSeeds += getOpponentContainer(containerNumber).getNumberOfSeeds();
+            wonSeeds += getOpponentContainer(bowlNumber).getNumberOfSeeds();
             getPlayerTray(player).putSeeds(wonSeeds);
+        } else if (mContainers.get(bowlNumber) == getPlayerTray(player)) {
+            mContainers.get(bowlNumber).putOneSeed();
+            lastSeedInPlayerTray = true;
         } else {
-            mContainers.get(containerNumber).putOneSeed();
+            mContainers.get(bowlNumber).putOneSeed();
         }
+
+        return lastSeedInPlayerTray;
     }
 
     private Tray getPlayerTray(Player player) {
@@ -229,10 +244,16 @@ public class Board implements Observer, StandardBoard<Container> {
         return mContainers;
     }
 
+    // Mostly for debug purpose, but can be also used to save game...maybe
+    public void setBoardRepresentation(ArrayList<Container> representation) {
+        mContainers = representation;
+    }
+
     @Override
     public void update(Observable observable, Object data) {
         // board respond only to an action the MoveAction that goes to update the board status
         if (mTurnContext.peek() instanceof MoveAction) {
+            Log.d(LOG_TAG, "Received a MoveAction");
             move((MoveAction) mTurnContext.pop());
         }
     }
