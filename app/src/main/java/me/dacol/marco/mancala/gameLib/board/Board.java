@@ -146,7 +146,7 @@ public class Board implements Observer, StandardBoard<Container> {
         {
 
             int wonSeeds = remainingSeeds;
-            wonSeeds += getOpponentContainer(bowlNumber).getNumberOfSeeds();
+            wonSeeds += getOpponentContainer(bowlNumber).emptyBowl();
             getPlayerTray(player).putSeeds(wonSeeds);
         } else if (mContainers.get(bowlNumber) == getPlayerTray(player)) {
             mContainers.get(bowlNumber).putOneSeed();
@@ -172,12 +172,12 @@ public class Board implements Observer, StandardBoard<Container> {
         return (Tray) trayToReturn; // Cast I'm sure it is a tray because of the way i build the board
     }
 
-    private Container getOpponentContainer(int containerNumber) {
+    private Bowl getOpponentContainer(int containerNumber) {
         // The last bowl is in position 12, the first one in position 0
         // So in order to get the opponent bowl I've to get the 12 - actual bowl position
         // ATTENTION! TODO TEST CASE ON THIS
         // Limit Case: last seeds is dropped in the bowl number zero of player one.
-        return mContainers.get(12 - containerNumber);
+        return (Bowl) mContainers.get(12 - containerNumber);
     }
 
     private int nextContainer(int actualContainerPosition) {
