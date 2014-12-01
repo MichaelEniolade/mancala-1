@@ -25,6 +25,7 @@ public class BoardTest extends AndroidTestCase {
     private Player mComputerPlayer;
     private TestBlockingObserver mTestBlockingObserver;
     private ArrayList<Player> mPlayers;
+    private Board mBoard;
 
     // ---> TEST CASES
     public void testBoardInitialization() {
@@ -32,7 +33,7 @@ public class BoardTest extends AndroidTestCase {
         Board board = initializeBoard();
         board.buildBoard();
 
-        assertTrue(board.getRepresentation().size() == 13);
+        assertTrue(board.getRepresentation().size() == 14);
 
         for (Container c : board.getRepresentation()) {
             if (c instanceof Bowl) {
@@ -87,7 +88,7 @@ public class BoardTest extends AndroidTestCase {
     public void testStealingSeedsMove() {
         initialize();
         int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,1,1,1,5};
-        int[] expectedStatus = new int[]{0,2,2,0,1,1,6,1,1,1,0,1,1,5};
+        int[] expectedStatus = new int[]{0,2,2,0,1,1,6,1,1,0,1,1,1,5};
         int moveFrom = 0;
 
         BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
@@ -96,8 +97,8 @@ public class BoardTest extends AndroidTestCase {
 
     public void testStealingMoveWithNoOpponentSeeds() {
         initialize();
-        int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,0,1,1,5};
-        int[] expectedStatus = new int[]{0,2,2,0,1,1,5,1,1,1,0,1,1,5};
+        int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,0,1,1,1,5};
+        int[] expectedStatus = new int[]{0,2,2,0,1,1,5,1,1,0,1,1,1,5};
         int moveFrom = 0;
 
         BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
@@ -107,11 +108,12 @@ public class BoardTest extends AndroidTestCase {
     public void testLastGameMove() {
         initialize();
         int[] startingStatus = new int[]{0,0,0,0,0,1,5,1,1,1,1,0,1,5};
-        int[] expectedStatus = new int[]{0,0,0,0,0,0,6,1,1,1,1,0,1,5};
+        int[] expectedStatus = new int[]{0,0,0,0,0,0,6,0,0,0,0,0,0,10};
         int moveFrom = 5;
 
         BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(boardUpdated.isGameEnded());
+        assertTrue(mBoard.getWinner() == mComputerPlayer);
     }
 
     public void testPlayerPlayAgain() {
@@ -125,7 +127,35 @@ public class BoardTest extends AndroidTestCase {
         assertTrue(boardUpdated.isAnotherRound());
     }
 
+    public void testALotOfSeedToSpread() {
+        initialize();
+        int[] startingStatus = new int[]{0,0,16,0,0,1,5,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{1,1,1 ,2,2,2,6,2,2,2,2,2,2,6};
+        int moveFrom = 2;
 
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
+        assertTrue(!boardUpdated.isGameEnded());
+    }
+
+    public void testALotOfSeedToSpreadEndingInStartingPosition() {
+        initialize();
+        int[] startingStatus = new int[]{0,0,14,0,0,1,5,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{1,1,0,1,1,2,9,2,2,2,0,2,2,6};
+        int moveFrom = 2;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
+        assertTrue(!boardUpdated.isGameEnded());
+    }
+
+    public void testALotOfSeedToSpreadEndingInOpponentTray() {
+        initialize();
+        int[] startingStatus = new int[]{1,0,2,1,0,1,5,1,1,1,1,9,1,5};
+        int[] expectedStatus = new int[]{2,1,3,2,1,2,6,1,1,1,1,0,2,6};
+        int moveFrom = 11;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mComputerPlayer);
+        assertTrue(!boardUpdated.isGameEnded());
+    }
     // ---> HELPERS
 
     // Runs configuration of invalid moves, to check if the system responds well
@@ -179,6 +209,8 @@ public class BoardTest extends AndroidTestCase {
         // in order to test a move, I've to set the board in a particular state
         board.setBoardRepresentation(TestingUtility.createBoardRepresentation(startingBoardStatus,
                 mHumanPlayer, mComputerPlayer));
+
+        mBoard = board;
 
         // then post a fake MoveAction on the mTurnContext
         MoveAction moveAction = new MoveAction(new Move(moveFrom, player));
