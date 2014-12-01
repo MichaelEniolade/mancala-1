@@ -53,7 +53,8 @@ public class GameTest extends AndroidTestCase {
         int moveFrom = 6; // this is a tray
         Player playingPlayer = mHumanPlayer;
 
-        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
     }
 
     public void testInvalidMoveFromOpponentBowl() {
@@ -62,25 +63,30 @@ public class GameTest extends AndroidTestCase {
         int moveFrom = 4; // this is the opponent bowl
         Player playingPlayer = mComputerPlayer;
 
-        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
 
     }
 
     public  void testInvalidMoveFromEmptyPlayerBowl() {
-        int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int[] startingStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 2; // this is the empty bowl
         Player playingPlayer = mHumanPlayer;
 
-        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
     }
 
     public void testStandardMove() {
         int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{0,2,2,2,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 0;
+        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
@@ -88,8 +94,10 @@ public class GameTest extends AndroidTestCase {
         int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{0,2,2,0,1,1,6,1,1,1,0,1,1,5};
         int moveFrom = 0;
+        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
@@ -97,8 +105,10 @@ public class GameTest extends AndroidTestCase {
         int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,0,1,1,5};
         int[] expectedStatus = new int[]{0,2,2,0,1,1,5,1,1,1,0,1,1,5};
         int moveFrom = 0;
+        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
@@ -106,8 +116,10 @@ public class GameTest extends AndroidTestCase {
         int[] startingStatus = new int[]{0,0,0,0,0,1,5,1,1,1,1,0,1,5};
         int[] expectedStatus = new int[]{0,0,0,0,0,0,6,1,1,1,1,0,1,5};
         int moveFrom = 5;
+        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
         assertTrue(boardUpdated.isGameEnded());
     }
 
@@ -115,8 +127,10 @@ public class GameTest extends AndroidTestCase {
         int[] startingStatus = new int[]{0,0,0,1,0,1,5,1,1,1,1,0,1,5};
         int[] expectedStatus = new int[]{0,0,0,1,0,0,6,1,1,1,1,0,1,5};
         int moveFrom = 5;
+        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
+                moveFrom, playingPlayer);
         assertTrue(!boardUpdated.isGameEnded());
         assertTrue(boardUpdated.isAnotherRound());
     }
@@ -162,7 +176,9 @@ public class GameTest extends AndroidTestCase {
     // This method already check the assertion on the expectedStatus and return boardUpdated object
     // in case more assertion has to be done
     private BoardUpdated runConfiguration(int[] startingBoardStatus,
-                                          int[] expectedBoardStatus, int moveFrom) {
+                                          int[] expectedBoardStatus,
+                                          int moveFrom,
+                                          Player playingPlayer) {
 
         Board board = initializeBoard();
         board.buildBoard();
@@ -171,7 +187,7 @@ public class GameTest extends AndroidTestCase {
         board.setBoardRepresentation(createBoardRepresentation(startingBoardStatus));
 
         // then post a fake MoveAction on the mTurnContext
-        MoveAction moveAction = new MoveAction(new Move(moveFrom, mHumanPlayer));
+        MoveAction moveAction = new MoveAction(new Move(moveFrom, playingPlayer));
 
         mTurnContext.push(moveAction);
         mTestBlockingObserver.waitUntilUpdateIsCalled();

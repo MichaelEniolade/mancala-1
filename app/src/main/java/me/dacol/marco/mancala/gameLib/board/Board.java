@@ -177,7 +177,7 @@ public class Board implements Observer, StandardBoard<Container> {
         // So in order to get the opponent bowl I've to get the 12 - actual bowl position
         // ATTENTION! TODO TEST CASE ON THIS
         // Limit Case: last seeds is dropped in the bowl number zero of player one.
-        return (Bowl) mContainers.get(12 - containerNumber);
+        return (Bowl) mContainers.get(13 - containerNumber);
     }
 
     private int nextContainer(int actualContainerPosition) {
