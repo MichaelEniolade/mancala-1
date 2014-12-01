@@ -19,12 +19,7 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 import me.dacol.marco.mancala.gameLib.player.PlayerFactory;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 
-public class GameTest extends AndroidTestCase {
-    /* what to test here?
-     * After adding a player and starting a game the class post on action context the right action
-     */
-    private final static String LOG_TAG = "GameTest";
-
+public class BoardTest extends AndroidTestCase {
     private TurnContext mTurnContext;
     private Player mHumanPlayer;
     private Player mComputerPlayer;
@@ -33,6 +28,7 @@ public class GameTest extends AndroidTestCase {
 
     // ---> TEST CASES
     public void testBoardInitialization() {
+        initialize();
         Board board = initializeBoard();
         board.buildBoard();
 
@@ -48,89 +44,83 @@ public class GameTest extends AndroidTestCase {
     }
 
     public void testInvalidMoveMoveFromTray() {
+        initialize();
         int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 6; // this is a tray
         Player playingPlayer = mHumanPlayer;
 
-        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
     }
 
     public void testInvalidMoveFromOpponentBowl() {
+        initialize();
         int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 4; // this is the opponent bowl
         Player playingPlayer = mComputerPlayer;
 
-        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
 
     }
 
     public  void testInvalidMoveFromEmptyPlayerBowl() {
+        initialize();
         int[] startingStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 2; // this is the empty bowl
         Player playingPlayer = mHumanPlayer;
 
-        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
     }
 
     public void testStandardMove() {
+        initialize();
         int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{0,2,2,2,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 0;
-        Player playingPlayer = mHumanPlayer;
 
-
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
     public void testStealingSeedsMove() {
+        initialize();
         int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{0,2,2,0,1,1,6,1,1,1,0,1,1,5};
         int moveFrom = 0;
-        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
     public void testStealingMoveWithNoOpponentSeeds() {
+        initialize();
         int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,0,1,1,5};
         int[] expectedStatus = new int[]{0,2,2,0,1,1,5,1,1,1,0,1,1,5};
         int moveFrom = 0;
-        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
     public void testLastGameMove() {
+        initialize();
         int[] startingStatus = new int[]{0,0,0,0,0,1,5,1,1,1,1,0,1,5};
         int[] expectedStatus = new int[]{0,0,0,0,0,0,6,1,1,1,1,0,1,5};
         int moveFrom = 5;
-        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(boardUpdated.isGameEnded());
     }
 
     public void testPlayerPlayAgain() {
+        initialize();
         int[] startingStatus = new int[]{0,0,0,1,0,1,5,1,1,1,1,0,1,5};
         int[] expectedStatus = new int[]{0,0,0,1,0,0,6,1,1,1,1,0,1,5};
         int moveFrom = 5;
-        Player playingPlayer = mHumanPlayer;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus,
-                moveFrom, playingPlayer);
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
         assertTrue(boardUpdated.isAnotherRound());
     }
@@ -148,7 +138,8 @@ public class GameTest extends AndroidTestCase {
         Board board = initializeBoard();
         board.buildBoard();
 
-        board.setBoardRepresentation(createBoardRepresentation(startingStatus));
+        board.setBoardRepresentation(TestingUtility.createBoardRepresentation(startingStatus,
+                mHumanPlayer, mComputerPlayer));
         MoveAction moveAction = new MoveAction(new Move(moveFrom, playingPlayer));
 
         mTurnContext.push(moveAction);
@@ -167,6 +158,8 @@ public class GameTest extends AndroidTestCase {
             assertTrue(playingPlayer == invalidMove.getPlayer());
         }
 
+        cleanUp();
+
         return invalidMove;
     }
 
@@ -178,16 +171,17 @@ public class GameTest extends AndroidTestCase {
     private BoardUpdated runConfiguration(int[] startingBoardStatus,
                                           int[] expectedBoardStatus,
                                           int moveFrom,
-                                          Player playingPlayer) {
+                                          Player player) {
 
         Board board = initializeBoard();
         board.buildBoard();
 
         // in order to test a move, I've to set the board in a particular state
-        board.setBoardRepresentation(createBoardRepresentation(startingBoardStatus));
+        board.setBoardRepresentation(TestingUtility.createBoardRepresentation(startingBoardStatus,
+                mHumanPlayer, mComputerPlayer));
 
         // then post a fake MoveAction on the mTurnContext
-        MoveAction moveAction = new MoveAction(new Move(moveFrom, playingPlayer));
+        MoveAction moveAction = new MoveAction(new Move(moveFrom, player));
 
         mTurnContext.push(moveAction);
         mTestBlockingObserver.waitUntilUpdateIsCalled();
@@ -201,17 +195,13 @@ public class GameTest extends AndroidTestCase {
             checkExpectedStatus(boardUpdated.getLoad(), expectedBoardStatus);
         }
 
+        cleanUp();
+
         return boardUpdated;
     }
 
     //each test need this call
     private Board initializeBoard() {
-        try {
-            initialize();
-        } catch (PlayerBrainTypeUnknownException e) {
-            e.printStackTrace();
-        }
-
         Board board = Board.getInstance()
                 .setup(mTurnContext, 6, 1)
                 .registerPlayers(mPlayers);
@@ -221,11 +211,19 @@ public class GameTest extends AndroidTestCase {
         return board;
     }
 
-    private void initialize() throws PlayerBrainTypeUnknownException {
+    private void initialize() {
         mTurnContext = TurnContext.getInstance();
+        mTurnContext.initialize();
+
         PlayerFactory playerFactory = new PlayerFactory(mTurnContext, 6, 1);
-        mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
-        mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
+
+        try {
+            mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
+            mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
+        } catch (PlayerBrainTypeUnknownException e) {
+            e.printStackTrace();
+        }
+
         mTestBlockingObserver = new TestBlockingObserver();
 
         mTurnContext.addObserver(mTestBlockingObserver);
@@ -236,23 +234,8 @@ public class GameTest extends AndroidTestCase {
         mPlayers.add(mComputerPlayer);
     }
 
-    // Gets an array with the actual board status, B B B B B B T B B B B B B T
-    private ArrayList<Container> createBoardRepresentation(int[] seeds) {
-        ArrayList<Container> boardRepresentation = new ArrayList<Container>();
-
-        for (int i = 0; i < 6; i++) {
-            boardRepresentation.add(bowlWithAnyNumberOfSeeds(seeds[i], mHumanPlayer));
-        }
-
-        boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[6], mHumanPlayer));
-
-        for (int i = 7; i < 13; i++) {
-            boardRepresentation.add(bowlWithAnyNumberOfSeeds(seeds[i], mComputerPlayer));
-        }
-
-        boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[13], mComputerPlayer));
-
-        return  boardRepresentation;
+    private void cleanUp() {
+        mTurnContext.deleteObservers();
     }
 
     private void checkExpectedStatus(ArrayList<Container> boardActualStatus, int[] expectedBoardStatus) {
@@ -260,25 +243,5 @@ public class GameTest extends AndroidTestCase {
         for (int i = 0; iterator.hasNext(); i++) {
             assertEquals(expectedBoardStatus[i], iterator.next().getNumberOfSeeds());
         }
-    }
-
-    private Bowl bowlWithAnyNumberOfSeeds(int numberOfSeeds, Player player) {
-        Bowl bowl = new Bowl(player);
-        bowl.emptyBowl();
-        for (int i = 0; i < numberOfSeeds; i++) {
-            bowl.putOneSeed();
-        }
-
-        return bowl;
-    }
-
-    private Tray trayWithAnyNumberOfSeeds(int numberOfSeeds, Player player) {
-        Tray tray = new Tray(player);
-
-        for (int i = 0; i < numberOfSeeds; i++) {
-            tray.putOneSeed();
-        }
-
-        return tray;
     }
 }
