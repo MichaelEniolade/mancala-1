@@ -47,17 +47,32 @@ public class GameTest extends AndroidTestCase {
         }
     }
 
-    public void testInvalidMove() {
+    public void testInvalidMoveMoveFromTray() {
         int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 6; // this is a tray
         Player playingPlayer = mHumanPlayer;
 
         InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
+    }
 
-        assertTrue(playingPlayer == invalidMove.getPlayer());
+    public void testInvalidMoveFromOpponentBowl() {
+        int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int moveFrom = 4; // this is the opponent bowl
+        Player playingPlayer = mComputerPlayer;
 
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
 
+    }
+
+    public  void testInvalidMoveFromEmptyPlayerBowl() {
+        int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
+        int moveFrom = 2; // this is the empty bowl
+        Player playingPlayer = mHumanPlayer;
+
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
     }
 
     public void testStandardMove() {
@@ -134,6 +149,7 @@ public class GameTest extends AndroidTestCase {
             checkExpectedStatus(invalidMove.getBoardStatus(), expectedStatus);
 
             assertTrue(moveAction.getLoad() == invalidMove.getLoad());
+            assertTrue(playingPlayer == invalidMove.getPlayer());
         }
 
         return invalidMove;
