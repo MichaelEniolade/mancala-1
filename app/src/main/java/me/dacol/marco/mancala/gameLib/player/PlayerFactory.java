@@ -37,7 +37,7 @@ public class PlayerFactory {
                 player.setBrain(new ArtificialIntelligence(player, mNumberOfBowl, mNumberOfTray));
                 break;
             default:
-                throw new PlayerBrainTypeUnknownException();
+                throw new PlayerBrainTypeUnknownException("Type: " + type + " not known, check PlayerType class");
         }
 
         return player;

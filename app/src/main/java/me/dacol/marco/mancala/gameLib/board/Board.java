@@ -92,7 +92,7 @@ public class Board implements Observer, StandardBoard<Container> {
             boolean anotherRound = spreadSeedFrom(move.getBowlNumber());
 
             //TODO this is a little confusing maybe I should integrate the position number in any container
-            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded(),anotherRound));
+            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded(), anotherRound));
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
@@ -175,7 +175,7 @@ public class Board implements Observer, StandardBoard<Container> {
     private Bowl getOpponentContainer(int containerNumber) {
         // The last bowl is in position 12, the first one in position 0
         // So in order to get the opponent bowl I've to get the 12 - actual bowl position
-        // ATTENTION! TODO TEST CASE ON THIS
+        // ATTENTION!
         // Limit Case: last seeds is dropped in the bowl number zero of player one.
         return (Bowl) mContainers.get(13 - containerNumber);
     }
