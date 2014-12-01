@@ -71,7 +71,7 @@ public class Board implements Observer, StandardBoard<Container> {
         mContainers.add(new Tray(mPlayers.get(humanPlayerPosition)));
 
         // TODO take out that 6 from here, put it in a better place
-        for (position = 7; position < (6 + mNumberOfBowls); position++) {
+        for (position = 7; position < (7 + mNumberOfBowls); position++) {
             mContainers.add(new Bowl(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
         }
 
@@ -124,9 +124,10 @@ public class Board implements Observer, StandardBoard<Container> {
     private boolean spreadSeedFrom(int containerNumber) {
         int remainingSeeds = ((Bowl) mContainers.get(containerNumber)).emptyBowl();
         Player player = mContainers.get(containerNumber).getOwner();
-        boolean lastSeedInPlayerTray = false;
+        boolean lastSeedFallInPlayerTray = false;
 
         int bowlNumber = nextContainer(containerNumber);
+
         // If i have more than one seed to spread, I'm ok just spread it and go on
         // If I have to spread the last seed, check the next container is a bowl?
         // -- The playingPlayer (PP) is the owner of the bowl?
@@ -150,12 +151,12 @@ public class Board implements Observer, StandardBoard<Container> {
             getPlayerTray(player).putSeeds(wonSeeds);
         } else if (mContainers.get(bowlNumber) == getPlayerTray(player)) {
             mContainers.get(bowlNumber).putOneSeed();
-            lastSeedInPlayerTray = true;
+            lastSeedFallInPlayerTray = true;
         } else {
             mContainers.get(bowlNumber).putOneSeed();
         }
 
-        return lastSeedInPlayerTray;
+        return lastSeedFallInPlayerTray;
     }
 
     private Tray getPlayerTray(Player player) {
@@ -177,7 +178,7 @@ public class Board implements Observer, StandardBoard<Container> {
         // So in order to get the opponent bowl I've to get the 12 - actual bowl position
         // ATTENTION!
         // Limit Case: last seeds is dropped in the bowl number zero of player one.
-        return (Bowl) mContainers.get(13 - containerNumber);
+        return (Bowl) mContainers.get(12 - containerNumber);
     }
 
     private int nextContainer(int actualContainerPosition) {
@@ -198,31 +199,35 @@ public class Board implements Observer, StandardBoard<Container> {
     private boolean isGameEnded() {
         // A game is ended when all the bowl of one player are empty
         // Just do the sum of the bowl of each player, if one is zero you are done
-        // Pay attention i do not reinizialize the index variable, since I'm going on...
         int playerOneRemainingSeeds = 0;
         int playerTwoRemainingSeeds = 0;
-        int i = 0;
 
         boolean isEnded = false;
-        for ( ; i < 6; i++) {
+
+        for (int i = 0 ; i < 6; i++) {
             playerOneRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
         }
-
-        if (playerOneRemainingSeeds == 0) {
-            isEnded = true;
-
-        } else {
-            for (i += 1 ; i < 13; i++) {
-                playerTwoRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
-            }
-
-            if (playerTwoRemainingSeeds == 0) {
-                isEnded = true;
-            }
+        for (int j = 7 ; j < 13; j++) {
+            playerTwoRemainingSeeds += mContainers.get(j).getNumberOfSeeds();
         }
 
-        // If the game is ended i have a result
+        if ((playerOneRemainingSeeds == 0) || (playerTwoRemainingSeeds == 0)) {
+            isEnded = true;
+        }
+
+        // If the game is ended put all remaining seeds in the player bowl and find the winner
         if (isEnded) {
+            if (playerOneRemainingSeeds > 0) {
+                for (int j = 0; j < 6; j++) {
+                    ((Bowl) mContainers.get(j)).emptyBowl();
+                }
+                ((Tray) mContainers.get(6)).putSeeds(playerOneRemainingSeeds);
+            } else {
+                for (int j = 7; j < 13; j++) {
+                    ((Bowl) mContainers.get(j)).emptyBowl();
+                }
+                ((Tray) mContainers.get(13)).putSeeds(playerTwoRemainingSeeds);
+            }
             setWinner();
         }
 

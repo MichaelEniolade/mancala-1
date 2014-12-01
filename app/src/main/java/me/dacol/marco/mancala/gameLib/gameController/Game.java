@@ -52,6 +52,8 @@ public class Game implements Observer {
         // and board need to be subscribed as observers
         // so I need to have this before everything
         initializeTurnContext();
+
+        mPlayerFactory = new PlayerFactory(mTurnContext, mNumberOfBowls, mNumberOfTrays);
     }
 
     /**
@@ -65,28 +67,27 @@ public class Game implements Observer {
         mPlayers = new ArrayList<Player>();
         mBoard = null;
         mTurnContext = null;
-        mPlayerFactory = new PlayerFactory(mTurnContext, mNumberOfBowls, mNumberOfTrays);
         mAnotherRoundForPlayer = false;
     }
 
     /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
-    public void start() throws NumberOfPlayersException {
-        while (!isEnded()) {
-            newTurn();
-        }
-
-        if (isEnded()) {
+    public void startAnotherTurn() {
+        if (!isEnded()) {
+            try {
+                newTurn();
+            } catch (NumberOfPlayersException e) {
+                e.printStackTrace();
+            }
+        } else {
             Player winningPlayer = getWinner();
             announceTheWinner(winningPlayer);
-        } else {
-            // TODO How can i end up here?!
         }
      }
 
     //---> Player methods
-    private void createPlayer(int type, String name) throws
+    public void createPlayer(int type, String name) throws
             PlayerBrainTypeUnknownException, ToManyPlayerException {
 
         Player player = mPlayerFactory.makePlayer(type, name);
@@ -98,12 +99,12 @@ public class Game implements Observer {
      *
      * @param player
      */
-    public void addPlayer(Player player) throws ToManyPlayerException {
+    private void addPlayer(Player player) throws ToManyPlayerException {
         if (mPlayers.size() < mNumberOfPlayers) {
             mPlayers.add(player);
             mTurnContext.addObserver(player);
         } else {
-            throw new ToManyPlayerException();
+            throw new ToManyPlayerException("Maximum allowed number of player is: " + mNumberOfPlayers);
         }
     }
 
@@ -137,7 +138,7 @@ public class Game implements Observer {
             mPlayingPlayer = mNextPlayer;
             mNextPlayer = temp;
         } else {
-            togglePlayerAnotherRound();
+            togglePlayerAnotherRound(); //Set back to false the flag and don't switch players
         }
     }
 
@@ -182,11 +183,10 @@ public class Game implements Observer {
         mTurnNumber += 1;
     }
 
-    private void checkForGameEnd(BoardUpdated boardUpdated) {
+    private void checkForSpecialCondition(BoardUpdated boardUpdated) {
         if (boardUpdated.isGameEnded()) {
             toggleEnd();
-        }
-        if (boardUpdated.isAnotherRound()) {
+        } else if (boardUpdated.isAnotherRound()) {
             togglePlayerAnotherRound();
         }
     }
@@ -213,7 +213,8 @@ public class Game implements Observer {
         // Take into account only the events that this class can handle
         if (mTurnContext.peek() instanceof BoardUpdated) {
             BoardUpdated boardUpdated = (BoardUpdated) mTurnContext.pop();
-            checkForGameEnd(boardUpdated);
+            checkForSpecialCondition(boardUpdated);
+            startAnotherTurn();
         }
     }
 }
