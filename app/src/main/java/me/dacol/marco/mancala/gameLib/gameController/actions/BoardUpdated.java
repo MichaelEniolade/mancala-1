@@ -18,10 +18,18 @@ public class BoardUpdated extends Action<ArrayList> {
         mAnotherRound = anotherRound;
     }
 
+    /***
+     * Flag indicating if after the last move, the game is ended
+     * @return boolean, true if one of the two player has ended the seeds in his bowl
+     */
     public boolean isGameEnded() {
         return mIsGameEnded;
     }
 
+    /***
+     * Return a boolean indicating where a player has to play another round or not
+     * @return boolean, true if the last seed was added to the player tray
+     */
     public boolean isAnotherRound() {
         return mAnotherRound;
     }
