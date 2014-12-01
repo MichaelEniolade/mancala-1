@@ -121,6 +121,7 @@ public class GameTest extends AndroidTestCase {
         assertTrue(boardUpdated.isAnotherRound());
     }
 
+
     // ---> HELPERS
 
     // Runs configuration of invalid moves, to check if the system responds well
