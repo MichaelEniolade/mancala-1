@@ -3,6 +3,7 @@ package me.dacol.marco.mancala;
 import android.test.AndroidTestCase;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import me.dacol.marco.mancala.gameLib.board.Board;
 import me.dacol.marco.mancala.gameLib.board.Bowl;
@@ -29,22 +30,106 @@ public class GameTest extends AndroidTestCase {
     private TestBlockingObserver mTestBlockingObserver;
     private ArrayList<Player> mPlayers;
 
-    private void initialize() throws PlayerBrainTypeUnknownException {
-        mTurnContext = TurnContext.getInstance();
-        PlayerFactory playerFactory = new PlayerFactory(mTurnContext, 6, 1);
-        mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "john");
-        mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
-        mTestBlockingObserver = new TestBlockingObserver();
+    // ---> TEST CASES
+    public void testBoardInitialization() {
+        Board board = initializeBoard();
+        board.buildBoard();
 
-        mTurnContext.addObserver(mTestBlockingObserver);
+        assertTrue(board.getRepresentation().size() == 13);
 
-        //Players
-        mPlayers = new ArrayList<Player>();
-        mPlayers.add(mHumanPlayer);
-        mPlayers.add(mComputerPlayer);
-
+        for (Container c : board.getRepresentation()) {
+            if (c instanceof Bowl) {
+                assertEquals(3, c.getNumberOfSeeds());
+            } else if (c instanceof Tray) {
+                assertEquals(0, c.getNumberOfSeeds());
+            }
+        }
     }
 
+    public void testStandardMove() {
+        int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{0,2,2,2,1,1,4,1,1,1,1,1,1,5};
+        int moveFrom = 0;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        assertTrue(!boardUpdated.isGameEnded());
+    }
+
+    public void testStealingSeedsMove() {
+        int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{0,2,2,0,1,1,6,1,1,1,0,1,1,5};
+        int moveFrom = 0;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        assertTrue(!boardUpdated.isGameEnded());
+    }
+
+    public void testStealingMoveWithNoOpponentSeeds() {
+        int[] startingStatus = new int[]{3,1,1,0,1,1,4,1,1,1,0,1,1,5};
+        int[] expectedStatus = new int[]{0,2,2,0,1,1,5,1,1,1,0,1,1,5};
+        int moveFrom = 0;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        assertTrue(!boardUpdated.isGameEnded());
+    }
+
+    public void testLastGameMove() {
+        int[] startingStatus = new int[]{0,0,0,0,0,1,5,1,1,1,1,0,1,5};
+        int[] expectedStatus = new int[]{0,0,0,0,0,0,6,1,1,1,1,0,1,5};
+        int moveFrom = 5;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        assertTrue(boardUpdated.isGameEnded());
+    }
+
+    public void testPlayerPlayAgain() {
+        int[] startingStatus = new int[]{0,0,0,1,0,1,5,1,1,1,1,0,1,5};
+        int[] expectedStatus = new int[]{0,0,0,1,0,0,6,1,1,1,1,0,1,5};
+        int moveFrom = 5;
+
+        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom);
+        assertTrue(!boardUpdated.isGameEnded());
+        assertTrue(boardUpdated.isAnotherRound());
+    }
+
+    // ---> HELPERS
+
+    // Configuration always as an int array, representing the number of seeds in each bowl and tray
+    // Pay attention put always the human player bow (BH) first (as convention)
+    // [ BH, BH, BH, BH, BH, BH, TH, BC, BC, BC, BC, BC, BC, TC ]
+    // This method already check the assertion on the expectedStatus and return boardUpdated object
+    // in case more assertion has to be done
+    private BoardUpdated runConfiguration(int[] startingBoardStatus,
+                                          int[] expectedBoardStatus, int moveFrom) {
+
+        Board board = initializeBoard();
+        board.buildBoard();
+
+        // in order to test a move, I've to set the board in a particular state
+        board.setBoardRepresentation(createBoardRepresentation(startingBoardStatus));
+
+        // then post a fake MoveAction on the mTurnContext
+        MoveAction moveAction = new MoveAction(new Move(moveFrom, mHumanPlayer));
+
+        mTurnContext.push(moveAction);
+        mTestBlockingObserver.waitUntilUpdateIsCalled();
+
+        // and wait for the BoardUpdated action
+        BoardUpdated boardUpdated = null;
+
+        if (mTurnContext.peek() instanceof BoardUpdated) {
+            boardUpdated = (BoardUpdated) mTurnContext.pop();
+
+            Iterator<Container> iterator = boardUpdated.getLoad().iterator();
+            for (int i = 0; iterator.hasNext(); i++) {
+                assertEquals(expectedBoardStatus[i], iterator.next().getNumberOfSeeds());
+            }
+        }
+
+        return boardUpdated;
+    }
+
+    //each test need this call
     private Board initializeBoard() {
         try {
             initialize();
@@ -59,6 +144,40 @@ public class GameTest extends AndroidTestCase {
         mTurnContext.addObserver(board);
 
         return board;
+    }
+
+    private void initialize() throws PlayerBrainTypeUnknownException {
+        mTurnContext = TurnContext.getInstance();
+        PlayerFactory playerFactory = new PlayerFactory(mTurnContext, 6, 1);
+        mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
+        mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
+        mTestBlockingObserver = new TestBlockingObserver();
+
+        mTurnContext.addObserver(mTestBlockingObserver);
+
+        //Players
+        mPlayers = new ArrayList<Player>();
+        mPlayers.add(mHumanPlayer);
+        mPlayers.add(mComputerPlayer);
+    }
+
+    // Gets an array with the actual board status, B B B B B B T B B B B B B T
+    private ArrayList<Container> createBoardRepresentation(int[] seeds) {
+        ArrayList<Container> boardRepresentation = new ArrayList<Container>();
+
+        for (int i = 0; i < 6; i++) {
+            boardRepresentation.add(bowlWithAnyNumberOfSeeds(seeds[i], mHumanPlayer));
+        }
+
+        boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[6], mHumanPlayer));
+
+        for (int i = 7; i < 13; i++) {
+            boardRepresentation.add(bowlWithAnyNumberOfSeeds(seeds[i], mComputerPlayer));
+        }
+
+        boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[13], mComputerPlayer));
+
+        return  boardRepresentation;
     }
 
     private Bowl bowlWithAnyNumberOfSeeds(int numberOfSeeds, Player player) {
@@ -79,200 +198,5 @@ public class GameTest extends AndroidTestCase {
         }
 
         return tray;
-    }
-
-    /*
-     * Gets an array with the actual board status, B B B B B B T B B B B B B T
-     */
-    private ArrayList<Container> createBoardRepresentation(int[] seeds) {
-        ArrayList<Container> boardRepresentation = new ArrayList<Container>();
-
-        for (int i = 0; i < 6; i++) {
-            boardRepresentation.add(bowlWithAnyNumberOfSeeds(seeds[i], mHumanPlayer));
-        }
-
-        boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[6], mHumanPlayer));
-
-        for (int i = 7; i < 13; i++) {
-            boardRepresentation.add(bowlWithAnyNumberOfSeeds(seeds[i], mComputerPlayer));
-        }
-
-        boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[13], mComputerPlayer));
-
-        return  boardRepresentation;
-    }
-
-    //TEST CASES
-    public void testBoardInitialization() {
-
-        Board board = initializeBoard();
-
-        board.buildBoard();
-
-        assertTrue(board.getRepresentation().size() == 13);
-
-        for (Container c : board.getRepresentation()) {
-            if (c instanceof Bowl) {
-                assertEquals(3, c.getNumberOfSeeds());
-            } else if (c instanceof Tray) {
-                assertEquals(0, c.getNumberOfSeeds());
-            }
-        }
-    }
-
-    public void testStandardMove() {
-        Board board = initializeBoard();
-        board.buildBoard();
-
-        int[] boardRepresentation = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
-        int[] expectedRepresentation = new int[]{0,2,2,2,1,1,4,1,1,1,1,1,1,5};
-
-        int moveFrom = 0;
-
-        // in order to test a move, I've to set the board in a particular state
-        board.setBoardRepresentation(createBoardRepresentation(
-                boardRepresentation)
-        );
-
-        // then post a fake MoveAction on the mTurnContext
-        MoveAction moveAction = new MoveAction(
-                new Move(moveFrom,mHumanPlayer)
-        );
-        mTurnContext.push(moveAction);
-        mTestBlockingObserver.waitUntilUpdateIsCalled();
-
-        // and wait for the BoardUpdated action
-        BoardUpdated boardUpdated;
-
-        assertTrue(mTurnContext.peek() instanceof BoardUpdated);
-
-        if (mTurnContext.peek() instanceof BoardUpdated) {
-            boardUpdated = (BoardUpdated) mTurnContext.pop();
-
-            int i = 0;
-            for (Container c : (ArrayList<Container>) boardUpdated.getLoad()) {
-                assertEquals(expectedRepresentation[i], c.getNumberOfSeeds());
-            }
-
-            assertTrue(!boardUpdated.isGameEnded());
-        }
-
-    }
-
-    private void testStealingSeedsMove() {
-        Board board = initializeBoard();
-        board.buildBoard();
-
-        int[] boardRepresentation = new int[]{3,1,1,0,1,1,4,1,1,1,1,1,1,5};
-        int[] expectedRepresentation = new int[]{0,2,2,0,1,1,6,1,1,1,0,1,1,5};
-
-        int moveFrom = 0;
-
-        // in order to test a move, I've to set the board in a particular state
-        board.setBoardRepresentation(createBoardRepresentation(
-                        boardRepresentation)
-        );
-
-        // then post a fake MoveAction on the mTurnContext
-        MoveAction moveAction = new MoveAction(
-                new Move(moveFrom,mHumanPlayer)
-        );
-        mTurnContext.push(moveAction);
-        mTestBlockingObserver.waitUntilUpdateIsCalled();
-
-        // and wait for the BoardUpdated action
-        BoardUpdated boardUpdated;
-
-        assertTrue(mTurnContext.peek() instanceof BoardUpdated);
-
-        if (mTurnContext.peek() instanceof BoardUpdated) {
-            boardUpdated = (BoardUpdated) mTurnContext.pop();
-
-            int i = 0;
-            for (Container c : (ArrayList<Container>) boardUpdated.getLoad()) {
-                assertEquals(expectedRepresentation[i], c.getNumberOfSeeds());
-            }
-
-            assertTrue(!boardUpdated.isGameEnded());
-        }
-    }
-
-    private void testStealingMoveWithNoOpponentSeeds() {
-        Board board = initializeBoard();
-        board.buildBoard();
-
-        int[] boardRepresentation = new int[]{3,1,1,0,1,1,4,1,1,1,1,0,1,5};
-        int[] expectedRepresentation = new int[]{0,2,2,0,1,1,5,1,1,1,0,1,1,5};
-
-        int moveFrom = 0;
-
-        // in order to test a move, I've to set the board in a particular state
-        board.setBoardRepresentation(createBoardRepresentation(
-                        boardRepresentation)
-        );
-
-        // then post a fake MoveAction on the mTurnContext
-        MoveAction moveAction = new MoveAction(
-                new Move(moveFrom,mHumanPlayer)
-        );
-        mTurnContext.push(moveAction);
-        mTestBlockingObserver.waitUntilUpdateIsCalled();
-
-        // and wait for the BoardUpdated action
-        BoardUpdated boardUpdated;
-
-        assertTrue(mTurnContext.peek() instanceof BoardUpdated);
-
-        if (mTurnContext.peek() instanceof BoardUpdated) {
-            boardUpdated = (BoardUpdated) mTurnContext.pop();
-
-            int i = 0;
-            for (Container c : (ArrayList<Container>) boardUpdated.getLoad()) {
-                assertEquals(expectedRepresentation[i], c.getNumberOfSeeds());
-            }
-
-            assertTrue(!boardUpdated.isGameEnded());
-        }
-
-    }
-
-    private void testLastGameMove() {
-        Board board = initializeBoard();
-        board.buildBoard();
-
-        int[] boardRepresentation = new int[]{0,0,0,0,0,1,5,1,1,1,1,0,1,5};
-        int[] expectedRepresentation = new int[]{0,0,0,0,0,0,6,1,1,1,0,1,1,5};
-
-        int moveFrom = 5;
-
-        // in order to test a move, I've to set the board in a particular state
-        board.setBoardRepresentation(createBoardRepresentation(
-                        boardRepresentation)
-        );
-
-        // then post a fake MoveAction on the mTurnContext
-        MoveAction moveAction = new MoveAction(
-                new Move(moveFrom,mHumanPlayer)
-        );
-        mTurnContext.push(moveAction);
-        mTestBlockingObserver.waitUntilUpdateIsCalled();
-
-        // and wait for the BoardUpdated action
-        BoardUpdated boardUpdated;
-
-        assertTrue(mTurnContext.peek() instanceof BoardUpdated);
-
-        if (mTurnContext.peek() instanceof BoardUpdated) {
-            boardUpdated = (BoardUpdated) mTurnContext.pop();
-
-            int i = 0;
-            for (Container c : (ArrayList<Container>) boardUpdated.getLoad()) {
-                assertEquals(expectedRepresentation[i], c.getNumberOfSeeds());
-            }
-
-            assertTrue(boardUpdated.isGameEnded());
-
-        }
-
     }
 }
