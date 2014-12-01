@@ -13,6 +13,7 @@ import me.dacol.marco.mancala.gameLib.board.Tray;
 import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.Player;
 import me.dacol.marco.mancala.gameLib.player.PlayerFactory;
@@ -44,6 +45,19 @@ public class GameTest extends AndroidTestCase {
                 assertEquals(0, c.getNumberOfSeeds());
             }
         }
+    }
+
+    public void testInvalidMove() {
+        int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int[] expectedStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
+        int moveFrom = 6; // this is a tray
+        Player playingPlayer = mHumanPlayer;
+
+        InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
+
+        assertTrue(playingPlayer == invalidMove.getPlayer());
+
+
     }
 
     public void testStandardMove() {
@@ -94,6 +108,37 @@ public class GameTest extends AndroidTestCase {
 
     // ---> HELPERS
 
+    // Runs configuration of invalid moves, to check if the system responds well
+    // Pay attention put always the human player bow (BH) first (as convention)
+    // [ BH, BH, BH, BH, BH, BH, TH, BC, BC, BC, BC, BC, BC, TC ]
+    private InvalidMove runInvalidMoveConfiguration(int[] startingStatus,
+                                                    int[] expectedStatus,
+                                                    int moveFrom,
+                                                    Player playingPlayer) {
+        Board board = initializeBoard();
+        board.buildBoard();
+
+        board.setBoardRepresentation(createBoardRepresentation(startingStatus));
+        MoveAction moveAction = new MoveAction(new Move(moveFrom, playingPlayer));
+
+        mTurnContext.push(moveAction);
+        mTestBlockingObserver.waitUntilUpdateIsCalled();
+
+        assertTrue(mTurnContext.peek() instanceof InvalidMove);
+
+        InvalidMove invalidMove = null;
+        if (mTurnContext.peek() instanceof InvalidMove) {
+            invalidMove = (InvalidMove) mTurnContext.pop();
+
+            // Since invalid move no change on the board status
+            checkExpectedStatus(invalidMove.getBoardStatus(), expectedStatus);
+
+            assertTrue(moveAction.getLoad() == invalidMove.getLoad());
+        }
+
+        return invalidMove;
+    }
+
     // Configuration always as an int array, representing the number of seeds in each bowl and tray
     // Pay attention put always the human player bow (BH) first (as convention)
     // [ BH, BH, BH, BH, BH, BH, TH, BC, BC, BC, BC, BC, BC, TC ]
@@ -120,10 +165,7 @@ public class GameTest extends AndroidTestCase {
         if (mTurnContext.peek() instanceof BoardUpdated) {
             boardUpdated = (BoardUpdated) mTurnContext.pop();
 
-            Iterator<Container> iterator = boardUpdated.getLoad().iterator();
-            for (int i = 0; iterator.hasNext(); i++) {
-                assertEquals(expectedBoardStatus[i], iterator.next().getNumberOfSeeds());
-            }
+            checkExpectedStatus(boardUpdated.getLoad(), expectedBoardStatus);
         }
 
         return boardUpdated;
@@ -178,6 +220,13 @@ public class GameTest extends AndroidTestCase {
         boardRepresentation.add(trayWithAnyNumberOfSeeds(seeds[13], mComputerPlayer));
 
         return  boardRepresentation;
+    }
+
+    private void checkExpectedStatus(ArrayList<Container> boardActualStatus, int[] expectedBoardStatus) {
+        Iterator<Container> iterator = boardActualStatus.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            assertEquals(expectedBoardStatus[i], iterator.next().getNumberOfSeeds());
+        }
     }
 
     private Bowl bowlWithAnyNumberOfSeeds(int numberOfSeeds, Player player) {
