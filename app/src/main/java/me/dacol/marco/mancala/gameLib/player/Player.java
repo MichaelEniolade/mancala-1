@@ -9,7 +9,6 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.brains.Brain;
-import me.dacol.marco.mancala.gameLib.player.brains.Human;
 
 public class Player implements Observer {
 
@@ -24,7 +23,7 @@ public class Player implements Observer {
     }
 
     public boolean isHuman() {
-        return (mBrain instanceof Human);
+        return mBrain.isHuman();
     }
 
     private void timeToPlay(ActivePlayer activePlayer) {
