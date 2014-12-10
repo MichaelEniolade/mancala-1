@@ -8,12 +8,17 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class Human extends BaseBrain implements Brain {
 
-    public Human(Player player, int numberOfBowl, int numberOfTray) {
-        super(player, numberOfBowl, numberOfTray);
+    public Human(int numberOfBowl, int numberOfTray) {
+        super(numberOfBowl, numberOfTray);
     }
 
     @Override
-    public Move makeMove(ArrayList<Container> boardStatus) {
-        return super.makeMove(boardStatus);
+    public Move makeMove(ArrayList<Container> boardStatus, Player player) {
+        return super.makeMove(boardStatus, player);
+    }
+
+    @Override
+    public boolean isHuman() {
+        return true;
     }
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.board.Move;
-import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
@@ -39,15 +38,10 @@ public class PlayerTest extends AndroidTestCase {
         PlayerFactory playerFactory = new PlayerFactory(mTurnContext, 6, 1);
 
         Player humanPlayer = null,
-               computerPlayer = null,
-               wrongPlayer = null;
-        try {
-            humanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
-            computerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
-            wrongPlayer = playerFactory.makePlayer(1000, "wrong");
-        } catch (PlayerBrainTypeUnknownException e) {
-            assertEquals("Type: 1000 not known, check PlayerType class", e.getMessage());
-        }
+               computerPlayer = null;
+
+        humanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
+        computerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
 
         assertTrue(humanPlayer.isHuman());
         assertTrue(!computerPlayer.isHuman());
@@ -78,10 +72,10 @@ public class PlayerTest extends AndroidTestCase {
     public void testRespondToInvalidMoveAction() {
         fullInitialize();
 
-        Brain brain = new ArtificialIntelligence(mComputerPlayer, 6, 1);
-        Move move = brain.makeMove(mBoardStatus);
+        Brain brain = new ArtificialIntelligence(6, 1);
+        Move move = brain.makeMove(mBoardStatus, mComputerPlayer);
 
-        mComputerPlayer.setBrain(brain); //I need a brain with a move to test
+        //mComputerPlayer.setBrain(brain); //I need a brain with a move to test
 
         InvalidMove invalidMove = new InvalidMove(move, mBoardStatus, mComputerPlayer);
         mTurnContext.push(invalidMove);
@@ -101,7 +95,6 @@ public class PlayerTest extends AndroidTestCase {
     private void basicInitialize() {
         mTurnContext = TurnContext.getInstance();
         mTurnContext.initialize();
-
     }
 
     private void fullInitialize() {
@@ -109,12 +102,8 @@ public class PlayerTest extends AndroidTestCase {
 
         PlayerFactory playerFactory = new PlayerFactory(mTurnContext, 6, 1);
 
-        try {
-            mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
-            mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
-        } catch (PlayerBrainTypeUnknownException e) {
-            e.printStackTrace();
-        }
+        mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
+        mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
 
         mTestBlockingObserver = new TestBlockingObserver();
 

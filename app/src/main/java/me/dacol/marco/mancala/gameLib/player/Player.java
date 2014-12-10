@@ -17,12 +17,9 @@ public class Player implements Observer {
     private Brain mBrain;
     private String mName;
 
-    public Player(TurnContext turnContext, String name) {
+    public Player(TurnContext turnContext, Brain brain, String name) {
         mTurnContext = turnContext;
         mName = name;
-    }
-
-    public void setBrain(Brain brain) {
         mBrain = brain;
     }
 
@@ -31,13 +28,13 @@ public class Player implements Observer {
     }
 
     private void timeToPlay(ActivePlayer activePlayer) {
-        Move move = mBrain.makeMove(activePlayer.getBoardRepresentation());
+        Move move = mBrain.makeMove(activePlayer.getBoardRepresentation(), this);
         sendMoveToBoard(move);
     }
 
     private void didAnInvalidMove(InvalidMove invalidMove) {
         mBrain.toggleLastMoveCameUpInvalid();
-        Move move = mBrain.makeMove(invalidMove.getBoardStatus());
+        Move move = mBrain.makeMove(invalidMove.getBoardStatus(), this);
         sendMoveToBoard(move);
     }
 

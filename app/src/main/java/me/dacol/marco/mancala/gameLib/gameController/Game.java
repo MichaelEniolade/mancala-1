@@ -9,13 +9,13 @@ import java.util.Random;
 import me.dacol.marco.mancala.gameLib.board.Board;
 import me.dacol.marco.mancala.gameLib.board.StandardBoard;
 import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
-import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.Player;
 import me.dacol.marco.mancala.gameLib.player.PlayerFactory;
+import me.dacol.marco.mancala.gameLib.player.PlayerType;
 
 public class Game implements Observer {
 
@@ -87,8 +87,8 @@ public class Game implements Observer {
      }
 
     //---> Player methods
-    public void createPlayer(int type, String name) throws
-            PlayerBrainTypeUnknownException, ToManyPlayerException {
+    public void createPlayer(PlayerType type, String name)
+            throws ToManyPlayerException {
 
         Player player = mPlayerFactory.makePlayer(type, name);
         addPlayer(player);

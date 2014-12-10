@@ -2,7 +2,6 @@ package me.dacol.marco.mancala;
 
 import android.test.AndroidTestCase;
 
-import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
@@ -61,9 +60,6 @@ public class GameTest extends AndroidTestCase {
         try {
             mGame.createPlayer(PlayerType.HUMAN, "Kasparov");
             mGame.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
-            //mGame.createPlayer(PlayerType.HUMAN, "TooManyPlayer");
-        } catch (PlayerBrainTypeUnknownException e) {
-            e.printStackTrace();
         } catch (ToManyPlayerException e) {
             assertEquals("Maximum allowed number of player is: 2", e.getMessage());
         }

@@ -17,12 +17,10 @@ public abstract class BaseBrain implements Brain {
     private int mNumberOfBowl;
     private int mNumberOfTray;
 
-    private Player mPlayer;
     private Stack<Move> mMoves;
     private boolean mInvalidMove;
 
-    public BaseBrain(Player player, int numberOfBowl, int numberOfTray) {
-        mPlayer = player;
+    public BaseBrain(int numberOfBowl, int numberOfTray) {
         mMoves = new Stack<Move>();
         mInvalidMove = false;
         mNumberOfBowl = numberOfBowl;
@@ -31,7 +29,7 @@ public abstract class BaseBrain implements Brain {
 
     // This method is very ugly, it's just for test purpose...
     @Override
-    public Move makeMove(ArrayList<Container> boardStatus) {
+    public Move makeMove(ArrayList<Container> boardStatus, Player player) {
         // very easy strategy, check which are his container and then chose a random bowl not empty.
         Move move;
 
@@ -47,14 +45,14 @@ public abstract class BaseBrain implements Brain {
 
         // The first six bowl are the ones of the first player
         // TODO extract in a method
-        if (boardStatus.get(0).getOwner() == mPlayer) {
-            move = new Move(random, mPlayer);
+        if (boardStatus.get(0).getOwner() == player) {
+            move = new Move(random, player);
         } else {
             // so my player bowls are the ones after the tray of player one, bowl 1 of player2 is 6+1
             // PAY ATTENTION! Here I'm passing the real position in the array of container, not only
             // the bowl number.
             // This can be a problem...maybe.
-            move = new Move(random+ mNumberOfBowl + mNumberOfTray -1, mPlayer);
+            move = new Move(random+ mNumberOfBowl + mNumberOfTray -1, player);
         }
 
         mMoves.push(move); //Ok, this brain is dumb and cannot think of a strategy...but who cares!

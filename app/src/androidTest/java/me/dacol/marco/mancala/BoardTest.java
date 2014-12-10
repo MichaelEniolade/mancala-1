@@ -10,7 +10,6 @@ import me.dacol.marco.mancala.gameLib.board.Bowl;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.board.Move;
 import me.dacol.marco.mancala.gameLib.board.Tray;
-import me.dacol.marco.mancala.gameLib.exceptions.PlayerBrainTypeUnknownException;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
@@ -249,12 +248,8 @@ public class BoardTest extends AndroidTestCase {
 
         PlayerFactory playerFactory = new PlayerFactory(mTurnContext, 6, 1);
 
-        try {
-            mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
-            mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
-        } catch (PlayerBrainTypeUnknownException e) {
-            e.printStackTrace();
-        }
+        mHumanPlayer = playerFactory.makePlayer(PlayerType.HUMAN, "Kasparov");
+        mComputerPlayer = playerFactory.makePlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Hal9000");
 
         mTestBlockingObserver = new TestBlockingObserver();
 
