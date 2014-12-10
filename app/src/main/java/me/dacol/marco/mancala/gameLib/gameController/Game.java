@@ -211,8 +211,8 @@ public class Game implements Observer {
     @Override
     public void update(Observable observable, Object data) {
         // Take into account only the events that this class can handle
-        if (mTurnContext.peek() instanceof BoardUpdated) {
-            BoardUpdated boardUpdated = (BoardUpdated) mTurnContext.pop();
+        if (data instanceof BoardUpdated) {
+            BoardUpdated boardUpdated = (BoardUpdated) data;
             checkForSpecialCondition(boardUpdated);
             startAnotherTurn();
         }

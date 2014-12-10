@@ -12,7 +12,7 @@ import me.dacol.marco.mancala.gameLib.player.brains.Brain;
 
 public class Player implements Observer {
 
-    private TurnContext mTurnContext;
+    private TurnContext mTurnContext; // TODO rimuovi TurnContext da qui...
     private Brain mBrain;
     private String mName;
 
@@ -47,18 +47,18 @@ public class Player implements Observer {
 
     @Override
     public void update(Observable observable, Object data) {
-        if (mTurnContext.peek() instanceof ActivePlayer) {
+        if (data instanceof ActivePlayer) {
             // == checks is the object reference is the same, in this case if they point to the same
             // object this means that it's my turn and i pop from the stack,
             // otherwise let it go, someone else will pick up the call.
-            if (((ActivePlayer) mTurnContext.peek()).getLoad() == this) {
-                timeToPlay((ActivePlayer) mTurnContext.pop());
+            if (((ActivePlayer) data).getLoad() == this) {
+                timeToPlay((ActivePlayer) data);
             }
-        } else if (mTurnContext.peek() instanceof InvalidMove) {
+        } else if (data instanceof InvalidMove) {
             // If the player has done an invalid move, this action is fired on the stack, the player
             // now need to remake the move
-            if (((InvalidMove) mTurnContext.peek()).getPlayer() == this) {
-                didAnInvalidMove((InvalidMove) mTurnContext.pop());
+            if (((InvalidMove) data).getPlayer() == this) {
+                didAnInvalidMove((InvalidMove) data);
             }
         }
     }

@@ -70,7 +70,7 @@ public class Board implements Observer, StandardBoard<Container> {
 
         mContainers.add(new Tray(mPlayers.get(humanPlayerPosition)));
 
-        // TODO take out that 6 from here, put it in a better place
+        // TODO take out that 7 from here, put it in a better place
         for (position = 7; position < (7 + mNumberOfBowls); position++) {
             mContainers.add(new Bowl(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
         }
@@ -258,9 +258,8 @@ public class Board implements Observer, StandardBoard<Container> {
     @Override
     public void update(Observable observable, Object data) {
         // board respond only to an action the MoveAction that goes to update the board status
-        if (mTurnContext.peek() instanceof MoveAction) {
-            Log.d(LOG_TAG, "Received a MoveAction");
-            move((MoveAction) mTurnContext.pop());
+        if (data instanceof MoveAction) {
+            move((MoveAction) data);
         }
     }
 }

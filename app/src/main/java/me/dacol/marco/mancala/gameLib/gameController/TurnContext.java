@@ -42,7 +42,7 @@ public class TurnContext extends Observable {
     public void push(Action action) {
         mActionList.push(action);
         setChanged();
-        notifyObservers();
+        notifyObservers(action); // i pass the last pushed object
     }
 
     public Action pop() {
