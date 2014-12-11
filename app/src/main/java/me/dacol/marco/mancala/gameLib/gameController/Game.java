@@ -19,6 +19,8 @@ import me.dacol.marco.mancala.gameLib.player.PlayerType;
 
 public class Game implements Observer {
 
+    private static final String LOG_TAG = "MancalaGameClass";
+
     private List<Player> mPlayers;
     private StandardBoard mBoard;
     private TurnContext mTurnContext;

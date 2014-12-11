@@ -57,21 +57,19 @@ public class Board implements Observer, StandardBoard<Container> {
      */
     public void buildBoard() {
         // reset the board from any previous game
-        int position;
         mContainers = new ArrayList<Container>();
 
-        // One of the two player has to be an Human, TODO force this in the game class, or not??
+        // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
         // Create the six bowl of the human player
-        for (position=0; position < mNumberOfBowls; position++) {
+        for (int position = 0; position < mNumberOfBowls; position++) {
             mContainers.add(new Bowl(mPlayers.get(humanPlayerPosition)));
         }
 
         mContainers.add(new Tray(mPlayers.get(humanPlayerPosition)));
 
-        // TODO take out that 7 from here, put it in a better place
-        for (position = 7; position < (7 + mNumberOfBowls); position++) {
+        for (int position = 0; position < mNumberOfBowls; position++) {
             mContainers.add(new Bowl(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
         }
 
@@ -135,7 +133,6 @@ public class Board implements Observer, StandardBoard<Container> {
         //      bowl and put them in the PP tray (if there are no seed in opponent bowl just go on)
         // No, just put the seed there and go on with your life!
         for (; remainingSeeds > 1; remainingSeeds--) {
-            Log.d(LOG_TAG, "Remaining Seeds: " + remainingSeeds); //DEBUG
             mContainers.get(bowlNumber).putOneSeed();
             bowlNumber = nextContainer(bowlNumber);
         }
@@ -204,12 +201,18 @@ public class Board implements Observer, StandardBoard<Container> {
 
         boolean isEnded = false;
 
-        for (int i = 0 ; i < 6; i++) {
+        for (int i = 0 ; i < mNumberOfBowls; i++) {
             playerOneRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
         }
-        for (int j = 7 ; j < 13; j++) {
+        for (int j = (mNumberOfBowls + mNumberOfTrays) ; j < (mContainers.size() -1); j++) {
             playerTwoRemainingSeeds += mContainers.get(j).getNumberOfSeeds();
         }
+
+        // DEBUG
+        Log.v(LOG_TAG, "Player One Remaining Seed: " + playerOneRemainingSeeds);
+        Log.v(LOG_TAG, "Player One Tray Seeds: " + mContainers.get(6).getNumberOfSeeds());
+        Log.v(LOG_TAG, "Player Two Remaining Seed: " + playerTwoRemainingSeeds);
+        Log.v(LOG_TAG, "Player Two Tray Seeds: " + mContainers.get(13).getNumberOfSeeds());
 
         if ((playerOneRemainingSeeds == 0) || (playerTwoRemainingSeeds == 0)) {
             isEnded = true;
@@ -218,12 +221,12 @@ public class Board implements Observer, StandardBoard<Container> {
         // If the game is ended put all remaining seeds in the player bowl and find the winner
         if (isEnded) {
             if (playerOneRemainingSeeds > 0) {
-                for (int j = 0; j < 6; j++) {
+                for (int j = 0; j < mNumberOfBowls; j++) {
                     ((Bowl) mContainers.get(j)).emptyBowl();
                 }
                 ((Tray) mContainers.get(6)).putSeeds(playerOneRemainingSeeds);
             } else {
-                for (int j = 7; j < 13; j++) {
+                for (int j = (mNumberOfBowls + mNumberOfTrays); j < (mContainers.size() -1); j++) {
                     ((Bowl) mContainers.get(j)).emptyBowl();
                 }
                 ((Tray) mContainers.get(13)).putSeeds(playerTwoRemainingSeeds);

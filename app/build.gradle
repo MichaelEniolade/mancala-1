@@ -12,7 +12,16 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        debug{
+            applicationIdSuffix ".debug"
+            buildConfigField "int", "LOGGING_LEVEL", "1"
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
         release {
+            buildConfigField "int", "LOGGING_LEVEL", "0"
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
