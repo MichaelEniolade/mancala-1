@@ -73,11 +73,13 @@ public class PlayerTest extends AndroidTestCase {
         fullInitialize();
 
         Brain brain = new ArtificialIntelligence(6, 1);
-        Move move = brain.makeMove(mBoardStatus, mComputerPlayer);
+        Player playerWithInvalidMove = new Player(mTurnContext, brain, "Carl");
 
-        //mComputerPlayer.setBrain(brain); //I need a brain with a move to test
+        mTurnContext.addObserver(playerWithInvalidMove);
 
-        InvalidMove invalidMove = new InvalidMove(move, mBoardStatus, mComputerPlayer);
+        Move move = brain.makeMove(mBoardStatus, playerWithInvalidMove);
+
+        InvalidMove invalidMove = new InvalidMove(move, mBoardStatus, playerWithInvalidMove);
         mTurnContext.push(invalidMove);
         mTestBlockingObserver.waitUntilUpdateIsCalled();
 
@@ -85,7 +87,7 @@ public class PlayerTest extends AndroidTestCase {
 
         MoveAction moveAction = (MoveAction) mTurnContext.pop();
 
-        assertTrue(moveAction.getLoad().getPlayer() == mComputerPlayer);
+        assertTrue(moveAction.getLoad().getPlayer() == playerWithInvalidMove);
         assertTrue(moveAction.getLoad().getBowlNumber() != move.getBowlNumber());
 
         cleanUp();
