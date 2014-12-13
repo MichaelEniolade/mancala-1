@@ -48,7 +48,21 @@ public class Game implements Observer {
     }
 
     protected Game() {
-        setup();
+        // empty constructor
+    }
+
+    /**
+     * Run before starting a game, has the job to initialize a new game
+     */
+    public void setup() {
+        mPlayingPlayer = 0;
+        mNextPlayer = 0;
+        mTurnNumber = 0;
+        mEnded = false;
+        mPlayers = new ArrayList<Player>();
+        mBoard = null;
+        mTurnContext = null;
+        mAnotherRoundForPlayer = false;
 
         // Called here because this is where players
         // and board need to be subscribed as observers
@@ -59,24 +73,14 @@ public class Game implements Observer {
     }
 
     /**
-     * Run before starting a game, has the job to initialize a new game
-     */
-    private void setup() {
-        mPlayingPlayer = 0;
-        mNextPlayer = 0;
-        mTurnNumber = 0;
-        mEnded = false;
-        mPlayers = new ArrayList<Player>();
-        mBoard = null;
-        mTurnContext = null;
-        mAnotherRoundForPlayer = false;
-    }
-
-    /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
     //TODO: I should separate this and make anotherTurn private, and leave only start as public method
-    public void startAnotherTurn() {
+    public void start() {
+        anotherTurn();
+    }
+
+    private void anotherTurn() {
         if (!isEnded()) {
             try {
                 newTurn();
@@ -87,7 +91,7 @@ public class Game implements Observer {
             Player winningPlayer = getWinner();
             announceTheWinner(winningPlayer);
         }
-     }
+    }
 
     //---> Player methods
     public void createPlayer(PlayerType type, String name)
@@ -230,7 +234,7 @@ public class Game implements Observer {
         if (data instanceof BoardUpdated) {
             BoardUpdated boardUpdated = (BoardUpdated) data;
             checkForSpecialCondition(boardUpdated);
-            startAnotherTurn();
+            anotherTurn();
         }
     }
 }

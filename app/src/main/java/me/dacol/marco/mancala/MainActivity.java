@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         BoardFragment boardFragment = BoardFragment.newInstance();
 
         mGame = Game.getInstance();
-
+        mGame.setup();
 
         mTurnContext = mGame.getTurnContext();
         mTurnContext.addObserver( boardFragment ); // registro la board agli aggioramenti
@@ -78,7 +78,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
                 (OnFragmentInteractionListener) mGame.getHumanPlayer().getBrain());
 
         // Start the GameLogicEngine
-        mGame.startAnotherTurn();
+        mGame.start();
 
         // change the visualized fragment
         popUpNewFragment(boardFragment);

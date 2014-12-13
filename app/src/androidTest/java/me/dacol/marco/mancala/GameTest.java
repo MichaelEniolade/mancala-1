@@ -22,7 +22,7 @@ public class GameTest extends AndroidTestCase {
     private void testSimulatedGame() {
         initialize();
 
-        mGame.startAnotherTurn();
+        mGame.start();
 
         mTestBlockingObserver.waitUntilUpdateIsCalled();
 
