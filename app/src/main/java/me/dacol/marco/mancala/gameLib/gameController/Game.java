@@ -19,7 +19,7 @@ import me.dacol.marco.mancala.gameLib.player.PlayerType;
 
 public class Game implements Observer {
 
-    private static final String LOG_TAG = "MancalaGameClass";
+    private static final String LOG_TAG = Game.class.getSimpleName();
 
     private List<Player> mPlayers;
     private StandardBoard mBoard;

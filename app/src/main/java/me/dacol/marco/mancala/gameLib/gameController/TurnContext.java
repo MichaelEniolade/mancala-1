@@ -14,6 +14,7 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
  * - next turn or end game
  */
 public class TurnContext extends Observable {
+    private final static String LOG_TAG = TurnContext.class.getSimpleName();
     // Right now is just a wrapper around a Stack object,
     // but these gives room from improvements like keep the game history
     // to allow the player to undo moves.

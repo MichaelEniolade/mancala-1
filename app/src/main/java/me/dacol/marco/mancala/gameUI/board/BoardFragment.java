@@ -2,7 +2,6 @@ package me.dacol.marco.mancala.gameUI.board;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +19,7 @@ import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
+import me.dacol.marco.mancala.logging.Logger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +30,7 @@ import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
  * create an instance of this fragment.
  */
 public class BoardFragment extends Fragment implements Observer, View.OnClickListener {
-    private static final String LOG_TAG = BoardFragment.class.getCanonicalName();
+    private static final String LOG_TAG = BoardFragment.class.getSimpleName();
 
     private OnFragmentInteractionListener mPlayerBrainListener;
 
@@ -178,12 +178,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // I'm interested in the Action containing the board update only
         ArrayList<Container> containers = null;
         if (data instanceof ActivePlayer) {
-            Log.v(LOG_TAG, "Tocca al Player: " + ((ActivePlayer) data).getLoad().getName());
+            Logger.v(LOG_TAG, "Tocca al Player: " + ((ActivePlayer) data).getLoad().getName()); //FIXME: Log
             mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
 
         } else if (data instanceof BoardUpdated) {
             containers = ((BoardUpdated) data).getLoad();
-            printBoard(containers); // DEBUG
+            //printBoard(containers); // DEBUG
             updateBoard(containers);
         }
     }
@@ -191,8 +191,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void printBoard(ArrayList<Container> containers) {
         if (containers != null) {
             for (int i = 0; i < 14; i++) {
-                Log.v(LOG_TAG, "container of: " + containers.get(i).getOwner().getName()
-                        + ", contains: " + containers.get(i).getNumberOfSeeds() + " seeds");
+                Logger.v(LOG_TAG, "container of: " + containers.get(i).getOwner().getName()
+                        + ", contains: " + containers.get(i).getNumberOfSeeds() + " seeds"); //FIXME: Log
             }
         }
     }
@@ -202,7 +202,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void onClick(View v) {
         int bowlNumber = v.getId();
 
-        Log.v(LOG_TAG, "Player choose bowl number: " + bowlNumber);
+        Logger.v(LOG_TAG, "Player choose bowl number: " + bowlNumber); //FIXME: Log
+
         // TODO recuperare il numero della ciotola cliccata
         mPlayerBrainListener.onFragmentInteraction(OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
     }

@@ -31,7 +31,6 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
                     .add(R.id.container, new NewGameFragment())
                     .commit();
         }
-
     }
 
     @Override
@@ -77,7 +76,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         boardFragment.attachHumanPlayerBrain(
                 (OnFragmentInteractionListener) mGame.getHumanPlayer().getBrain());
 
-        // Start the GameLoginEngine
+        // Start the GameLogicEngine
         mGame.startAnotherTurn();
 
         // change the visualized fragment

@@ -1,7 +1,5 @@
 package me.dacol.marco.mancala.gameLib.player;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -14,10 +12,11 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.brains.AttachedPlayer;
 import me.dacol.marco.mancala.gameLib.player.brains.Brain;
+import me.dacol.marco.mancala.logging.Logger;
 
 public class Player implements Observer, AttachedPlayer {
 
-    private static final String LOG_TAG = Player.class.getCanonicalName();
+    private static final String LOG_TAG = Player.class.getSimpleName();
 
     private TurnContext mTurnContext; // TODO rimuovi TurnContext da qui...
     private Brain mBrain;
@@ -41,7 +40,7 @@ public class Player implements Observer, AttachedPlayer {
     }
 
     private void didAnInvalidMove(ArrayList<Container> boardRepresentation) {
-        Log.v(LOG_TAG, "did an invalid Move, Player: " + mName);
+        Logger.v(LOG_TAG, "did an invalid Move, Player: " + mName); //FIXME: log
         mBrain.toggleLastMoveCameUpInvalid();
         timeToPlay(boardRepresentation);
     }

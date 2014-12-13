@@ -1,7 +1,5 @@
 package me.dacol.marco.mancala.gameLib.board;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -16,7 +14,7 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class Board implements Observer, StandardBoard<Container> {
 
-    private final static String LOG_TAG = "board_manager";
+    private final static String LOG_TAG = Board.class.getSimpleName();
 
     ArrayList<Container> mContainers;
     List<Player> mPlayers;
@@ -208,12 +206,6 @@ public class Board implements Observer, StandardBoard<Container> {
         for (int j = (mNumberOfBowls + mNumberOfTrays) ; j < (mContainers.size() -1); j++) {
             playerTwoRemainingSeeds += mContainers.get(j).getNumberOfSeeds();
         }
-
-        // DEBUG
-        Log.v(LOG_TAG, "Player One Remaining Seed: " + playerOneRemainingSeeds);
-        Log.v(LOG_TAG, "Player One Tray Seeds: " + mContainers.get(6).getNumberOfSeeds());
-        Log.v(LOG_TAG, "Player Two Remaining Seed: " + playerTwoRemainingSeeds);
-        Log.v(LOG_TAG, "Player Two Tray Seeds: " + mContainers.get(13).getNumberOfSeeds());
 
         if ((playerOneRemainingSeeds == 0) || (playerTwoRemainingSeeds == 0)) {
             isEnded = true;

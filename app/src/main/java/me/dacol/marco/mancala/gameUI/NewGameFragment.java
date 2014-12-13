@@ -20,7 +20,7 @@ import me.dacol.marco.mancala.R;
  * create an instance of this fragment.
  */
 public class NewGameFragment extends Fragment implements View.OnClickListener {
-    private static final String LOG_TAG = NewGameFragment.class.getCanonicalName();
+    private static final String LOG_TAG = NewGameFragment.class.getSimpleName();
 
     private OnFragmentInteractionListener mListener;
 
