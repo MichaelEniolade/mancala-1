@@ -24,4 +24,9 @@ public abstract class Container {
     public void putOneSeed() {
         mNumberOfSeeds += 1;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(getNumberOfSeeds()) + " P" + getOwner().getName();
+    }
 }

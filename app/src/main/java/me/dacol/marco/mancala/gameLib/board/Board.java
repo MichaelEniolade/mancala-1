@@ -75,6 +75,7 @@ public class Board implements Observer, StandardBoard<Container> {
 
         mContainers.add(new Tray(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
 
+
     }
 
     public Player getWinner() {

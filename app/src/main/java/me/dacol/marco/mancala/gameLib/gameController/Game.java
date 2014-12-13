@@ -75,6 +75,7 @@ public class Game implements Observer {
     /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
+    //TODO: I should separate this and make anotherTurn private, and leave only start as public method
     public void startAnotherTurn() {
         if (!isEnded()) {
             try {
@@ -110,7 +111,7 @@ public class Game implements Observer {
         }
     }
 
-    private void PlayingPlayer() {
+    private void playingPlayer() {
         if (mTurnNumber == 0) {
             chooseStartingPlayer();
         } else {
@@ -181,7 +182,7 @@ public class Game implements Observer {
             initializeBoard();
         }
 
-        PlayingPlayer();
+        playingPlayer();
         mTurnNumber += 1;
     }
 
@@ -205,8 +206,21 @@ public class Game implements Observer {
         return mEnded;
     }
 
+    // TODO: put me in the interface
     public TurnContext getTurnContext() {
         return mTurnContext;
+    }
+
+    /**
+     * Return the human player, needed from the view to connect the brain to the board UI
+     * @return Player
+     */
+    public Player getHumanPlayer() {
+        if (mPlayers.get(0).isHuman()) {
+            return mPlayers.get(0);
+        } else {
+            return mPlayers.get(1);
+        }
     }
 
     //---> interfaces

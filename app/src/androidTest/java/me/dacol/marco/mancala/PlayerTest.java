@@ -45,8 +45,8 @@ public class PlayerTest extends AndroidTestCase {
 
         assertTrue(humanPlayer.isHuman());
         assertTrue(!computerPlayer.isHuman());
-        assertEquals("Kasparov", humanPlayer.getmName());
-        assertEquals("Hal9000", computerPlayer.getmName());
+        assertEquals("Kasparov", humanPlayer.getName());
+        assertEquals("Hal9000", computerPlayer.getName());
 
         cleanUp();
     }

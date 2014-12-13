@@ -1,24 +1,37 @@
 package me.dacol.marco.mancala.gameLib.player.brains;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 import me.dacol.marco.mancala.gameLib.board.Container;
-import me.dacol.marco.mancala.gameLib.board.Move;
 import me.dacol.marco.mancala.gameLib.player.Player;
+import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 
-public class Human extends BaseBrain implements Brain {
+public class Human extends BaseBrain implements OnFragmentInteractionListener {
+
+    private final static String LOG_TAG = "humanPlayerBrain";
 
     public Human(int numberOfBowl, int numberOfTray) {
         super(numberOfBowl, numberOfTray);
     }
 
     @Override
-    public Move makeMove(ArrayList<Container> boardStatus, Player player) {
-        return super.makeMove(boardStatus, player);
+    public void makeMove(ArrayList<Container> boardStatus, Player player) {
+        Log.v(LOG_TAG, "Human Player? Hey! That's me!");
+        // This is a real player, no need for a brain. He has a real Brain!
     }
 
     @Override
     public boolean isHuman() {
         return true;
+    }
+
+    @Override
+    public void onFragmentInteraction(EventType event, Object data) {
+        if ((event == EventType.CHOOSEN_BOWL) && (data instanceof Integer)) {
+            int choosenBowl = (Integer) data;
+            mAttachedPlayer.onBrainInteraction(choosenBowl);
+        }
     }
 }

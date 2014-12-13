@@ -1,16 +1,23 @@
 package me.dacol.marco.mancala.gameLib.player;
 
+import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.board.Move;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
+import me.dacol.marco.mancala.gameLib.player.brains.AttachedPlayer;
 import me.dacol.marco.mancala.gameLib.player.brains.Brain;
 
-public class Player implements Observer {
+public class Player implements Observer, AttachedPlayer {
+
+    private static final String LOG_TAG = Player.class.getCanonicalName();
 
     private TurnContext mTurnContext; // TODO rimuovi TurnContext da qui...
     private Brain mBrain;
@@ -20,29 +27,36 @@ public class Player implements Observer {
         mTurnContext = turnContext;
         mName = name;
         mBrain = brain;
+
+        // Connects player to his Brain
+        brain.attachPlayer(this);
     }
 
     public boolean isHuman() {
         return mBrain.isHuman();
     }
 
-    private void timeToPlay(ActivePlayer activePlayer) {
-        Move move = mBrain.makeMove(activePlayer.getBoardRepresentation(), this);
-        sendMoveToBoard(move);
+    private void timeToPlay(ArrayList<Container> boardRepresentation) {
+        mBrain.makeMove(boardRepresentation, this);
     }
 
-    private void didAnInvalidMove(InvalidMove invalidMove) {
+    private void didAnInvalidMove(ArrayList<Container> boardRepresentation) {
+        Log.v(LOG_TAG, "did an invalid Move, Player: " + mName);
         mBrain.toggleLastMoveCameUpInvalid();
-        Move move = mBrain.makeMove(invalidMove.getBoardStatus(), this);
-        sendMoveToBoard(move);
+        timeToPlay(boardRepresentation);
     }
 
-    private void sendMoveToBoard(Move move) {
+    private void sendMoveToBoard(int bowlNumber) {
+        Move move = new Move(bowlNumber, this);
         mTurnContext.push(new MoveAction(move));
     }
 
-    public String getmName() {
+    public String getName() {
         return mName;
+    }
+
+    public Brain getBrain() {
+        return mBrain;
     }
 
     @Override
@@ -52,14 +66,19 @@ public class Player implements Observer {
             // object this means that it's my turn and i pop from the stack,
             // otherwise let it go, someone else will pick up the call.
             if (((ActivePlayer) data).getLoad() == this) {
-                timeToPlay((ActivePlayer) data);
+                timeToPlay(((ActivePlayer) data).getBoardRepresentation());
             }
         } else if (data instanceof InvalidMove) {
             // If the player has done an invalid move, this action is fired on the stack, the player
             // now need to remake the move
             if (((InvalidMove) data).getPlayer() == this) {
-                didAnInvalidMove((InvalidMove) data);
+                didAnInvalidMove(((InvalidMove) data).getBoardStatus());
             }
         }
+    }
+
+    @Override
+    public void onBrainInteraction(int move) {
+        sendMoveToBoard(move);
     }
 }
