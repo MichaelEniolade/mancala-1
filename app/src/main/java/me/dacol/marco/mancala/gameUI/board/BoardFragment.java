@@ -18,6 +18,7 @@ import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.logging.Logger;
 
@@ -37,6 +38,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private ArrayList<TextView> mBoardRepresentation;
 
     private ArrayList<Container> mStartingBoard;
+    private TextView mPlayerTurnText;
 
     /**
      * Use this factory method to create a new instance of
@@ -138,6 +140,17 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         mBoardRepresentation.add(trayPlayerTwo);
 
+        // Something in the middle
+        params = new GridLayout.LayoutParams();
+        params.rowSpec = GridLayout.spec(1);
+        params.columnSpec = GridLayout.spec(1,6);
+        params.setGravity(Gravity.CENTER);
+
+        TextView textView = new TextView(getActivity());
+        textView.setText("Player turn: ");
+        textView.setLayoutParams(params);
+
+        mPlayerTurnText = textView;
 
         // This show the starting status of the board
         updateBoard(boardRepresentation);
@@ -150,19 +163,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             board.addView(t);
         }
 
-        GridLayout.LayoutParams params;
-
-        // Something in the middle
-        params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(1);
-        params.columnSpec = GridLayout.spec(1,6);
-        params.setGravity(Gravity.CENTER);
-
-        TextView textView = new TextView(getActivity());
-        textView.setText("Tocca a: ");
-        textView.setLayoutParams(params);
-        board.addView(textView);
-
+        board.addView(mPlayerTurnText);
     }
 
     private void updateBoard(ArrayList<Container> boardRepresentation) {
@@ -178,22 +179,27 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // I'm interested in the Action containing the board update only
         ArrayList<Container> containers = null;
         if (data instanceof ActivePlayer) {
-            Logger.v(LOG_TAG, "Tocca al Player: " + ((ActivePlayer) data).getLoad().getName()); //FIXME: Log
+            Logger.v(LOG_TAG, "Player turn: " + ((ActivePlayer) data).getLoad().getName()); //FIXME: Log
             mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
-
+            updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
         } else if (data instanceof BoardUpdated) {
             containers = ((BoardUpdated) data).getLoad();
-            //printBoard(containers); // DEBUG
             updateBoard(containers);
+        } else if (data instanceof Winner) {
+            Logger.v(LOG_TAG, "And the Winner is: " + ((Winner) data).getLoad().getName());
+            updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
         }
     }
 
-    public void printBoard(ArrayList<Container> containers) {
-        if (containers != null) {
-            for (int i = 0; i < 14; i++) {
-                Logger.v(LOG_TAG, "container of: " + containers.get(i).getOwner().getName()
-                        + ", contains: " + containers.get(i).getNumberOfSeeds() + " seeds"); //FIXME: Log
-            }
+    private void updatePlayingPlayerText(String name) {
+        if (mPlayerTurnText != null) {
+            mPlayerTurnText.setText("Player's turn: " + name);
+        }
+    }
+
+    private void updatePlayingPlayerTextWithWinnerName(String name) {
+        if (mPlayerTurnText != null) {
+            mPlayerTurnText.setText("THE WINNER IS: " + name);
         }
     }
 
@@ -207,7 +213,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // TODO recuperare il numero della ciotola cliccata
         mPlayerBrainListener.onFragmentInteraction(OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
     }
-
 
     public void attachHumanPlayerBrain(OnFragmentInteractionListener brain) {
         mPlayerBrainListener = brain;

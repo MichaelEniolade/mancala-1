@@ -60,6 +60,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
         mGame = Game.getInstance();
 
+
         mTurnContext = mGame.getTurnContext();
         mTurnContext.addObserver( boardFragment ); // registro la board agli aggioramenti
 
