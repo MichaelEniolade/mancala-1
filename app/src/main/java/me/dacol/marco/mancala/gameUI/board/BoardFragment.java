@@ -18,6 +18,7 @@ import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.logging.Logger;
@@ -188,6 +189,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         } else if (data instanceof Winner) {
             Logger.v(LOG_TAG, "And the Winner is: " + ((Winner) data).getLoad().getName());
             updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
+        } else if (data instanceof EvenGame) {
+            Logger.v(LOG_TAG, "The game ended as EVEN!");
+            updatePlayingPlayerText("The game ended, even...Shame on you!");
         }
     }
 
