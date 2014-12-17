@@ -11,6 +11,7 @@ public class InvalidMove extends Action<Move> {
     private ArrayList<Container> mBoardStatus;
     private Player mPlayer;
 
+    //TODO I don't need palyer in the arguments, I alredy have it in the load
     public InvalidMove(Move load, ArrayList<Container> boardStatus, Player player) {
         super(load);
         mBoardStatus = boardStatus;

@@ -12,6 +12,7 @@ import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.Player;
 import me.dacol.marco.mancala.gameLib.player.PlayerFactory;
@@ -75,21 +76,17 @@ public class Game implements Observer {
     /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
-    //TODO: I should separate this and make anotherTurn private, and leave only start as public method
     public void start() {
-        anotherTurn();
+        nextTurn();
     }
 
-    private void anotherTurn() {
+    private void nextTurn() {
         if (!isEnded()) {
             try {
                 newTurn();
             } catch (NumberOfPlayersException e) {
                 e.printStackTrace();
             }
-        } else {
-            Player winningPlayer = getWinner();
-            announceTheWinner(winningPlayer);
         }
     }
 
@@ -132,7 +129,9 @@ public class Game implements Observer {
         mNextPlayer = (mPlayers.size() -1) - mPlayingPlayer;
     }
 
+    // TODO extract this method to an interface so that will be the same on every object that can post on the TurnContext
     private void updateTurnContext() {
+    //TODO eliminate that mBoad.getRepresentation, game knows about the board throught the boardupdated event
         mTurnContext.push(new ActivePlayer(mPlayers.get(mPlayingPlayer), mBoard.getRepresentation()));
     }
 
@@ -147,14 +146,6 @@ public class Game implements Observer {
         } else {
             togglePlayerAnotherRound(); //Set back to false the flag and don't switch players
         }
-    }
-
-    private Player getWinner() {
-        return mBoard.getWinner();
-    }
-
-    private void announceTheWinner(Player player) {
-        mTurnContext.push(new Winner(player));
     }
 
     //---> Turn methods
@@ -190,10 +181,8 @@ public class Game implements Observer {
         mTurnNumber += 1;
     }
 
-    private void checkForSpecialCondition(BoardUpdated boardUpdated) {
-        if (boardUpdated.isGameEnded()) {
-            toggleEnd();
-        } else if (boardUpdated.isAnotherRound()) {
+    private void anotherTurnForPlayingPlayer(Boolean isAnotherTurn) {
+        if (isAnotherTurn) {
             togglePlayerAnotherRound();
         }
     }
@@ -227,14 +216,16 @@ public class Game implements Observer {
         }
     }
 
-    //---> interfaces
+    // TODO this should observe for much more elements like Winner and EvenGame
     @Override
     public void update(Observable observable, Object data) {
         // Take into account only the events that this class can handle
         if (data instanceof BoardUpdated) {
             BoardUpdated boardUpdated = (BoardUpdated) data;
-            checkForSpecialCondition(boardUpdated);
-            anotherTurn();
+            anotherTurnForPlayingPlayer(boardUpdated.isAnotherRound());
+            nextTurn();
+        } else if ((data instanceof Winner) || (data instanceof EvenGame)) {
+            toggleEnd();
         }
     }
 }

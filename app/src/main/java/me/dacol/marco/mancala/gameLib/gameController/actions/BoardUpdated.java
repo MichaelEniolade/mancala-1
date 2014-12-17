@@ -12,9 +12,8 @@ public class BoardUpdated extends Action<ArrayList> {
     private boolean mIsGameEnded;
     private boolean mAnotherRound;
 
-    public BoardUpdated(ArrayList load, boolean isGameEnded, boolean anotherRound) {
+    public BoardUpdated(ArrayList load, boolean anotherRound) {
         super(load);
-        mIsGameEnded = isGameEnded;
         mAnotherRound = anotherRound;
     }
 

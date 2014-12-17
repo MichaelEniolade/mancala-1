@@ -8,8 +8,10 @@ import java.util.Observer;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
+import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.Player;
 
 public class Board implements Observer, StandardBoard<Container> {
@@ -23,6 +25,7 @@ public class Board implements Observer, StandardBoard<Container> {
     private int mNumberOfTrays;
     private TurnContext mTurnContext;
     private Player mWinner;
+    private boolean mEvenGame;
 
     // Singleton
     private static Board sInstance = null;
@@ -40,6 +43,8 @@ public class Board implements Observer, StandardBoard<Container> {
         mNumberOfBowls = numberOfBowl;
         mNumberOfTrays = numberOfTray;
         mTurnContext = turnContext;
+        mEvenGame = false;
+        mWinner = null;
         return this; // allows concatenation
     }
 
@@ -77,7 +82,9 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     public Player getWinner() {
-        return mWinner;
+        return (mEvenGame && (mWinner == null))
+                ? null
+                : mWinner;
     }
 
     // ---> Core rules for the game
@@ -88,13 +95,23 @@ public class Board implements Observer, StandardBoard<Container> {
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
             boolean anotherRound = spreadSeedFrom(move.getBowlNumber());
 
-            //TODO this is a little confusing maybe I should integrate the position number in any container
-            postOnTurnContext(new BoardUpdated(getRepresentation(), isGameEnded(), anotherRound));
+            if (isGameEnded()) {
+                Action gameEnded;
+                if (!mEvenGame) {
+                    gameEnded = new Winner(mWinner, getRepresentation());
+                }  else {
+                    gameEnded = new EvenGame(getRepresentation());
+                }
+
+                postOnTurnContext(gameEnded);
+            } else {
+                postOnTurnContext(new BoardUpdated(getRepresentation(), anotherRound));
+            }
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
                     getRepresentation(),
-                    move.getPlayer()
+                    move.getPlayer()    //TODO remove this arguments, i already have it in the move obj
             ));
         }
     }
@@ -234,11 +251,12 @@ public class Board implements Observer, StandardBoard<Container> {
         // I can have 3 ending state,
         // player one wins, player two wins, even game
         // default case, if this is null it means that the game is even
-        mWinner = null;
         if (mContainers.get(6).getNumberOfSeeds() > mContainers.get(13).getNumberOfSeeds()) {
             mWinner = mContainers.get(6).getOwner();
         } else if (mContainers.get(6).getNumberOfSeeds() < mContainers.get(13).getNumberOfSeeds()) {
             mWinner = mContainers.get(13).getOwner();
+        } else {
+            mEvenGame = true;
         }
     }
 
