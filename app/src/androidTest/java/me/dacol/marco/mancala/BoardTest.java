@@ -11,9 +11,12 @@ import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.board.Move;
 import me.dacol.marco.mancala.gameLib.board.Tray;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
+import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
+import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.Player;
 import me.dacol.marco.mancala.gameLib.player.PlayerFactory;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
@@ -80,7 +83,7 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{0,2,2,2,1,1,4,1,1,1,1,1,1,5};
         int moveFrom = 0;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
@@ -90,7 +93,7 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{0,2,2,0,1,1,6,1,1,0,1,1,1,5};
         int moveFrom = 0;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
@@ -100,7 +103,7 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{0,2,2,0,1,1,5,1,1,0,1,1,1,5};
         int moveFrom = 0;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(!boardUpdated.isGameEnded());
     }
 
@@ -110,9 +113,9 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{0,0,0,0,0,0,6,0,0,0,0,0,0,10};
         int moveFrom = 5;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(boardUpdated.isGameEnded());
-        assertTrue(mBoard.getWinner() == mComputerPlayer);
+        Winner winner = (Winner) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
+
+        assertTrue(winner.getLoad() == mComputerPlayer);
     }
 
     public void testPlayerPlayAgain() {
@@ -121,8 +124,7 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{0,0,0,1,0,0,6,1,1,1,1,0,1,5};
         int moveFrom = 5;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
         assertTrue(boardUpdated.isAnotherRound());
     }
 
@@ -132,8 +134,7 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{1,1,1 ,2,2,2,6,2,2,2,2,2,2,6};
         int moveFrom = 2;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
     }
 
     public void testALotOfSeedToSpreadEndingInStartingPosition() {
@@ -142,8 +143,7 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{1,1,0,1,1,2,9,2,2,2,0,2,2,6};
         int moveFrom = 2;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
     }
 
     public void testALotOfSeedToSpreadEndingInOpponentTray() {
@@ -152,9 +152,19 @@ public class BoardTest extends AndroidTestCase {
         int[] expectedStatus = new int[]{2,1,3,2,1,2,6,1,1,1,1,0,2,6};
         int moveFrom = 11;
 
-        BoardUpdated boardUpdated = runConfiguration(startingStatus, expectedStatus, moveFrom, mComputerPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mComputerPlayer);
     }
+
+    public void testEventGameStatus() {
+        initialize();
+        int[] startingStatus = new int[]{0,0,0,0,0,1,5,0,0,0,0,0,1,5};
+        int[] expectedStatus = new int[]{0,0,0,0,0,0,6,0,0,0,0,0,0,6};
+        int moveFrom = 12;
+
+        assertTrue(runConfiguration(startingStatus, expectedStatus, moveFrom, mComputerPlayer) instanceof EvenGame);
+    }
+
+
     // ---> HELPERS
 
     // Runs configuration of invalid moves, to check if the system responds well
@@ -197,10 +207,10 @@ public class BoardTest extends AndroidTestCase {
     // [ BH, BH, BH, BH, BH, BH, TH, BC, BC, BC, BC, BC, BC, TC ]
     // This method already check the assertion on the expectedStatus and return boardUpdated object
     // in case more assertion has to be done
-    private BoardUpdated runConfiguration(int[] startingBoardStatus,
-                                          int[] expectedBoardStatus,
-                                          int moveFrom,
-                                          Player player) {
+    private Action runConfiguration(int[] startingBoardStatus,
+                                    int[] expectedBoardStatus,
+                                    int moveFrom,
+                                    Player player) {
 
         Board board = initializeBoard();
         board.buildBoard();
@@ -217,18 +227,22 @@ public class BoardTest extends AndroidTestCase {
         mTurnContext.push(moveAction);
         mTestBlockingObserver.waitUntilUpdateIsCalled();
 
-        // and wait for the BoardUpdated action
-        BoardUpdated boardUpdated = null;
+        // and wait for the response action
+        Action responseAction= null;
 
         if (mTurnContext.peek() instanceof BoardUpdated) {
-            boardUpdated = (BoardUpdated) mTurnContext.pop();
-
-            checkExpectedStatus(boardUpdated.getLoad(), expectedBoardStatus);
+            checkExpectedStatus(((BoardUpdated) mTurnContext.peek()).getLoad(), expectedBoardStatus);
+        } else if (mTurnContext.peek() instanceof Winner) {
+            checkExpectedStatus(((Winner) mTurnContext.peek()).getboardStatus(), expectedBoardStatus);
+        } else if (mTurnContext.peek() instanceof EvenGame) {
+            checkExpectedStatus(((EvenGame) mTurnContext.peek()).getLoad(), expectedBoardStatus);
         }
+
+        responseAction = mTurnContext.peek();
 
         cleanUp();
 
-        return boardUpdated;
+        return responseAction;
     }
 
     //each test need this call

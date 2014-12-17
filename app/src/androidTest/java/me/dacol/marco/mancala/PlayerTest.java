@@ -77,7 +77,7 @@ public class PlayerTest extends AndroidTestCase {
 
         mTurnContext.addObserver(playerWithInvalidMove);
 
-        Move move = brain.makeMove(mBoardStatus, playerWithInvalidMove);
+        Move move = new Move(3, playerWithInvalidMove);
 
         InvalidMove invalidMove = new InvalidMove(move, mBoardStatus, playerWithInvalidMove);
         mTurnContext.push(invalidMove);

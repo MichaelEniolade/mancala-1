@@ -56,6 +56,7 @@ public class GameTest extends AndroidTestCase {
 
     private void initialize() {
         mGame = Game.getInstance();
+        mGame.setup();
 
         try {
             mGame.createPlayer(PlayerType.HUMAN, "Kasparov");
