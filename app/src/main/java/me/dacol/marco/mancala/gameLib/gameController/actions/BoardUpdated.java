@@ -9,20 +9,11 @@ import java.util.ArrayList;
  */
 public class BoardUpdated extends Action<ArrayList> {
 
-    private boolean mIsGameEnded;
     private boolean mAnotherRound;
 
     public BoardUpdated(ArrayList load, boolean anotherRound) {
         super(load);
         mAnotherRound = anotherRound;
-    }
-
-    /***
-     * Flag indicating if after the last move, the game is ended
-     * @return boolean, true if one of the two player has ended the seeds in his bowl
-     */
-    public boolean isGameEnded() {
-        return mIsGameEnded;
     }
 
     /***

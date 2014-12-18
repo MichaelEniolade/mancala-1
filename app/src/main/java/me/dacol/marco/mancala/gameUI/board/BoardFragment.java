@@ -17,6 +17,7 @@ import java.util.Observer;
 import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardReadyAction;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
@@ -216,5 +217,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     public void attachHumanPlayerBrain(OnFragmentInteractionListener brain) {
         mPlayerBrainListener = brain;
+    }
+
+    public void setInitialBoardState(ArrayList<Container> boardStatus) {
+        mStartingBoard = boardStatus;
     }
 }

@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardReadyAction;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
@@ -62,6 +63,7 @@ public class Board implements Observer, StandardBoard<Container> {
         // reset the board from any previous game
         mContainers = new ArrayList<Container>();
 
+        //TODO place the phone owner always at the bottom of the screen, position 0
         // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
@@ -78,6 +80,7 @@ public class Board implements Observer, StandardBoard<Container> {
 
         mContainers.add(new Tray(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
 
+        mTurnContext.push(new BoardReadyAction(getRepresentation()));
 
     }
 

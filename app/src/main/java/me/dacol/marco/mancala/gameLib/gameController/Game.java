@@ -7,6 +7,7 @@ import java.util.Observer;
 import java.util.Random;
 
 import me.dacol.marco.mancala.gameLib.board.Board;
+import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.board.StandardBoard;
 import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
@@ -49,13 +50,13 @@ public class Game implements Observer {
     }
 
     protected Game() {
-        // empty constructor
+        setup();
     }
 
     /**
      * Run before starting a game, has the job to initialize a new game
      */
-    public void setup() {
+    private void setup() {
         mPlayingPlayer = 0;
         mNextPlayer = 0;
         mTurnNumber = 0;
@@ -74,10 +75,66 @@ public class Game implements Observer {
     }
 
     /**
+     * Initialize the board, run before starting the game
+     * @throws NumberOfPlayersException
+     */
+    public void setupBoard() throws NumberOfPlayersException {
+        if ((mTurnNumber == 0) && (mPlayers.size() == 2)) {
+            initializeBoard();
+        }
+    }
+
+    /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
     public void start() {
         nextTurn();
+    }
+
+    //---> Player methods
+    public void createPlayer(PlayerType type, String name)
+            throws ToManyPlayerException {
+
+        Player player = mPlayerFactory.makePlayer(type, name);
+        addPlayer(player);
+    }
+
+    // TODO: put me in the interface
+    public TurnContext getTurnContext() {
+        return mTurnContext;
+    }
+
+    /**
+     * Return the human player, needed from the view to connect the brain to the board UI
+     * @return Player
+     */
+    public Player getHumanPlayer() {
+        if (mPlayers.get(0).isHuman()) {
+            return mPlayers.get(0);
+        } else {
+            return mPlayers.get(1);
+        }
+    }
+
+    /**
+     * Return the actual board status
+     * @return
+     */
+    public ArrayList<Container> getBoardStatus() {
+        return mBoard.getRepresentation();
+    }
+
+    // TODO this should observe for much more elements like Winner and EvenGame
+    @Override
+    public void update(Observable observable, Object data) {
+        // Take into account only the events that this class can handle
+        if (data instanceof BoardUpdated) {
+            BoardUpdated boardUpdated = (BoardUpdated) data;
+            anotherTurnForPlayingPlayer(boardUpdated.isAnotherRound());
+            nextTurn();
+        } else if ((data instanceof Winner) || (data instanceof EvenGame)) {
+            toggleEnd();
+        }
     }
 
     private void nextTurn() {
@@ -90,12 +147,10 @@ public class Game implements Observer {
         }
     }
 
-    //---> Player methods
-    public void createPlayer(PlayerType type, String name)
-            throws ToManyPlayerException {
-
-        Player player = mPlayerFactory.makePlayer(type, name);
-        addPlayer(player);
+    public void reset() {
+        mTurnContext.deleteObservers();
+        mTurnContext.initialize();
+        setup();
     }
 
     /**
@@ -173,10 +228,6 @@ public class Game implements Observer {
     private void newTurn() throws NumberOfPlayersException {
         mTurnContext.initialize();
 
-        if (mTurnNumber == 0) {
-            initializeBoard();
-        }
-
         playingPlayer();
         mTurnNumber += 1;
     }
@@ -199,33 +250,5 @@ public class Game implements Observer {
         return mEnded;
     }
 
-    // TODO: put me in the interface
-    public TurnContext getTurnContext() {
-        return mTurnContext;
-    }
 
-    /**
-     * Return the human player, needed from the view to connect the brain to the board UI
-     * @return Player
-     */
-    public Player getHumanPlayer() {
-        if (mPlayers.get(0).isHuman()) {
-            return mPlayers.get(0);
-        } else {
-            return mPlayers.get(1);
-        }
-    }
-
-    // TODO this should observe for much more elements like Winner and EvenGame
-    @Override
-    public void update(Observable observable, Object data) {
-        // Take into account only the events that this class can handle
-        if (data instanceof BoardUpdated) {
-            BoardUpdated boardUpdated = (BoardUpdated) data;
-            anotherTurnForPlayingPlayer(boardUpdated.isAnotherRound());
-            nextTurn();
-        } else if ((data instanceof Winner) || (data instanceof EvenGame)) {
-            toggleEnd();
-        }
-    }
 }

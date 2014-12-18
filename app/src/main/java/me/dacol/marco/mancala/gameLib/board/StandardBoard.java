@@ -14,5 +14,4 @@ public interface StandardBoard<T> extends Observer {
     public void buildBoard();
     public ArrayList<T> getRepresentation();
     public Player getWinner();
-
 }
