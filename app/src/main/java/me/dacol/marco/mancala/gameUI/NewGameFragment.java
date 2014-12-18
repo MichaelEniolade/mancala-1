@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Switch;
 
 import me.dacol.marco.mancala.MainActivity;
 import me.dacol.marco.mancala.R;
@@ -59,6 +60,9 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
         Button newGameButton = (Button) viewRoot.findViewById(R.id.new_game);
         newGameButton.setOnClickListener(this);
 
+        Switch aSwitch = (Switch) viewRoot.findViewById(R.id.switch1);
+        aSwitch.setOnClickListener(this);
+
         return viewRoot;
     }
 
@@ -82,6 +86,10 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         // TODO passare tutto il riferimento al bottone?
-        mListener.onFragmentInteraction(MainActivity.EventType.NEW_GAME_BUTTON_PRESSED, null);
+        if (v instanceof Button) {
+            mListener.onFragmentInteraction(MainActivity.EventType.NEW_GAME_BUTTON_PRESSED, null);
+        } else if (v instanceof Switch) {
+            mListener.onFragmentInteraction(MainActivity.EventType.TOGGLE_ENEMY_KIND, null);
+        }
     }
 }

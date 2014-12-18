@@ -71,7 +71,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         }
 
         return rootView;
-
     }
 
     //TODO: serialize the event, so the UI can be updated more slowly
@@ -82,7 +81,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         GridLayout.LayoutParams params;
 
         // make 6 bowls for each player on row 0 and 2
-        // For Human Player
+        // For Human Player, I'm always sure this is the human player
         for (int i = 1; i <= 6; i++) {
             // set layout parameters
             params = new GridLayout.LayoutParams();
@@ -112,7 +111,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         mBoardRepresentation.add(trayPlayerOne);
 
-        // For Computer Player
+        // Here I've to check if the choosen game is human vs human, i need to attach
+        // the button to the player brain
+        boolean isHumanVsHuman = false;
+        if (boardRepresentation.get(7).getOwner().isHuman()) {
+            isHumanVsHuman = true;
+        }
         for (int i = 6; i >= 1; i--) {
             // set layout parameters
             params = new GridLayout.LayoutParams();
@@ -123,6 +127,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             Button button = new Button(getActivity());
             button.setLayoutParams(params);
             button.setText(boardRepresentation.get(13-i).toString());
+            button.setId(13-i);
+            if (isHumanVsHuman) button.setOnClickListener(this);
 
             mBoardRepresentation.add(button);
         }
@@ -210,11 +216,11 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void onClick(View v) {
         int bowlNumber = v.getId();
 
-        // TODO recuperare il numero della ciotola cliccata
         mPlayerBrainListener.onFragmentInteraction(OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
     }
 
     public void attachHumanPlayerBrain(OnFragmentInteractionListener brain) {
+        // TODO distinguere in caso ci siano due player umani, a chi passare la notifica
         mPlayerBrainListener = brain;
     }
 }

@@ -20,11 +20,13 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
     private Game mGame;
     private TurnContext mTurnContext;
+    private boolean mIsHumanVsHumanGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mIsHumanVsHumanGame = false;
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
@@ -65,10 +67,15 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         mTurnContext.addObserver( boardFragment ); // registro la board agli aggioramenti
 
         // Add the player to the game
-        // TODO: put an option to choose the kind of brain of the computer (game difficulty)
         try {
             mGame.createPlayer(PlayerType.HUMAN, "1");
-            mGame.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "2");
+
+            if (mIsHumanVsHumanGame) {
+                mGame.createPlayer(PlayerType.HUMAN, "2");
+            } else {
+                mGame.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "2");
+            }
+
         } catch (ToManyPlayerException e) {
             e.printStackTrace();
         }
@@ -95,6 +102,12 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
     public void onFragmentInteraction(EventType event, Object data) {
         if (event == EventType.NEW_GAME_BUTTON_PRESSED) {
             startNewGame();
+        } else if (event == EventType.TOGGLE_ENEMY_KIND) {
+            toggleEnemyKind();
         }
+    }
+
+    private void toggleEnemyKind() {
+        mIsHumanVsHumanGame = !mIsHumanVsHumanGame;
     }
 }
