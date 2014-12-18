@@ -21,7 +21,6 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
-import me.dacol.marco.mancala.logging.Logger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -180,17 +179,16 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // I'm interested in the Action containing the board update only
         ArrayList<Container> containers = null;
         if (data instanceof ActivePlayer) {
-            Logger.v(LOG_TAG, "Player turn: " + ((ActivePlayer) data).getLoad().getName()); //FIXME: Log
             mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
             updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
         } else if (data instanceof BoardUpdated) {
             containers = ((BoardUpdated) data).getLoad();
             updateBoard(containers);
         } else if (data instanceof Winner) {
-            Logger.v(LOG_TAG, "And the Winner is: " + ((Winner) data).getLoad().getName());
+            updateBoard(((Winner) data).getboardStatus());
             updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
         } else if (data instanceof EvenGame) {
-            Logger.v(LOG_TAG, "The game ended as EVEN!");
+            updateBoard(((EvenGame) data).getLoad());
             updatePlayingPlayerText("The game ended, even...Shame on you!");
         }
     }
@@ -211,8 +209,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public void onClick(View v) {
         int bowlNumber = v.getId();
-
-        Logger.v(LOG_TAG, "Player choose bowl number: " + bowlNumber); //FIXME: Log
 
         // TODO recuperare il numero della ciotola cliccata
         mPlayerBrainListener.onFragmentInteraction(OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
