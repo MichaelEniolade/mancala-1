@@ -5,7 +5,6 @@ import java.util.Random;
 
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.player.Player;
-import me.dacol.marco.mancala.logging.Logger;
 
 public class ArtificialIntelligence extends BaseBrain {
     private final static String LOG_TAG = ArtificialIntelligence.class.getSimpleName();
@@ -47,8 +46,6 @@ public class ArtificialIntelligence extends BaseBrain {
 
         //reset the invalid status
         if(mInvalidMove) toggleLastMoveCameUpInvalid();
-
-        Logger.v(LOG_TAG, "Computer has choosen: " + choosenBowl);
 
         mLastMove = choosenBowl;
         mAttachedPlayer.onBrainInteraction(choosenBowl);

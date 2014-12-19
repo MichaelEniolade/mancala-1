@@ -208,12 +208,8 @@ public class Game implements Observer {
      * Return the human player, needed from the view to connect the brain to the board UI
      * @return Player
      */
-    public Player getHumanPlayer() {
-        if (mPlayers.get(0).isHuman()) {
-            return mPlayers.get(0);
-        } else {
-            return mPlayers.get(1);
-        }
+    public Player getPlayerNumber(int playerNumber) {
+        return mPlayers.get(playerNumber);
     }
 
     // TODO this should observe for much more elements like Winner and EvenGame

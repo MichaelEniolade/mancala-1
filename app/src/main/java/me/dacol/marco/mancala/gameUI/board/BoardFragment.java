@@ -16,10 +16,13 @@ import java.util.Observer;
 
 import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
+import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
+import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
+import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 
 /**
@@ -33,9 +36,9 @@ import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 public class BoardFragment extends Fragment implements Observer, View.OnClickListener {
     private static final String LOG_TAG = BoardFragment.class.getSimpleName();
 
-    private OnFragmentInteractionListener mPlayerBrainListener;
+    private ArrayList<OnFragmentInteractionListener> mPlayerBrainListeners;
 
-    private ArrayList<TextView> mBoardRepresentation;
+    private ArrayList<TextView> mBoardTextViewRepresentation;
 
     private ArrayList<Container> mStartingBoard;
     private TextView mPlayerTurnText;
@@ -44,9 +47,49 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      */
-    public static BoardFragment newInstance() {
+    public static BoardFragment newInstance(Game game, boolean isHumanVsHuman) {
         BoardFragment fragment = new BoardFragment();
+
+        // Initialize
+        game.setup();
+        game.getTurnContext().addObserver(fragment);
+
+        addPlayers(game, fragment, isHumanVsHuman);
+        game.start();
         return fragment;
+    }
+
+    private static void addPlayers(Game game, BoardFragment fragment, boolean isHumanVsHuman) {
+        // add players to the game
+        try {
+            game.createPlayer(PlayerType.HUMAN, "1");
+
+            if (isHumanVsHuman) {
+                game.createPlayer(PlayerType.HUMAN, "2");
+            } else {
+                game.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "2");
+            }
+
+        } catch (ToManyPlayerException e) {
+            // TODO falla risalire ancora fino ad arrivare alla main activity
+            e.printStackTrace();
+        }
+
+        connectBoardViewToPlayersBrain(fragment, game, isHumanVsHuman);
+
+    }
+
+    private static void connectBoardViewToPlayersBrain(BoardFragment boardFragment, Game game, boolean isHumanVsHuman) {
+        // attach players to the board
+        boardFragment.attachHumanPlayerBrain(
+                (OnFragmentInteractionListener) game.getPlayerNumber(0).getBrain()
+                , 0);
+
+        if (isHumanVsHuman) {
+            boardFragment.attachHumanPlayerBrain(
+                    (OnFragmentInteractionListener) game.getPlayerNumber(1).getBrain()
+                    , 1);
+        }
     }
 
     public BoardFragment() {
@@ -76,7 +119,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     //TODO: serialize the event, so the UI can be updated more slowly
     private void setupBoard(ArrayList<Container> boardRepresentation) {
 
-        mBoardRepresentation = new ArrayList<TextView>();
+        mBoardTextViewRepresentation = new ArrayList<TextView>();
 
         GridLayout.LayoutParams params;
 
@@ -95,7 +138,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setOnClickListener(this);
             button.setId(i-1);
 
-            mBoardRepresentation.add(button);
+            mBoardTextViewRepresentation.add(button);
         }
 
         // Add the tray for player one
@@ -109,7 +152,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         trayPlayerOne.setLayoutParams(params);
         trayPlayerOne.setText(boardRepresentation.get(6).toString());
 
-        mBoardRepresentation.add(trayPlayerOne);
+        mBoardTextViewRepresentation.add(trayPlayerOne);
 
         // Here I've to check if the choosen game is human vs human, i need to attach
         // the button to the player brain
@@ -130,7 +173,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setId(13-i);
             if (isHumanVsHuman) button.setOnClickListener(this);
 
-            mBoardRepresentation.add(button);
+            mBoardTextViewRepresentation.add(button);
         }
 
         // Add the tray for computer
@@ -144,7 +187,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         trayPlayerTwo.setLayoutParams(params);
         trayPlayerTwo.setText(boardRepresentation.get(13).toString());
 
-        mBoardRepresentation.add(trayPlayerTwo);
+        mBoardTextViewRepresentation.add(trayPlayerTwo);
 
         // Something in the middle
         params = new GridLayout.LayoutParams();
@@ -165,7 +208,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private void addToBoardView(GridLayout board) {
         board.removeAllViews();
 
-        for (TextView t : mBoardRepresentation) {
+        for (TextView t : mBoardTextViewRepresentation) {
             board.addView(t);
         }
 
@@ -173,9 +216,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     private void updateBoard(ArrayList<Container> boardRepresentation) {
-        if (mBoardRepresentation != null) {
+        if (mBoardTextViewRepresentation != null) {
             for (int i=0; i < boardRepresentation.size(); i++) {
-                mBoardRepresentation.get(i).setText(boardRepresentation.get(i).toString());
+                mBoardTextViewRepresentation.get(i).setText(boardRepresentation.get(i).toString());
             }
         }
     }
@@ -212,15 +255,24 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     // Interact with the Human Player Brain
+    //TODO maybe there is some way more elegant to do this
     @Override
     public void onClick(View v) {
         int bowlNumber = v.getId();
-
-        mPlayerBrainListener.onFragmentInteraction(OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
+        if (bowlNumber < 6)
+            mPlayerBrainListeners.get(0)
+                    .onFragmentInteraction(
+                            OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
+        else
+            mPlayerBrainListeners.get(1)
+                    .onFragmentInteraction(
+                            OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
     }
 
-    public void attachHumanPlayerBrain(OnFragmentInteractionListener brain) {
-        // TODO distinguere in caso ci siano due player umani, a chi passare la notifica
-        mPlayerBrainListener = brain;
+    public void attachHumanPlayerBrain(OnFragmentInteractionListener brain, int playerNumber) {
+        if (mPlayerBrainListeners == null) {
+            mPlayerBrainListeners = new ArrayList<OnFragmentInteractionListener>();
+        }
+        mPlayerBrainListeners.add(playerNumber, brain);
     }
 }

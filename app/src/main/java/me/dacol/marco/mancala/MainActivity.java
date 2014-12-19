@@ -7,13 +7,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
-import me.dacol.marco.mancala.gameLib.player.PlayerType;
-import me.dacol.marco.mancala.gameUI.board.BoardFragment;
 import me.dacol.marco.mancala.gameUI.NewGameFragment;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
+import me.dacol.marco.mancala.gameUI.board.BoardFragment;
 
 
 public class MainActivity extends Activity implements OnFragmentInteractionListener {
@@ -58,34 +56,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
     }
 
     private void startNewGame() {
-        BoardFragment boardFragment = BoardFragment.newInstance();
-
-        mGame = Game.getInstance();
-        mGame.setup();
-
-        mTurnContext = mGame.getTurnContext();
-        mTurnContext.addObserver( boardFragment ); // registro la board agli aggioramenti
-
-        // Add the player to the game
-        try {
-            mGame.createPlayer(PlayerType.HUMAN, "1");
-
-            if (mIsHumanVsHumanGame) {
-                mGame.createPlayer(PlayerType.HUMAN, "2");
-            } else {
-                mGame.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "2");
-            }
-
-        } catch (ToManyPlayerException e) {
-            e.printStackTrace();
-        }
-
-        // This because I need to connect the real Brain of the player to the Model in the game
-        boardFragment.attachHumanPlayerBrain(
-                (OnFragmentInteractionListener) mGame.getHumanPlayer().getBrain());
-
-        // Start the GameLogicEngine
-        mGame.start();
+        BoardFragment boardFragment = BoardFragment.newInstance(Game.getInstance(), mIsHumanVsHumanGame);
 
         // change the visualized fragment
         popUpNewFragment(boardFragment);

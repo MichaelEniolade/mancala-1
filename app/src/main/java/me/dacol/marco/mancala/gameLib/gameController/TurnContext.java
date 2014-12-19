@@ -4,6 +4,13 @@ import java.util.Observable;
 import java.util.Stack;
 
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
+import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
+import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
+import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
+import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
+import me.dacol.marco.mancala.logging.Logger;
 
 /***
  * Here is published in which moment of the game we are,
@@ -42,8 +49,28 @@ public class TurnContext extends Observable {
 
     public void push(Action action) {
         mActionList.push(action);
+        log(action, true);
+
         setChanged();
         notifyObservers(action); // i pass the last pushed object
+    }
+
+    private void log(Action action, boolean isActive) {
+        if (isActive) {
+            if (action instanceof ActivePlayer) {
+                Logger.v(LOG_TAG, "Actve Player: " + ((ActivePlayer) action).getLoad().getName());
+            } else if (action instanceof BoardUpdated) {
+                Logger.v(LOG_TAG, "Board Updated");
+            } else if (action instanceof EvenGame) {
+                Logger.v(LOG_TAG, "Even Game");
+            } else if (action instanceof InvalidMove) {
+                Logger.v(LOG_TAG, "Invalid Move of Player: " + ((InvalidMove) action).getPlayer().getName());
+            } else if (action instanceof MoveAction) {
+                Logger.v(LOG_TAG, "Move Action of PLayer: " + ((MoveAction) action).getLoad().getPlayer().getName());
+            } else if (action instanceof Winner) {
+                Logger.v(LOG_TAG, "Winner: " + ((Winner) action).getLoad().getName());
+            }
+        }
     }
 
     public Action pop() {

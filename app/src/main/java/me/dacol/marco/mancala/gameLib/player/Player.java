@@ -12,7 +12,6 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.player.brains.AttachedPlayer;
 import me.dacol.marco.mancala.gameLib.player.brains.Brain;
-import me.dacol.marco.mancala.logging.Logger;
 
 public class Player implements Observer, AttachedPlayer {
 
@@ -40,7 +39,6 @@ public class Player implements Observer, AttachedPlayer {
     }
 
     private void didAnInvalidMove(ArrayList<Container> boardRepresentation) {
-        Logger.v(LOG_TAG, "did an invalid Move, Player: " + mName); //FIXME: log
         mBrain.toggleLastMoveCameUpInvalid();
         timeToPlay(boardRepresentation);
     }

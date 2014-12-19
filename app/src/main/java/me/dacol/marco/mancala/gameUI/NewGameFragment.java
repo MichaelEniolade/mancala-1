@@ -86,9 +86,9 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         // TODO passare tutto il riferimento al bottone?
-        if (v instanceof Button) {
+        if (v.getId() == R.id.new_game) {
             mListener.onFragmentInteraction(MainActivity.EventType.NEW_GAME_BUTTON_PRESSED, null);
-        } else if (v instanceof Switch) {
+        } else if (v.getId() == R.id.switch1) {
             mListener.onFragmentInteraction(MainActivity.EventType.TOGGLE_ENEMY_KIND, null);
         }
     }
