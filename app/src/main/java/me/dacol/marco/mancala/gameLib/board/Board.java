@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
+import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
@@ -26,6 +27,8 @@ public class Board implements Observer, StandardBoard<Container> {
     private TurnContext mTurnContext;
     private Player mWinner;
     private boolean mEvenGame;
+
+    private Player mActivePlayer;
 
     // Singleton
     private static Board sInstance = null;
@@ -111,7 +114,7 @@ public class Board implements Observer, StandardBoard<Container> {
             postOnTurnContext(new InvalidMove(
                     move,
                     getRepresentation(),
-                    move.getPlayer()    //TODO remove this arguments, i already have it in the move obj
+                    mActivePlayer
             ));
         }
     }
@@ -119,13 +122,16 @@ public class Board implements Observer, StandardBoard<Container> {
     private boolean isAValidMove(Player player, Container selectedContainer) {
         boolean isValid = false;
         // When a move is invalid?
+        // 0. when a player is playing in his turn
         // 1. the bowl have zero seeds in it
         // 2. the bowl is not owned by the player
         // 3. the player selected a tray
-        if ((selectedContainer instanceof Bowl)
-                && (selectedContainer.getOwner() == player)
-                && (selectedContainer.getNumberOfSeeds() > 0)) {
-            isValid = true;
+        if (player == mActivePlayer) {
+            if ((selectedContainer instanceof Bowl)
+                    && (selectedContainer.getOwner() == player)
+                    && (selectedContainer.getNumberOfSeeds() > 0)) {
+                isValid = true;
+            }
         }
         return isValid;
     }
@@ -274,6 +280,8 @@ public class Board implements Observer, StandardBoard<Container> {
         // board respond only to an action the MoveAction that goes to update the board status
         if (data instanceof MoveAction) {
             move((MoveAction) data);
+        } else if (data instanceof ActivePlayer) {
+            mActivePlayer = ((ActivePlayer) data).getLoad();
         }
     }
 }
