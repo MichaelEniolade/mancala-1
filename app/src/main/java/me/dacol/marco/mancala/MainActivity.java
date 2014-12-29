@@ -26,6 +26,8 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         setContentView(R.layout.activity_main);
         mIsHumanVsHumanGame = false;
 
+        getActionBar().hide();
+
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new NewGameFragment())
