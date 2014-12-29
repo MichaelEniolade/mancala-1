@@ -61,14 +61,13 @@ public class Game implements Observer {
         mTurnNumber = 0;
         mEnded = false;
         mPlayers = new ArrayList<Player>();
-        mBoard = null;
-        mTurnContext = null;
+        mBoard = Board.getInstance();;
+        mTurnContext = TurnContext.getInstance();
         mAnotherRoundForPlayer = false;
 
-        // Called here because this is where players
-        // and board need to be subscribed as observers
-        // so I need to have this before everything
-        initializeTurnContext();
+        // add observers
+        mTurnContext.addObserver(this);
+        mTurnContext.addObserver(mBoard);
 
         mPlayerFactory = new PlayerFactory(mTurnContext, mNumberOfBowls, mNumberOfTrays);
     }
@@ -77,16 +76,20 @@ public class Game implements Observer {
      * This starts the game loop, it will end when a player won or retreat from the game
      */
     public void start() {
+        try {
+            initializeBoard();
+        } catch (NumberOfPlayersException e) {
+            e.printStackTrace();
+        }
+
+        chooseStartingPlayer();
+
         nextTurn();
     }
 
     private void nextTurn() {
         if (!isEnded()) {
-            try {
-                newTurn();
-            } catch (NumberOfPlayersException e) {
-                e.printStackTrace();
-            }
+            newTurn();
         }
     }
 
@@ -112,15 +115,6 @@ public class Game implements Observer {
         }
     }
 
-    private void playingPlayer() {
-        if (mTurnNumber == 0) {
-            chooseStartingPlayer();
-        } else {
-            updatePlayingPlayer();
-        }
-        updateTurnContext();
-    }
-
     /***
      * Select randomly the starting player, it supports only 2 players
      */
@@ -131,7 +125,6 @@ public class Game implements Observer {
 
     // TODO extract this method to an interface so that will be the same on every object that can post on the TurnContext
     private void updateTurnContext() {
-    //TODO eliminate that mBoad.getRepresentation, game knows about the board throught the boardupdated event
         mTurnContext.push(new ActivePlayer(mPlayers.get(mPlayingPlayer), mBoard.getRepresentation()));
     }
 
@@ -149,20 +142,11 @@ public class Game implements Observer {
     }
 
     //---> Turn methods
-    private void initializeTurnContext() {
-        mTurnContext = TurnContext.getInstance();
-        mTurnContext.addObserver(this);
-    }
-
     private void initializeBoard() throws NumberOfPlayersException {
         if (mPlayers.size() == mNumberOfPlayers) {
-            mBoard = Board.getInstance();
-
             mBoard.setup(mTurnContext, mNumberOfBowls, mNumberOfTrays)
                     .registerPlayers(mPlayers)
                     .buildBoard();
-
-            mTurnContext.addObserver(mBoard);
         } else {
             throw new NumberOfPlayersException("Number of player is: " + mPlayers.size()
                     + ", it should be: " + mNumberOfPlayers);
@@ -170,15 +154,14 @@ public class Game implements Observer {
 
     }
 
-    private void newTurn() throws NumberOfPlayersException {
+    private void newTurn() {
         mTurnContext.initialize();
 
-        if (mTurnNumber == 0) {
-            initializeBoard();
-        }
-
-        playingPlayer();
+        updatePlayingPlayer();
         mTurnNumber += 1;
+
+        updateTurnContext();
+
     }
 
     private void anotherTurnForPlayingPlayer(Boolean isAnotherTurn) {

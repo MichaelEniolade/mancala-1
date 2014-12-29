@@ -12,6 +12,7 @@ import me.dacol.marco.mancala.gameLib.board.Move;
 import me.dacol.marco.mancala.gameLib.board.Tray;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
+import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
@@ -177,8 +178,12 @@ public class BoardTest extends AndroidTestCase {
         Board board = initializeBoard();
         board.buildBoard();
 
-        board.setBoardRepresentation(TestingUtility.createBoardRepresentation(startingStatus,
-                mHumanPlayer, mComputerPlayer));
+        ArrayList<Container> boardRepresentation = TestingUtility.createBoardRepresentation(startingStatus,
+                mHumanPlayer, mComputerPlayer);
+        board.setBoardRepresentation(boardRepresentation);
+
+        mTurnContext.push(new ActivePlayer(playingPlayer, boardRepresentation));
+
         MoveAction moveAction = new MoveAction(new Move(moveFrom, playingPlayer));
 
         mTurnContext.push(moveAction);
@@ -216,10 +221,12 @@ public class BoardTest extends AndroidTestCase {
         board.buildBoard();
 
         // in order to test a move, I've to set the board in a particular state
-        board.setBoardRepresentation(TestingUtility.createBoardRepresentation(startingBoardStatus,
-                mHumanPlayer, mComputerPlayer));
+        ArrayList<Container> boardRepresentation = TestingUtility.createBoardRepresentation(startingBoardStatus, mHumanPlayer, mComputerPlayer);
+        board.setBoardRepresentation(boardRepresentation);
 
         mBoard = board;
+
+        mTurnContext.push(new ActivePlayer(player, boardRepresentation));
 
         // then post a fake MoveAction on the mTurnContext
         MoveAction moveAction = new MoveAction(new Move(moveFrom, player));

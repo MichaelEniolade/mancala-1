@@ -1,6 +1,7 @@
 package me.dacol.marco.mancala.gameUI.board;
 
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -138,6 +139,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setOnClickListener(this);
             button.setId(i-1);
 
+            if (Build.VERSION.SDK_INT >= 16) {
+                button.setBackground( getResources().getDrawable( R.drawable.circular_button ) );
+            } else {
+                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.circular_button));
+            }
+
             mBoardTextViewRepresentation.add(button);
         }
 
@@ -172,6 +179,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setText(boardRepresentation.get(13-i).toString());
             button.setId(13-i);
             if (isHumanVsHuman) button.setOnClickListener(this);
+
+            if (Build.VERSION.SDK_INT >= 16) {
+                button.setBackground( getResources().getDrawable( R.drawable.circular_button ) );
+            } else {
+                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.circular_button));
+            }
 
             mBoardTextViewRepresentation.add(button);
         }
