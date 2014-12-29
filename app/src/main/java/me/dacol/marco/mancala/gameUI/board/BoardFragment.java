@@ -19,6 +19,7 @@ import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.Game;
+import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
@@ -43,6 +44,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private ArrayList<Container> mStartingBoard;
     private TextView mPlayerTurnText;
+    private String mStartingPlayerName;
 
     /**
      * Use this factory method to create a new instance of
@@ -209,7 +211,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         params.setGravity(Gravity.CENTER);
 
         TextView textView = new TextView(getActivity());
-        textView.setText("Player turn: ");
+        textView.setText("Player turn: " + mStartingPlayerName);
         textView.setLayoutParams(params);
 
         mPlayerTurnText = textView;
@@ -240,24 +242,30 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void update(Observable observable, Object data) {
         // I'm interested in the Action containing the board update only
         ArrayList<Container> containers = null;
-        if (data instanceof ActivePlayer) {
-            mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
-            updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
-        } else if (data instanceof BoardUpdated) {
-            containers = ((BoardUpdated) data).getLoad();
-            updateBoard(containers);
-        } else if (data instanceof Winner) {
-            updateBoard(((Winner) data).getboardStatus());
-            updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
-        } else if (data instanceof EvenGame) {
-            updateBoard(((EvenGame) data).getLoad());
-            updatePlayingPlayerText("The game ended, even...Shame on you!");
+        TurnContext tc = ((TurnContext) observable);
+        for (int i = 0; i < tc.size(); i++) {
+            data = tc.getElement(i); // todo se funziono refactor!!
+            if (data instanceof ActivePlayer) {
+                mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
+                updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
+            } else if (data instanceof BoardUpdated) {
+                containers = ((BoardUpdated) data).getLoad();
+                updateBoard(containers);
+            } else if (data instanceof Winner) {
+                updateBoard(((Winner) data).getboardStatus());
+                updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
+            } else if (data instanceof EvenGame) {
+                updateBoard(((EvenGame) data).getLoad());
+                updatePlayingPlayerText("The game ended, even...Shame on you!");
+            }
         }
     }
 
     private void updatePlayingPlayerText(String name) {
         if (mPlayerTurnText != null) {
             mPlayerTurnText.setText("Player's turn: " + name);
+        } else {
+            mStartingPlayerName = name;
         }
     }
 

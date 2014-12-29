@@ -80,4 +80,12 @@ public class TurnContext extends Observable {
     public Action peek() {
         return mActionList.peek();
     }
+
+    public int size() {
+        return mActionList.size();
+    }
+
+    public Action getElement(int i) {
+        return mActionList.get(i);
+    }
 }
