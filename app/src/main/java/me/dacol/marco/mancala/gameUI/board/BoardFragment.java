@@ -1,6 +1,10 @@
 package me.dacol.marco.mancala.gameUI.board;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.Fragment;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -19,7 +23,6 @@ import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.Game;
-import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
@@ -142,9 +145,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setId(i-1);
 
             if (Build.VERSION.SDK_INT >= 16) {
-                button.setBackground( getResources().getDrawable( R.drawable.circular_button ) );
+                button.setBackground( getResources().getDrawable( R.drawable.bowl) );
             } else {
-                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.circular_button));
+                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.bowl));
             }
 
             mBoardTextViewRepresentation.add(button);
@@ -156,10 +159,16 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         params.columnSpec = GridLayout.spec(7);
         params.setGravity(Gravity.CENTER);
 
-        // create the textview
         TextView trayPlayerOne = new TextView(getActivity());
         trayPlayerOne.setLayoutParams(params);
         trayPlayerOne.setText(boardRepresentation.get(6).toString());
+        trayPlayerOne.setGravity(Gravity.CENTER);
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            trayPlayerOne.setBackground( getResources().getDrawable( R.drawable.tray) );
+        } else {
+            trayPlayerOne.setBackgroundDrawable(getResources().getDrawable(R.drawable.tray));
+        }
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
 
@@ -183,9 +192,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             if (isHumanVsHuman) button.setOnClickListener(this);
 
             if (Build.VERSION.SDK_INT >= 16) {
-                button.setBackground( getResources().getDrawable( R.drawable.circular_button ) );
+                button.setBackground( getResources().getDrawable( R.drawable.bowl) );
             } else {
-                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.circular_button));
+                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.bowl));
             }
 
             mBoardTextViewRepresentation.add(button);
@@ -197,10 +206,16 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         params.columnSpec = GridLayout.spec(0);
         params.setGravity(Gravity.CENTER);
 
-        // create the textview
         TextView trayPlayerTwo = new TextView(getActivity());
         trayPlayerTwo.setLayoutParams(params);
         trayPlayerTwo.setText(boardRepresentation.get(13).toString());
+        trayPlayerTwo.setGravity(Gravity.CENTER);
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            trayPlayerTwo.setBackground( getResources().getDrawable( R.drawable.tray) );
+        } else {
+            trayPlayerTwo.setBackgroundDrawable(getResources().getDrawable(R.drawable.tray));
+        }
 
         mBoardTextViewRepresentation.add(trayPlayerTwo);
 
@@ -242,22 +257,19 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void update(Observable observable, Object data) {
         // I'm interested in the Action containing the board update only
         ArrayList<Container> containers = null;
-        TurnContext tc = ((TurnContext) observable);
-        for (int i = 0; i < tc.size(); i++) {
-            data = tc.getElement(i); // todo se funziono refactor!!
-            if (data instanceof ActivePlayer) {
-                mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
-                updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
-            } else if (data instanceof BoardUpdated) {
-                containers = ((BoardUpdated) data).getLoad();
-                updateBoard(containers);
-            } else if (data instanceof Winner) {
-                updateBoard(((Winner) data).getboardStatus());
-                updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
-            } else if (data instanceof EvenGame) {
-                updateBoard(((EvenGame) data).getLoad());
-                updatePlayingPlayerText("The game ended, even...Shame on you!");
-            }
+
+        if (data instanceof ActivePlayer) {
+            mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
+            updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
+        } else if (data instanceof BoardUpdated) {
+            containers = ((BoardUpdated) data).getLoad();
+            updateBoard(containers);
+        } else if (data instanceof Winner) {
+            updateBoard(((Winner) data).getboardStatus());
+            updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
+        } else if (data instanceof EvenGame) {
+            updateBoard(((EvenGame) data).getLoad());
+            updatePlayingPlayerText("The game ended, even...Shame on you!");
         }
     }
 
@@ -280,14 +292,31 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public void onClick(View v) {
         int bowlNumber = v.getId();
-        if (bowlNumber < 6)
+        if (bowlNumber < 6) {
+
+            // TODO animation is working
+            final Button b = (Button) v;
+            ValueAnimator animator = ValueAnimator.ofInt();
+
+            ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), Color.YELLOW, Color.RED);
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    b.getBackground().setColorFilter((Integer)animation.getAnimatedValue(), PorterDuff.Mode.MULTIPLY);
+
+                }
+            });
+
+            valueAnimator.start();
+
             mPlayerBrainListeners.get(0)
                     .onFragmentInteraction(
                             OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
-        else
+        } else {
             mPlayerBrainListeners.get(1)
                     .onFragmentInteraction(
                             OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
+        }
     }
 
     public void attachHumanPlayerBrain(OnFragmentInteractionListener brain, int playerNumber) {
