@@ -23,7 +23,7 @@
             android:id="@+id/switch1"
             android:layout_below="@+id/new_game"
             android:onClick="toggleEnemyKind"
-
+            android:layout_centerInParent="true"
             />
 
 </RelativeLayout>

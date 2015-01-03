@@ -3,8 +3,7 @@ package me.dacol.marco.mancala.gameUI.board;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Fragment;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -144,10 +143,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setOnClickListener(this);
             button.setId(i-1);
 
+            GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.bowl );
+            buttonShape.setColor( getResources().getColor(R.color.playerOneBowl));
+
             if (Build.VERSION.SDK_INT >= 16) {
-                button.setBackground( getResources().getDrawable( R.drawable.bowl) );
+                button.setBackground(buttonShape);
             } else {
-                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.bowl));
+                button.setBackgroundDrawable( buttonShape );
             }
 
             mBoardTextViewRepresentation.add(button);
@@ -164,10 +166,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         trayPlayerOne.setText(boardRepresentation.get(6).toString());
         trayPlayerOne.setGravity(Gravity.CENTER);
 
+        GradientDrawable trayOneShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
+        trayOneShape.setColor(getResources().getColor(R.color.playerOneTray));
+
         if (Build.VERSION.SDK_INT >= 16) {
-            trayPlayerOne.setBackground( getResources().getDrawable( R.drawable.tray) );
+            trayPlayerOne.setBackground( trayOneShape );
         } else {
-            trayPlayerOne.setBackgroundDrawable(getResources().getDrawable(R.drawable.tray));
+            trayPlayerOne.setBackgroundDrawable( trayOneShape );
         }
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
@@ -191,10 +196,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             button.setId(13-i);
             if (isHumanVsHuman) button.setOnClickListener(this);
 
+            GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.bowl );
+            buttonShape.setColor( getResources().getColor(R.color.playerTwoBowl));
+
             if (Build.VERSION.SDK_INT >= 16) {
-                button.setBackground( getResources().getDrawable( R.drawable.bowl) );
+                button.setBackground(buttonShape);
             } else {
-                button.setBackgroundDrawable(getResources().getDrawable(R.drawable.bowl));
+                button.setBackgroundDrawable( buttonShape );
             }
 
             mBoardTextViewRepresentation.add(button);
@@ -211,10 +219,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         trayPlayerTwo.setText(boardRepresentation.get(13).toString());
         trayPlayerTwo.setGravity(Gravity.CENTER);
 
+        GradientDrawable trayTwoShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
+        trayTwoShape.setColor(getResources().getColor(R.color.playerTwoTray));
+
         if (Build.VERSION.SDK_INT >= 16) {
-            trayPlayerTwo.setBackground( getResources().getDrawable( R.drawable.tray) );
+            trayPlayerTwo.setBackground( trayTwoShape );
         } else {
-            trayPlayerTwo.setBackgroundDrawable(getResources().getDrawable(R.drawable.tray));
+            trayPlayerTwo.setBackgroundDrawable( trayTwoShape );
         }
 
         mBoardTextViewRepresentation.add(trayPlayerTwo);
@@ -298,15 +309,17 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             final Button b = (Button) v;
             ValueAnimator animator = ValueAnimator.ofInt();
 
-            ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), Color.YELLOW, Color.RED);
+            ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(),
+                    getResources().getColor( R.color.selectedBowl),
+                    getResources().getColor(R.color.playerOneBowl));
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    b.getBackground().setColorFilter((Integer)animation.getAnimatedValue(), PorterDuff.Mode.MULTIPLY);
-
+                    GradientDrawable trayTwoShape = (GradientDrawable) b.getBackground();
+                    trayTwoShape.setColor( (Integer)animation.getAnimatedValue() );
                 }
             });
-
+            valueAnimator.setDuration(1000);
             valueAnimator.start();
 
             mPlayerBrainListeners.get(0)
