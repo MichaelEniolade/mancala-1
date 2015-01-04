@@ -157,9 +157,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         // Add the tray for player one
         params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(0,3);
-        params.columnSpec = GridLayout.spec(7);
-        params.setGravity(Gravity.CENTER);
+        params.rowSpec = GridLayout.spec(1);
+        params.columnSpec = GridLayout.spec(6);
+        params.setGravity(Gravity.FILL);
 
         TextView trayPlayerOne = new TextView(getActivity());
         trayPlayerOne.setLayoutParams(params);
@@ -217,7 +217,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         TextView trayPlayerTwo = new TextView(getActivity());
         trayPlayerTwo.setLayoutParams(params);
         trayPlayerTwo.setText(boardRepresentation.get(13).toString());
-        trayPlayerTwo.setGravity(Gravity.CENTER);
+        trayPlayerTwo.setGravity(Gravity.FILL);
 
         GradientDrawable trayTwoShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
         trayTwoShape.setColor(getResources().getColor(R.color.playerTwoTray));
@@ -315,8 +315,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    GradientDrawable trayTwoShape = (GradientDrawable) b.getBackground();
-                    trayTwoShape.setColor( (Integer)animation.getAnimatedValue() );
+                    GradientDrawable bowlShape = (GradientDrawable) b.getBackground();
+                    bowlShape.setColor( (Integer)animation.getAnimatedValue() );
                 }
             });
             valueAnimator.setDuration(1000);
