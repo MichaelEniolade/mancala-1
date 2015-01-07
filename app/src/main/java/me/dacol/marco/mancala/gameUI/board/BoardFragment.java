@@ -28,6 +28,7 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
+import me.dacol.marco.mancala.gameUI.pieces.Bowl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -131,7 +132,18 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // make 6 bowls for each player on row 0 and 2
         // For Human Player, I'm always sure this is the human player
         for (int i = 1; i <= 6; i++) {
-            // set layout parameters
+            Bowl bowl = Bowl.factory(
+                    getActivity(),
+                    2,
+                    i,
+                    boardRepresentation.get(i-1).toString(),
+                    i-1,
+                    R.color.playerOneBowl
+            );
+
+            bowl.setOnClickListener(this);
+
+/*
             params = new GridLayout.LayoutParams();
             params.rowSpec = GridLayout.spec(2);
             params.columnSpec = GridLayout.spec(i);
@@ -147,12 +159,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             buttonShape.setColor( getResources().getColor(R.color.playerOneBowl));
 
             if (Build.VERSION.SDK_INT >= 16) {
-                button.setBackground(buttonShape);
+                bowl.setBackground(buttonShape);
             } else {
-                button.setBackgroundDrawable( buttonShape );
+                bowl.setBackgroundDrawable( buttonShape );
             }
-
-            mBoardTextViewRepresentation.add(button);
+*/
+            mBoardTextViewRepresentation.add(bowl);
         }
 
         // Add the tray for player one
