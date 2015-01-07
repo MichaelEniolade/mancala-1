@@ -2,6 +2,7 @@ package me.dacol.marco.mancala.gameUI;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +54,7 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        goFullScreen();
         View viewRoot = inflater.inflate(R.layout.fragment_new_game, container, false);
 
         // attach the fragment to the button
@@ -81,6 +82,24 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void goFullScreen() {
+        int uiOption = getActivity().getWindow().getDecorView().getSystemUiVisibility();
+
+        if (Build.VERSION.SDK_INT >= 14) {
+            //uiOption ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        }
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            uiOption ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        if (Build.VERSION.SDK_INT >= 18) {
+            uiOption ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(uiOption);
     }
 
     @Override

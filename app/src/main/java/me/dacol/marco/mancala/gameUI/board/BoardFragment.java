@@ -151,9 +151,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             // create the button
             Button button = new Button(getActivity());
             button.setLayoutParams(params);
-            button.setText(boardRepresentation.get(i-1).toString());
+            button.setText(boardRepresentation.get(i).toString());
             button.setOnClickListener(this);
-            button.setId(i-1);
+            button.setId(i);
 
             GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.bowl );
             buttonShape.setColor( getResources().getColor(R.color.playerOneBowl));
@@ -170,7 +170,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // Add the tray for player one
         params = new GridLayout.LayoutParams();
         params.rowSpec = GridLayout.spec(1);
-        params.columnSpec = GridLayout.spec(6);
+        params.columnSpec = GridLayout.spec(5);
         params.setGravity(Gravity.FILL);
 
         TextView trayPlayerOne = new TextView(getActivity());
@@ -195,7 +195,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         if (boardRepresentation.get(7).getOwner().isHuman()) {
             isHumanVsHuman = true;
         }
-        for (int i = 6; i >= 1; i--) {
+
+        for (int i = 5; i >= 0; i--) {
             // set layout parameters
             params = new GridLayout.LayoutParams();
             params.rowSpec = GridLayout.spec(0);
@@ -204,8 +205,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             // create the button
             Button button = new Button(getActivity());
             button.setLayoutParams(params);
-            button.setText(boardRepresentation.get(13-i).toString());
-            button.setId(13-i);
+            button.setText(boardRepresentation.get(12-i).toString());
+            button.setId(12-i);
             if (isHumanVsHuman) button.setOnClickListener(this);
 
             GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.bowl );
@@ -222,14 +223,14 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         // Add the tray for computer
         params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(0,3);
+        params.rowSpec = GridLayout.spec(1);
         params.columnSpec = GridLayout.spec(0);
-        params.setGravity(Gravity.CENTER);
+        params.setGravity(Gravity.FILL);
 
         TextView trayPlayerTwo = new TextView(getActivity());
         trayPlayerTwo.setLayoutParams(params);
         trayPlayerTwo.setText(boardRepresentation.get(13).toString());
-        trayPlayerTwo.setGravity(Gravity.FILL);
+        trayPlayerTwo.setGravity(Gravity.CENTER);
 
         GradientDrawable trayTwoShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
         trayTwoShape.setColor(getResources().getColor(R.color.playerTwoTray));
@@ -245,7 +246,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // Something in the middle
         params = new GridLayout.LayoutParams();
         params.rowSpec = GridLayout.spec(1);
-        params.columnSpec = GridLayout.spec(1,6);
+        params.columnSpec = GridLayout.spec(1,4);
         params.setGravity(Gravity.CENTER);
 
         TextView textView = new TextView(getActivity());

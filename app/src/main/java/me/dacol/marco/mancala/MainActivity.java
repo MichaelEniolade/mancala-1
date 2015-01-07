@@ -3,11 +3,9 @@ package me.dacol.marco.mancala;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
@@ -29,7 +27,6 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         mIsHumanVsHumanGame = false;
 
         getActionBar().hide();
-        goFullScreen();
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
@@ -58,24 +55,6 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void goFullScreen() {
-        int uiOption = getWindow().getDecorView().getSystemUiVisibility();
-
-        if (Build.VERSION.SDK_INT >= 14) {
-            uiOption ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        }
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            uiOption ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
-        }
-
-        if (Build.VERSION.SDK_INT >= 18) {
-            uiOption ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
-
-        getWindow().getDecorView().setSystemUiVisibility(uiOption);
     }
 
     private void startNewGame() {
