@@ -19,7 +19,7 @@ public class BoardUpdated extends Action<ArrayList> {
 
     /***
      * Flag indicating if after the last move, the game is ended
-     * @return boolean, true if one of the two player has ended the seeds in his bowl
+     * @return boolean, true if one of the two player has ended the seeds in his bowl_selected
      */
     public boolean isGameEnded() {
         return mIsGameEnded;

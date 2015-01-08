@@ -68,7 +68,7 @@ public class Board implements Observer, StandardBoard<Container> {
         // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
-        // Create the six bowl of the human player
+        // Create the six bowl_selected of the human player
         for (int position = 0; position < mNumberOfBowls; position++) {
             mContainers.add(new Bowl(mPlayers.get(humanPlayerPosition)));
         }
@@ -123,8 +123,8 @@ public class Board implements Observer, StandardBoard<Container> {
         boolean isValid = false;
         // When a move is invalid?
         // 0. when a player is playing in his turn
-        // 1. the bowl have zero seeds in it
-        // 2. the bowl is not owned by the player
+        // 1. the bowl_selected have zero seeds in it
+        // 2. the bowl_selected is not owned by the player
         // 3. the player selected a tray
         if (player == mActivePlayer) {
             if ((selectedContainer instanceof Bowl)
@@ -149,10 +149,10 @@ public class Board implements Observer, StandardBoard<Container> {
         int bowlNumber = nextContainer(containerNumber);
 
         // If i have more than one seed to spread, I'm ok just spread it and go on
-        // If I have to spread the last seed, check the next container is a bowl?
-        // -- The playingPlayer (PP) is the owner of the bowl?
+        // If I have to spread the last seed, check the next container is a bowl_selected?
+        // -- The playingPlayer (PP) is the owner of the bowl_selected?
         // ---- Yes, move the seed directly to the tray, and stole the opponent seeds in the specular
-        //      bowl and put them in the PP tray (if there are no seed in opponent bowl just go on)
+        //      bowl_selected and put them in the PP tray (if there are no seed in opponent bowl_selected just go on)
         // No, just put the seed there and go on with your life!
         for (; remainingSeeds > 1; remainingSeeds--) {
             mContainers.get(bowlNumber).putOneSeed();
@@ -193,10 +193,10 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     private Bowl getOpponentContainer(int containerNumber) {
-        // The last bowl is in position 12, the first one in position 0
-        // So in order to get the opponent bowl I've to get the 12 - actual bowl position
+        // The last bowl_selected is in position 12, the first one in position 0
+        // So in order to get the opponent bowl_selected I've to get the 12 - actual bowl_selected position
         // ATTENTION!
-        // Limit Case: last seeds is dropped in the bowl number zero of player one.
+        // Limit Case: last seeds is dropped in the bowl_selected number zero of player one.
         return (Bowl) mContainers.get(12 - containerNumber);
     }
 
@@ -216,8 +216,8 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     private boolean isGameEnded() {
-        // A game is ended when all the bowl of one player are empty
-        // Just do the sum of the bowl of each player, if one is zero you are done
+        // A game is ended when all the bowl_selected of one player are empty
+        // Just do the sum of the bowl_selected of each player, if one is zero you are done
         int playerOneRemainingSeeds = 0;
         int playerTwoRemainingSeeds = 0;
 
@@ -234,7 +234,7 @@ public class Board implements Observer, StandardBoard<Container> {
             isEnded = true;
         }
 
-        // If the game is ended put all remaining seeds in the player bowl and find the winner
+        // If the game is ended put all remaining seeds in the player bowl_selected and find the winner
         if (isEnded) {
             if (playerOneRemainingSeeds > 0) {
                 for (int j = 0; j < mNumberOfBowls; j++) {

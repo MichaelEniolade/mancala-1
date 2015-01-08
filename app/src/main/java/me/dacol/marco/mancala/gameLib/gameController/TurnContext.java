@@ -16,7 +16,7 @@ import me.dacol.marco.mancala.logging.Logger;
  * Here is published in which moment of the game we are,
  * possible action are:
  * - which player has to play
- * - player have choose a bowl
+ * - player have choose a bowl_selected
  * - board updated or invalid move
  * - next turn or end game
  */

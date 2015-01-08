@@ -6,10 +6,10 @@ public class Bowl extends Container {
 
     public Bowl(Player owner) {
         super(owner);
-        mNumberOfSeeds = 3; //starting # of seeds in any bowl
+        mNumberOfSeeds = 3; //starting # of seeds in any bowl_selected
     }
 
-    // Grab all the seeds contained in a bowl
+    // Grab all the seeds contained in a bowl_selected
     public int emptyBowl() {
         int seeds = mNumberOfSeeds;
         mNumberOfSeeds = 0;

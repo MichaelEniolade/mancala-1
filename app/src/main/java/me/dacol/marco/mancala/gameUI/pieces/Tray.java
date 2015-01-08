@@ -1,7 +1,8 @@
 package me.dacol.marco.mancala.gameUI.pieces;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.Gravity;
 import android.widget.GridLayout;
@@ -11,33 +12,37 @@ import me.dacol.marco.mancala.R;
 
 public class Tray extends TextView {
 
-    public static Tray factory(Context context, int row, int column, String text, int color) {
-        Tray tray = new Tray(context, color);
-
-        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(row);
-        params.columnSpec = GridLayout.spec(column);
-        params.setGravity(Gravity.FILL);
-
-        tray.setLayoutParams(params);
-        tray.setText(text);
-        tray.setGravity(Gravity.CENTER);
-
-        return tray;
-
-    }
-
-    public Tray(Context context, int color) {
+    public Tray(Context context,
+                int player,
+                GridLayout.LayoutParams params,
+                String text,
+                int width)
+    {
         super(context);
 
-        GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
-        buttonShape.setColor( getResources().getColor(color) );
+        Drawable trayShape;
+
+        if (player == 1) {
+            trayShape = getResources().getDrawable(R.drawable.bg_tray_player_one);
+        } else {
+            trayShape = getResources().getDrawable(R.drawable.bg_tray_player_two);
+        }
 
         if (Build.VERSION.SDK_INT >= 16) {
-            this.setBackground(buttonShape);
+            this.setBackground(trayShape);
         } else {
-            this.setBackgroundDrawable( buttonShape );
+            this.setBackgroundDrawable( trayShape );
         }
+
+        setLayoutParams(params);
+        setText(text);
+        setGravity(Gravity.CENTER);
+
+        setWidth(width);
+
+        setTextColor(Color.WHITE);
+        setTextSize(40f);
+
     }
 
 }

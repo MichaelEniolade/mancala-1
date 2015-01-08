@@ -2,7 +2,7 @@
 <resources>
     <color name="playerOneBowl">#8645A6</color>
     <color name="playerTwoBowl">#75ACFF</color>
-    <color name="playerOneTray">#E54538</color>
-    <color name="playerTwoTray">#7DE87E</color>
-    <color name="selectedBowl">#DFD71F</color>
+    <color name="playerOneTray">#ff3b2451</color>
+    <color name="playerTwoTray">#ff272f51</color>
+    <color name="selectedBowl">#ffdfd70a</color>
 </resources>

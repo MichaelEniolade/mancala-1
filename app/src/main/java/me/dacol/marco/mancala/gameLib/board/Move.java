@@ -9,7 +9,7 @@ private Player mPlayer;
 
     /***
      * Standard Move representation
-     * @param bowlNumber the chosen bowl
+     * @param bowlNumber the chosen bowl_selected
      * @param player the player that is making the move
      */
     public Move(int bowlNumber, Player player) {

@@ -27,6 +27,6 @@ public abstract class Container {
 
     @Override
     public String toString() {
-        return String.valueOf(getNumberOfSeeds()) + " P" + getOwner().getName();
+        return String.valueOf(getNumberOfSeeds());
     }
 }

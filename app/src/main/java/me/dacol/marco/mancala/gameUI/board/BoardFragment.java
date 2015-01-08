@@ -24,6 +24,7 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.pieces.Bowl;
+import me.dacol.marco.mancala.gameUI.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.pieces.Tray;
 
 /**
@@ -128,13 +129,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // make 6 bowls for each player on row 0 and 2
         // For Human Player, I'm always sure this is the human player
         for (int i = 0; i <= 5; i++) {
-            Bowl bowl = Bowl.factory(
+            Bowl bowl = PieceFactory.generateBowl(
                     getActivity(),
                     2,
                     i,
                     boardRepresentation.get(i).toString(),
                     i,
-                    R.color.playerOneBowl
+                    1
             );
 
             bowl.setOnClickListener(this);
@@ -143,12 +144,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         }
 
         // Add the tray for player one
-        Tray trayPlayerOne = Tray.factory(
+        Tray trayPlayerOne = PieceFactory.generateTray(
                 getActivity(),
                 1,
                 5,
                 boardRepresentation.get(6).toString(),
-                R.color.playerOneTray
+                1
         );
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
@@ -161,13 +162,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         }
 
         for (int i = 5; i >= 0; i--) {
-            Bowl bowl = Bowl.factory(
+            Bowl bowl = PieceFactory.generateBowl(
                     getActivity(),
                     0,
                     i,
                     boardRepresentation.get(12-1).toString(),
                     12-i,
-                    R.color.playerTwoBowl
+                    2
             );
 
             bowl.setOnClickListener(this);
@@ -176,12 +177,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         }
 
         // Add the tray for computer
-        Tray trayPlayerTwo = Tray.factory(
+        Tray trayPlayerTwo = PieceFactory.generateTray(
                 getActivity(),
                 1,
                 0,
                 boardRepresentation.get(13).toString(),
-                R.color.playerTwoTray
+                2
         );
 
         mBoardTextViewRepresentation.add(trayPlayerTwo);
@@ -261,7 +262,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void onClick(View v) {
         int bowlNumber = v.getId();
         if (bowlNumber < 6) {
-            ((Bowl)v).animate().start();
             // TODO animation is working
 /*            final Button b = (Button) v;
             ValueAnimator animator = ValueAnimator.ofInt();

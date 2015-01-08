@@ -18,7 +18,7 @@ public class ArtificialIntelligence extends BaseBrain {
 
     @Override
     public void makeMove(ArrayList<Container> boardStatus, Player player) {
-        // very easy strategy, check which are his container and then chose a random bowl not empty.
+        // very easy strategy, check which are his container and then chose a random bowl_selected not empty.
         int choosenBowl = 0;
 
         int remainingBowl = remainsOnlyOneBowlWithSeed(boardStatus);
@@ -31,14 +31,14 @@ public class ArtificialIntelligence extends BaseBrain {
         if (remainingBowl >= 3) {
             int randomNumber = mRandom.nextInt(mNumberOfBowl);
 
-            // The first six bowl are the ones of the first player
+            // The first six bowl_selected are the ones of the first player
             // TODO extract in a method
             if (boardStatus.get(0).getOwner() == player) {
                 choosenBowl = randomNumber;
             } else {
-                // so my player bowls are the ones after the tray of player one, bowl 1 of player2 is 6+1
+                // so my player bowls are the ones after the tray of player one, bowl_selected 1 of player2 is 6+1
                 // PAY ATTENTION! Here I'm passing the real position in the array of container, not only
-                // the bowl number.
+                // the bowl_selected number.
                 // This can be a problem...maybe.
                 choosenBowl = randomNumber + mNumberOfBowl + mNumberOfTray;
             }

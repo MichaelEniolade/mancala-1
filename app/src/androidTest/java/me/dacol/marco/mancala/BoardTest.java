@@ -61,7 +61,7 @@ public class BoardTest extends AndroidTestCase {
         initialize();
         int[] startingStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,1,1,1,1,4,1,1,1,1,1,1,5};
-        int moveFrom = 4; // this is the opponent bowl
+        int moveFrom = 4; // this is the opponent bowl_selected
         Player playingPlayer = mComputerPlayer;
 
         InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
@@ -72,7 +72,7 @@ public class BoardTest extends AndroidTestCase {
         initialize();
         int[] startingStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
         int[] expectedStatus = new int[]{3,1,0,1,1,1,4,1,1,1,1,1,1,5};
-        int moveFrom = 2; // this is the empty bowl
+        int moveFrom = 2; // this is the empty bowl_selected
         Player playingPlayer = mHumanPlayer;
 
         InvalidMove invalidMove = runInvalidMoveConfiguration(startingStatus, expectedStatus, moveFrom, playingPlayer);
@@ -207,7 +207,7 @@ public class BoardTest extends AndroidTestCase {
         return invalidMove;
     }
 
-    // Configuration always as an int array, representing the number of seeds in each bowl and tray
+    // Configuration always as an int array, representing the number of seeds in each bowl_selected and tray
     // Pay attention put always the human player bow (BH) first (as convention)
     // [ BH, BH, BH, BH, BH, BH, TH, BC, BC, BC, BC, BC, BC, TC ]
     // This method already check the assertion on the expectedStatus and return boardUpdated object

@@ -4,10 +4,10 @@
     android:exitFadeDuration="400">
 
     <item android:state_pressed="false"
-          android:drawable="@drawable/bg_bowl_player_one" />
+        android:drawable="@drawable/bg_bowl_player_two" />
 
     <item android:state_pressed="true"
-          android:drawable="@drawable/bg_bowl_selected"
-          />
+        android:drawable="@drawable/bg_bowl_selected"
+        />
 
 </selector>
