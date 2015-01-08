@@ -172,13 +172,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                     isHumanVsHuman
             );
 
-            bowl.setEnabled(false);
-
             if (isHumanVsHuman) {
                 bowl.setOnClickListener(this);
-                bowl.setEnabled(true);
             }
-
 
             mBoardTextViewRepresentation.add(bowl);
         }
