@@ -1,16 +1,11 @@
 package me.dacol.marco.mancala.gameUI.board;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.app.Fragment;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
@@ -29,6 +24,7 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.pieces.Bowl;
+import me.dacol.marco.mancala.gameUI.pieces.Tray;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -131,61 +127,29 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         // make 6 bowls for each player on row 0 and 2
         // For Human Player, I'm always sure this is the human player
-        for (int i = 1; i <= 6; i++) {
+        for (int i = 0; i <= 5; i++) {
             Bowl bowl = Bowl.factory(
                     getActivity(),
                     2,
                     i,
-                    boardRepresentation.get(i-1).toString(),
-                    i-1,
+                    boardRepresentation.get(i).toString(),
+                    i,
                     R.color.playerOneBowl
             );
 
             bowl.setOnClickListener(this);
 
-/*
-            params = new GridLayout.LayoutParams();
-            params.rowSpec = GridLayout.spec(2);
-            params.columnSpec = GridLayout.spec(i);
-
-            // create the button
-            Button button = new Button(getActivity());
-            button.setLayoutParams(params);
-            button.setText(boardRepresentation.get(i).toString());
-            button.setOnClickListener(this);
-            button.setId(i);
-
-            GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.bowl );
-            buttonShape.setColor( getResources().getColor(R.color.playerOneBowl));
-
-            if (Build.VERSION.SDK_INT >= 16) {
-                bowl.setBackground(buttonShape);
-            } else {
-                bowl.setBackgroundDrawable( buttonShape );
-            }
-*/
             mBoardTextViewRepresentation.add(bowl);
         }
 
         // Add the tray for player one
-        params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(1);
-        params.columnSpec = GridLayout.spec(5);
-        params.setGravity(Gravity.FILL);
-
-        TextView trayPlayerOne = new TextView(getActivity());
-        trayPlayerOne.setLayoutParams(params);
-        trayPlayerOne.setText(boardRepresentation.get(6).toString());
-        trayPlayerOne.setGravity(Gravity.CENTER);
-
-        GradientDrawable trayOneShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
-        trayOneShape.setColor(getResources().getColor(R.color.playerOneTray));
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            trayPlayerOne.setBackground( trayOneShape );
-        } else {
-            trayPlayerOne.setBackgroundDrawable( trayOneShape );
-        }
+        Tray trayPlayerOne = Tray.factory(
+                getActivity(),
+                1,
+                5,
+                boardRepresentation.get(6).toString(),
+                R.color.playerOneTray
+        );
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
 
@@ -197,49 +161,28 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         }
 
         for (int i = 5; i >= 0; i--) {
-            // set layout parameters
-            params = new GridLayout.LayoutParams();
-            params.rowSpec = GridLayout.spec(0);
-            params.columnSpec = GridLayout.spec(i);
+            Bowl bowl = Bowl.factory(
+                    getActivity(),
+                    0,
+                    i,
+                    boardRepresentation.get(12-1).toString(),
+                    12-i,
+                    R.color.playerTwoBowl
+            );
 
-            // create the button
-            Button button = new Button(getActivity());
-            button.setLayoutParams(params);
-            button.setText(boardRepresentation.get(12-i).toString());
-            button.setId(12-i);
-            if (isHumanVsHuman) button.setOnClickListener(this);
+            bowl.setOnClickListener(this);
 
-            GradientDrawable buttonShape = (GradientDrawable) getResources().getDrawable( R.drawable.bowl );
-            buttonShape.setColor( getResources().getColor(R.color.playerTwoBowl));
-
-            if (Build.VERSION.SDK_INT >= 16) {
-                button.setBackground(buttonShape);
-            } else {
-                button.setBackgroundDrawable( buttonShape );
-            }
-
-            mBoardTextViewRepresentation.add(button);
+            mBoardTextViewRepresentation.add(bowl);
         }
 
         // Add the tray for computer
-        params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(1);
-        params.columnSpec = GridLayout.spec(0);
-        params.setGravity(Gravity.FILL);
-
-        TextView trayPlayerTwo = new TextView(getActivity());
-        trayPlayerTwo.setLayoutParams(params);
-        trayPlayerTwo.setText(boardRepresentation.get(13).toString());
-        trayPlayerTwo.setGravity(Gravity.CENTER);
-
-        GradientDrawable trayTwoShape = (GradientDrawable) getResources().getDrawable( R.drawable.tray );
-        trayTwoShape.setColor(getResources().getColor(R.color.playerTwoTray));
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            trayPlayerTwo.setBackground( trayTwoShape );
-        } else {
-            trayPlayerTwo.setBackgroundDrawable( trayTwoShape );
-        }
+        Tray trayPlayerTwo = Tray.factory(
+                getActivity(),
+                1,
+                0,
+                boardRepresentation.get(13).toString(),
+                R.color.playerTwoTray
+        );
 
         mBoardTextViewRepresentation.add(trayPlayerTwo);
 
@@ -250,7 +193,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         params.setGravity(Gravity.CENTER);
 
         TextView textView = new TextView(getActivity());
-        textView.setText("Player turn: " + mStartingPlayerName);
+        textView.setText("Player turn: " + mStartingPlayerName); //TODO put me in string.xml
         textView.setLayoutParams(params);
 
         mPlayerTurnText = textView;
@@ -272,6 +215,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private void updateBoard(ArrayList<Container> boardRepresentation) {
         if (mBoardTextViewRepresentation != null) {
             for (int i=0; i < boardRepresentation.size(); i++) {
+
                 mBoardTextViewRepresentation.get(i).setText(boardRepresentation.get(i).toString());
             }
         }
@@ -293,13 +237,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
         } else if (data instanceof EvenGame) {
             updateBoard(((EvenGame) data).getLoad());
-            updatePlayingPlayerText("The game ended, even...Shame on you!");
+            updatePlayingPlayerText("The game ended, even...Shame on you!"); //TODO put me in string.xml
         }
     }
 
     private void updatePlayingPlayerText(String name) {
         if (mPlayerTurnText != null) {
-            mPlayerTurnText.setText("Player's turn: " + name);
+            mPlayerTurnText.setText("Player's turn: " + name); //TODO put me in string.xml
         } else {
             mStartingPlayerName = name;
         }
@@ -307,7 +251,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private void updatePlayingPlayerTextWithWinnerName(String name) {
         if (mPlayerTurnText != null) {
-            mPlayerTurnText.setText("THE WINNER IS: " + name);
+            mPlayerTurnText.setText("THE WINNER IS: " + name); //TODO put me in string.xml
         }
     }
 
@@ -317,9 +261,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void onClick(View v) {
         int bowlNumber = v.getId();
         if (bowlNumber < 6) {
-
+            ((Bowl)v).animate().start();
             // TODO animation is working
-            final Button b = (Button) v;
+/*            final Button b = (Button) v;
             ValueAnimator animator = ValueAnimator.ofInt();
 
             ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(),
@@ -333,7 +277,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 }
             });
             valueAnimator.setDuration(1000);
-            valueAnimator.start();
+            valueAnimator.start();*/
 
             mPlayerBrainListeners.get(0)
                     .onFragmentInteraction(
