@@ -12,6 +12,7 @@ public class Bowl extends Button {
 
     public Bowl(Context context,
                 int player,
+                boolean isHumanVsHuman,
                 GridLayout.LayoutParams params,
                 String text,
                 int id,
@@ -25,7 +26,12 @@ public class Bowl extends Button {
         if (player == 1) {
             buttonShape = getResources().getDrawable(R.drawable.bg_selector_player_one);
         } else {
-            buttonShape = getResources().getDrawable(R.drawable.bg_selector_player_two);
+            if (isHumanVsHuman) {
+                buttonShape = getResources().getDrawable(R.drawable.bg_selector_player_two);
+            } else {
+                // if it's not human vs human i don't need the click effect on the opponents bowl
+                buttonShape = getResources().getDrawable(R.drawable.bg_bowl_player_two);
+            }
         }
 
         if (Build.VERSION.SDK_INT >= 16) {
@@ -42,6 +48,7 @@ public class Bowl extends Button {
         setHeight(height);
 
         setTextSize(30f);
+
 
     }
 

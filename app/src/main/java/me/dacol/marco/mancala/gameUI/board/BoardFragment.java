@@ -123,8 +123,14 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private void setupBoard(ArrayList<Container> boardRepresentation) {
 
         mBoardTextViewRepresentation = new ArrayList<TextView>();
-
         GridLayout.LayoutParams params;
+
+        // Here I've to check if the choosen game is human vs human, i need to attach
+        // the button to the player brain
+        boolean isHumanVsHuman = false;
+        if (boardRepresentation.get(7).getOwner().isHuman()) {
+            isHumanVsHuman = true;
+        }
 
         // make 6 bowls for each player on row 0 and 2
         // For Human Player, I'm always sure this is the human player
@@ -135,7 +141,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                     i,
                     boardRepresentation.get(i).toString(),
                     i,
-                    1
+                    1,
+                    isHumanVsHuman
             );
 
             bowl.setOnClickListener(this);
@@ -154,13 +161,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
 
-        // Here I've to check if the choosen game is human vs human, i need to attach
-        // the button to the player brain
-        boolean isHumanVsHuman = false;
-        if (boardRepresentation.get(7).getOwner().isHuman()) {
-            isHumanVsHuman = true;
-        }
-
         for (int i = 5; i >= 0; i--) {
             Bowl bowl = PieceFactory.generateBowl(
                     getActivity(),
@@ -168,10 +168,17 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                     i,
                     boardRepresentation.get(12-1).toString(),
                     12-i,
-                    2
+                    2,
+                    isHumanVsHuman
             );
 
-            bowl.setOnClickListener(this);
+            bowl.setEnabled(false);
+
+            if (isHumanVsHuman) {
+                bowl.setOnClickListener(this);
+                bowl.setEnabled(true);
+            }
+
 
             mBoardTextViewRepresentation.add(bowl);
         }

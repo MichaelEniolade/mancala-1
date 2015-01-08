@@ -6,9 +6,9 @@ import android.widget.GridLayout;
 
 public class PieceFactory {
 
-    private static final float DPS_WIDTH_DIMENSION = 80f;
+    private static final float DPS_WIDTH_DIMENSION = 80f; //TODO move me to dimens.xml
 
-    public static Bowl generateBowl(Context context, int row, int column, String text, int id, int player) {
+    public static Bowl generateBowl(Context context, int row, int column, String text, int id, int player, boolean isHumanVsHuman) {
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.rowSpec = GridLayout.spec(row);
         params.columnSpec = GridLayout.spec(column);
@@ -16,7 +16,7 @@ public class PieceFactory {
 
         int bowlDimension = convertFromDpsToPixel(context, DPS_WIDTH_DIMENSION);
 
-        return new Bowl(context, player, params, text, id, bowlDimension, bowlDimension);
+        return new Bowl(context, player, isHumanVsHuman, params, text, id, bowlDimension, bowlDimension);
     }
 
     public static Tray generateTray(Context context, int row, int column, String text, int player) {
