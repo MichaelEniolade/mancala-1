@@ -85,7 +85,7 @@ public class BoardTest extends AndroidTestCase {
         int moveFrom = 0;
 
         BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        assertTrue(!boardUpdated.isAnotherRound());
     }
 
     public void testStealingSeedsMove() {
@@ -95,7 +95,7 @@ public class BoardTest extends AndroidTestCase {
         int moveFrom = 0;
 
         BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        assertTrue(!boardUpdated.isAnotherRound());
     }
 
     public void testStealingMoveWithNoOpponentSeeds() {
@@ -105,7 +105,7 @@ public class BoardTest extends AndroidTestCase {
         int moveFrom = 0;
 
         BoardUpdated boardUpdated = (BoardUpdated) runConfiguration(startingStatus, expectedStatus, moveFrom, mHumanPlayer);
-        assertTrue(!boardUpdated.isGameEnded());
+        assertTrue(!boardUpdated.isAnotherRound());
     }
 
     public void testLastGameMove() {
