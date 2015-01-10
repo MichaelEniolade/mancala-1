@@ -19,7 +19,8 @@ public class Board implements Observer, StandardBoard<Container> {
 
     private final static String LOG_TAG = Board.class.getSimpleName();
 
-    ArrayList<Container> mContainers;
+    //ArrayList<Container> mContainers; //TODO delete me
+    ContainersManager mContainersManager;
     List<Player> mPlayers;
 
     private int mNumberOfBowls;
@@ -33,8 +34,6 @@ public class Board implements Observer, StandardBoard<Container> {
     // Singleton
     private static Board sInstance = null;
 
-    protected Board() {}
-
     public static Board getInstance() {
         if (sInstance == null) {
             sInstance = new Board();
@@ -43,7 +42,7 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     public Board setup(TurnContext turnContext, int numberOfBowl, int numberOfTray) {
-        mNumberOfBowls = numberOfBowl;
+        mNumberOfBowls = numberOfBowl; //TODO this is not so right, place two constants in the containerManager
         mNumberOfTrays = numberOfTray;
         mTurnContext = turnContext;
         mEvenGame = false;
@@ -63,25 +62,28 @@ public class Board implements Observer, StandardBoard<Container> {
      */
     public void buildBoard() {
         // reset the board from any previous game
-        mContainers = new ArrayList<Container>();
+        //mContainers = new ArrayList<Container>(); //TODO delete me
 
         // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
+        mContainersManager = new ContainersManager(
+                mPlayers.get(humanPlayerPosition),
+                mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 ));
+
+        //TODO delete me
         // Create the six bowl_selected of the human player
-        for (int position = 0; position < mNumberOfBowls; position++) {
-            mContainers.add(new Bowl(mPlayers.get(humanPlayerPosition)));
+        /*for (int position = 0; position < mNumberOfBowls; position++) {
+            mContainers.add(new Bowl(mPlayers.getContainer(humanPlayerPosition)));
         }
 
-        mContainers.add(new Tray(mPlayers.get(humanPlayerPosition)));
+        mContainers.add(new Tray(mPlayers.getContainer(humanPlayerPosition)));
 
         for (int position = 0; position < mNumberOfBowls; position++) {
-            mContainers.add(new Bowl(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
+            mContainers.add(new Bowl(mPlayers.getContainer( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
         }
 
-        mContainers.add(new Tray(mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
-
-
+        mContainers.add(new Tray(mPlayers.getContainer( ( mPlayers.size() - humanPlayerPosition ) - 1 )));*/
     }
 
     public Player getWinner() {
@@ -93,7 +95,7 @@ public class Board implements Observer, StandardBoard<Container> {
     // ---> Core rules for the game
     private void move(MoveAction moveAction) {
         Move move = moveAction.getLoad();
-        Container selectedContainer = getPlayerSelectedContainer(move.getBowlNumber());
+        Container selectedContainer = mContainersManager.getContainer(move.getBowlNumber());
 
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
             boolean anotherRound = spreadSeedFrom(move.getBowlNumber());
@@ -108,7 +110,8 @@ public class Board implements Observer, StandardBoard<Container> {
 
                 postOnTurnContext(gameEnded);
             } else {
-                postOnTurnContext(new BoardUpdated(getRepresentation(), anotherRound));
+                postOnTurnContext(new BoardUpdated(getRepresentation(),
+                        anotherRound, mContainersManager.getAtomicMoves()));
             }
         } else {
             postOnTurnContext(new InvalidMove(
@@ -136,14 +139,11 @@ public class Board implements Observer, StandardBoard<Container> {
         return isValid;
     }
 
-    private Container getPlayerSelectedContainer(int number) {
-        return mContainers.get(number);
-    }
-
-    //TODO this could look even better in a recursive way
+    //TODO maybe it can be better with a container manager, we will see the next iteration
     private boolean spreadSeedFrom(int containerNumber) {
-        int remainingSeeds = ((Bowl) mContainers.get(containerNumber)).emptyBowl();
-        Player player = mContainers.get(containerNumber).getOwner();
+        int remainingSeeds = mContainersManager.emptyBowl(containerNumber);
+
+        Player player = mContainersManager.getOwnerOf(containerNumber);
         boolean lastSeedFallInPlayerTray = false;
 
         int bowlNumber = nextContainer(containerNumber);
@@ -155,51 +155,30 @@ public class Board implements Observer, StandardBoard<Container> {
         //      bowl_selected and put them in the PP tray (if there are no seed in opponent bowl_selected just go on)
         // No, just put the seed there and go on with your life!
         for (; remainingSeeds > 1; remainingSeeds--) {
-            mContainers.get(bowlNumber).putOneSeed();
+            mContainersManager.putASeedIn(bowlNumber);
             bowlNumber = nextContainer(bowlNumber);
         }
 
         if ( (remainingSeeds == 1)
-                && (mContainers.get(bowlNumber) instanceof Bowl)
-                && (mContainers.get(bowlNumber).getOwner() == player)
-                && (mContainers.get(bowlNumber).getNumberOfSeeds() == 0) )
+                && (mContainersManager.getContainer(bowlNumber) instanceof Bowl)
+                && (mContainersManager.getOwnerOf(bowlNumber) == player)
+                && (mContainersManager.getNumberOfSeedsOf(bowlNumber) == 0) )
         {
-
             int wonSeeds = remainingSeeds;
-            wonSeeds += getOpponentContainer(bowlNumber).emptyBowl();
-            getPlayerTray(player).putSeeds(wonSeeds);
-        } else if (mContainers.get(bowlNumber) == getPlayerTray(player)) {
-            mContainers.get(bowlNumber).putOneSeed();
+            wonSeeds += mContainersManager.emptyOppositeBowl(bowlNumber);
+            mContainersManager.putSeedsInTrayOf(player, wonSeeds);
+        //TODO this can became a boolean method in the container manager
+        } else if (mContainersManager.getContainer(bowlNumber) == mContainersManager.getTrayOf(player)) {
+            mContainersManager.putASeedIn(bowlNumber);
             lastSeedFallInPlayerTray = true;
         } else {
-            mContainers.get(bowlNumber).putOneSeed();
+            mContainersManager.putASeedIn(bowlNumber);
         }
 
         return lastSeedFallInPlayerTray;
     }
 
-    private Tray getPlayerTray(Player player) {
-        // I know for how the arraylist its built that the tray are in the position 6 and 13
-        // just look for the matching one
-        int trayOnePosition = 6;
-        int trayTwoPosition = 13;
-        // Since I've only two player in this game, I guess it's tray number one
-        Container trayToReturn = mContainers.get(trayOnePosition);
-
-        if (mContainers.get(trayTwoPosition).getOwner() == player) {
-            trayToReturn = mContainers.get(trayTwoPosition);
-        }
-        return (Tray) trayToReturn; // Cast I'm sure it is a tray because of the way i build the board
-    }
-
-    private Bowl getOpponentContainer(int containerNumber) {
-        // The last bowl_selected is in position 12, the first one in position 0
-        // So in order to get the opponent bowl_selected I've to get the 12 - actual bowl_selected position
-        // ATTENTION!
-        // Limit Case: last seeds is dropped in the bowl_selected number zero of player one.
-        return (Bowl) mContainers.get(12 - containerNumber);
-    }
-
+    //TODO this could also be ported in the ContainersManager, maybe returning directly the bowl
     private int nextContainer(int actualContainerPosition) {
         int totalNumberOfContainer = (mNumberOfBowls + mNumberOfTrays) * 2; //14 in my case, but remember it starts form 0!!
         int nextContainer = actualContainerPosition + 1;
@@ -223,11 +202,15 @@ public class Board implements Observer, StandardBoard<Container> {
 
         boolean isEnded = false;
 
+        //TODO this is a trick...future interation to review the player managment
+        Player playerOne = mContainersManager.getOwnerOf(0);
+        Player playerTwo = mContainersManager.getOwnerOf(7);
+
         for (int i = 0 ; i < mNumberOfBowls; i++) {
-            playerOneRemainingSeeds += mContainers.get(i).getNumberOfSeeds();
+            playerOneRemainingSeeds += mContainersManager.getNumberOfSeedsOf(i);
         }
-        for (int j = (mNumberOfBowls + mNumberOfTrays) ; j < (mContainers.size() -1); j++) {
-            playerTwoRemainingSeeds += mContainers.get(j).getNumberOfSeeds();
+        for (int j = (mNumberOfBowls + mNumberOfTrays) ; j < (mContainersManager.getNumberContainers() - 1); j++) {
+            playerTwoRemainingSeeds += mContainersManager.getNumberOfSeedsOf(j);
         }
 
         if ((playerOneRemainingSeeds == 0) || (playerTwoRemainingSeeds == 0)) {
@@ -238,14 +221,16 @@ public class Board implements Observer, StandardBoard<Container> {
         if (isEnded) {
             if (playerOneRemainingSeeds > 0) {
                 for (int j = 0; j < mNumberOfBowls; j++) {
-                    ((Bowl) mContainers.get(j)).emptyBowl();
+                    mContainersManager.emptyBowl(j);
                 }
-                ((Tray) mContainers.get(6)).putSeeds(playerOneRemainingSeeds);
+                mContainersManager.putSeedsInTrayOf( playerOne, playerOneRemainingSeeds);
             } else {
-                for (int j = (mNumberOfBowls + mNumberOfTrays); j < (mContainers.size() -1); j++) {
-                    ((Bowl) mContainers.get(j)).emptyBowl();
+                for (int j = (mNumberOfBowls + mNumberOfTrays);
+                     j < (mContainersManager.getNumberContainers() -1); j++)
+                {
+                    mContainersManager.emptyBowl(j);
                 }
-                ((Tray) mContainers.get(13)).putSeeds(playerTwoRemainingSeeds);
+                mContainersManager.putSeedsInTrayOf(playerTwo, playerTwoRemainingSeeds);
             }
             setWinner();
         }
@@ -254,25 +239,35 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     private void setWinner() {
+        Player playerOne = mContainersManager.getOwnerOf(0);
+        Player playerTwo = mContainersManager.getOwnerOf(7);
+
         // I can have 3 ending state,
         // player one wins, player two wins, even game
         // default case, if this is null it means that the game is even
-        if (mContainers.get(6).getNumberOfSeeds() > mContainers.get(13).getNumberOfSeeds()) {
-            mWinner = mContainers.get(6).getOwner();
-        } else if (mContainers.get(6).getNumberOfSeeds() < mContainers.get(13).getNumberOfSeeds()) {
-            mWinner = mContainers.get(13).getOwner();
-        } else {
+        if (mContainersManager.getNumberOfSeedsInTrayOf(playerOne) >
+                mContainersManager.getNumberOfSeedsInTrayOf(playerTwo))
+        {
+            mWinner = playerOne;
+        }
+        else if (mContainersManager.getNumberOfSeedsInTrayOf(playerOne) <
+                mContainersManager.getNumberOfSeedsInTrayOf(playerTwo))
+        {
+            mWinner = playerTwo;
+        }
+        else
+        {
             mEvenGame = true;
         }
     }
 
     public ArrayList<Container> getRepresentation() {
-        return mContainers;
+        return mContainersManager.getRepresentation();
     }
 
     // Mostly for debug purpose, but can be also used to save game...maybe
     public void setBoardRepresentation(ArrayList<Container> representation) {
-        mContainers = representation;
+        mContainersManager.setRepresenation(representation);
     }
 
     @Override

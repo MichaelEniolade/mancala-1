@@ -4,25 +4,19 @@ import java.util.ArrayList;
 
 /***
  * Context action to indicate that the board has completed the update process,
- * the load of the action is a boolean field indicating if there is a winner in the
- * current status of the board
+ * the load of the action is an arrayList containing the current status of the board,
+ * there is also two additional field, one if the player have the right to another round
+ * and a second indicating all the atomic moves done to transition in the new board state
  */
 public class BoardUpdated extends Action<ArrayList> {
 
-    private boolean mIsGameEnded;
     private boolean mAnotherRound;
+    private ArrayList<Action> mAtomicMoves;
 
-    public BoardUpdated(ArrayList load, boolean anotherRound) {
+    public BoardUpdated(ArrayList load, boolean anotherRound, ArrayList atomicMoves) {
         super(load);
         mAnotherRound = anotherRound;
-    }
-
-    /***
-     * Flag indicating if after the last move, the game is ended
-     * @return boolean, true if one of the two player has ended the seeds in his bowl_selected
-     */
-    public boolean isGameEnded() {
-        return mIsGameEnded;
+        mAtomicMoves = atomicMoves;
     }
 
     /***
@@ -31,5 +25,13 @@ public class BoardUpdated extends Action<ArrayList> {
      */
     public boolean isAnotherRound() {
         return mAnotherRound;
+    }
+
+    /**
+     * Get the atomicMoves arraylist, which contains all the single moves done on the board update
+     * @return
+     */
+    public ArrayList<Action> getAtomicMoves() {
+        return mAtomicMoves;
     }
 }
