@@ -19,7 +19,6 @@ public class Board implements Observer, StandardBoard<Container> {
 
     private final static String LOG_TAG = Board.class.getSimpleName();
 
-    //ArrayList<Container> mContainers; //TODO delete me
     ContainersManager mContainersManager;
     List<Player> mPlayers;
 
@@ -61,29 +60,12 @@ public class Board implements Observer, StandardBoard<Container> {
      *
      */
     public void buildBoard() {
-        // reset the board from any previous game
-        //mContainers = new ArrayList<Container>(); //TODO delete me
-
         // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
         mContainersManager = new ContainersManager(
                 mPlayers.get(humanPlayerPosition),
                 mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 ));
-
-        //TODO delete me
-        // Create the six bowl_selected of the human player
-        /*for (int position = 0; position < mNumberOfBowls; position++) {
-            mContainers.add(new Bowl(mPlayers.getContainer(humanPlayerPosition)));
-        }
-
-        mContainers.add(new Tray(mPlayers.getContainer(humanPlayerPosition)));
-
-        for (int position = 0; position < mNumberOfBowls; position++) {
-            mContainers.add(new Bowl(mPlayers.getContainer( ( mPlayers.size() - humanPlayerPosition ) - 1 )));
-        }
-
-        mContainers.add(new Tray(mPlayers.getContainer( ( mPlayers.size() - humanPlayerPosition ) - 1 )));*/
     }
 
     public Player getWinner() {
