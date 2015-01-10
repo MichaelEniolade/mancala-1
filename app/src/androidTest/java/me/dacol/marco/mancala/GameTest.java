@@ -7,6 +7,7 @@ import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
+import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.InvalidMove;
 import me.dacol.marco.mancala.gameLib.gameController.actions.MoveAction;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
@@ -46,7 +47,7 @@ public class GameTest extends AndroidTestCase {
 
             assertTrue(mTurnContext.peek() instanceof BoardUpdated);
 
-            isEnded = ((BoardUpdated) mTurnContext.peek()).isGameEnded();
+            isEnded = (mTurnContext.peek() instanceof Winner) || (mTurnContext.peek() instanceof EvenGame);
 
             mTestBlockingObserver.waitUntilUpdateIsCalled();
         }
