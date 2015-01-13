@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "me.dacol.marco.mancala"
@@ -29,6 +29,6 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:21.+"
+    compile "com.android.support:appcompat-v7:21.0.3"
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

@@ -1,0 +1,188 @@
+package me.dacol.marco.mancala.gameUI.animatior;
+
+import android.animation.Animator;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardEmptyBowl;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardPutInTray;
+import me.dacol.marco.mancala.gameLib.gameController.actions.BoardPutOneInContainer;
+import me.dacol.marco.mancala.gameUI.pieces.Bowl;
+import me.dacol.marco.mancala.logging.Logger;
+
+public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
+
+    private static final String LOG_TAG = BowlAnimator.class.getSimpleName();
+
+    private ArrayList<TextView> mBowlUIRepresentation;
+    private boolean mReactivateAllButton;
+    private Context mContext;
+    private ArrayList<Action> mMoveSequence;
+    private boolean checkme = false;
+
+    public BowlAnimator(Context context, ArrayList<TextView> bowlUIRepresentation) {
+        mContext = context;
+        mBowlUIRepresentation = bowlUIRepresentation;
+        mReactivateAllButton = false;
+        mMoveSequence = new ArrayList<Action>();
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+
+        // I've to check if all the buttons are active or not, because after i will have to restore
+        // the state of all the buttons
+        for (int i = 0; i < mBowlUIRepresentation.size(); i++) {
+            if (mBowlUIRepresentation.get(i) instanceof Bowl) {
+                Bowl b = (Bowl) mBowlUIRepresentation.get(i);
+                if (i < 7) {
+                    b.setEnabled(false);
+                } else if (b.isEnabled()) {
+                    mReactivateAllButton = true;
+                    b.setEnabled(false);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected Void doInBackground(ArrayList... params) {
+        // trova il bottone da animare
+        // carica l'animazione
+        // chiama onProggressUpdate, passandogli come parametro l'animazione
+        if (params[0] != null) {
+            mMoveSequence = params[0];
+
+            for (Action move : mMoveSequence) {
+                TextView textView = null;
+                String newText = "";
+
+                if (move instanceof BoardEmptyBowl) {
+                    textView = mBowlUIRepresentation.get(((BoardEmptyBowl) move).getLoad());
+                    newText = "0";
+                } else if (move instanceof BoardPutInTray) {
+                    textView = mBowlUIRepresentation.get(((BoardPutInTray) move).getLoad());
+                    int actualNumberOfSeeds = Integer.valueOf(textView.getText().toString());
+                    actualNumberOfSeeds += ((BoardPutInTray) move).getNumberOfSeeds();
+                    newText = String.valueOf(actualNumberOfSeeds);
+                } else if (move instanceof BoardPutOneInContainer) {
+                    textView = mBowlUIRepresentation.get(((BoardPutOneInContainer) move).getLoad());
+                    int actualNumberOfSeeds = Integer.valueOf(textView.getText().toString());
+                    actualNumberOfSeeds += 1;
+                    newText = String.valueOf(actualNumberOfSeeds);
+                }
+
+                //publishProgress(getAnimatorFor(textView), newText, textView);
+                publishProgress(newText, textView);
+
+                // sleep thread to see animation sequentially
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+     protected void onProgressUpdate(Object... values) {
+        DecelerateInterpolator decelerateInterpolator = new DecelerateInterpolator();
+        final OvershootInterpolator overshootInterpolator = new OvershootInterpolator();
+
+        //ValueAnimator valueAnimator = (ValueAnimator) values[0];
+        final String newText = (String) values[0];
+        final TextView container = (TextView) values[1];
+
+        container.setText(newText);
+        container.animate().setDuration(300);
+
+        container.animate().setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                container.animate().setListener(null);
+                container.setText(newText);
+                container.animate().setInterpolator(overshootInterpolator).scaleX(1f).scaleY(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        container.animate().setInterpolator(decelerateInterpolator).scaleX(0.7f).scaleY(0.7f);
+
+        super.onProgressUpdate(values);
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+
+        for (int i = 0; i < mBowlUIRepresentation.size(); i++) {
+            if (mBowlUIRepresentation.get(i) instanceof Bowl) {
+                Bowl b = (Bowl) mBowlUIRepresentation.get(i);
+                if (i < 7) {
+                    b.setEnabled(true);
+                } else if (mReactivateAllButton) {
+                    b.setEnabled(true);
+                }
+            }
+        }
+
+        if(checkme) Logger.v(LOG_TAG, "true!");
+    }
+
+    // this adds all the moves on the queue
+    public void addMoves(ArrayList<Action> atomicMoves) {
+        Logger.v(LOG_TAG, "chiamato!");
+        checkme = true;
+    }
+
+    /*
+    private ValueAnimator getAnimatorFor(TextView piece) {
+
+
+
+        final TextView textView = piece;
+        piece.animate().setDuration(1000);
+
+
+        return valueAnimator;
+
+        ValueAnimator animator = ValueAnimator.ofInt();
+
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(new,
+                80f,
+                60f; //TODO change me for player two
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                GradientDrawable bowlShape = (GradientDrawable) textView.getBackground();
+                bowlShape.setColor((Integer) animation.getAnimatedValue());
+            }
+        });
+        valueAnimator.setDuration(1000);
+
+    }
+    */
+}

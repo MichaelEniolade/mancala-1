@@ -1,6 +1,7 @@
 package me.dacol.marco.mancala.gameUI.board;
 
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,12 +18,14 @@ import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.Game;
+import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
+import me.dacol.marco.mancala.gameUI.animatior.BowlAnimator;
 import me.dacol.marco.mancala.gameUI.pieces.Bowl;
 import me.dacol.marco.mancala.gameUI.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.pieces.Tray;
@@ -40,11 +43,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private ArrayList<OnFragmentInteractionListener> mPlayerBrainListeners;
 
-    private ArrayList<TextView> mBoardTextViewRepresentation;
+    private ArrayList<TextView> mBoardUIRepresentation;
 
     private ArrayList<Container> mStartingBoard;
     private TextView mPlayerTurnText;
     private String mStartingPlayerName;
+    private BowlAnimator mBowlAnimator;
 
     /**
      * Use this factory method to create a new instance of
@@ -85,18 +89,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private static void connectBoardViewToPlayersBrain(BoardFragment boardFragment, Game game, boolean isHumanVsHuman) {
         // attach players to the board
         boardFragment.attachHumanPlayerBrain(
-                (OnFragmentInteractionListener) game.getPlayerNumber(0).getBrain()
-                , 0);
+                (OnFragmentInteractionListener) game.getPlayerNumber(0).getBrain(), 0);
 
         if (isHumanVsHuman) {
             boardFragment.attachHumanPlayerBrain(
-                    (OnFragmentInteractionListener) game.getPlayerNumber(1).getBrain()
-                    , 1);
+                    (OnFragmentInteractionListener) game.getPlayerNumber(1).getBrain(), 1);
         }
-    }
-
-    public BoardFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -121,8 +119,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     //TODO: serialize the event, so the UI can be updated more slowly
     private void setupBoard(ArrayList<Container> boardRepresentation) {
-
-        mBoardTextViewRepresentation = new ArrayList<TextView>();
+        mBowlAnimator = null;
+        mBoardUIRepresentation = new ArrayList<TextView>();
         GridLayout.LayoutParams params;
 
         // Here I've to check if the choosen game is human vs human, i need to attach
@@ -147,7 +145,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
             bowl.setOnClickListener(this);
 
-            mBoardTextViewRepresentation.add(bowl);
+            mBoardUIRepresentation.add(bowl);
         }
 
         // Add the tray for player one
@@ -159,7 +157,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 1
         );
 
-        mBoardTextViewRepresentation.add(trayPlayerOne);
+        mBoardUIRepresentation.add(trayPlayerOne);
 
         for (int i = 5; i >= 0; i--) {
             Bowl bowl = PieceFactory.generateBowl(
@@ -176,7 +174,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 bowl.setOnClickListener(this);
             }
 
-            mBoardTextViewRepresentation.add(bowl);
+            mBoardUIRepresentation.add(bowl);
         }
 
         // Add the tray for computer
@@ -188,7 +186,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 2
         );
 
-        mBoardTextViewRepresentation.add(trayPlayerTwo);
+        mBoardUIRepresentation.add(trayPlayerTwo);
 
         // Something in the middle
         params = new GridLayout.LayoutParams();
@@ -203,30 +201,40 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         mPlayerTurnText = textView;
 
         // This show the starting status of the board
-        updateBoard(boardRepresentation);
+        updateBoard(boardRepresentation, null);
     }
 
     private void addToBoardView(GridLayout board) {
         board.removeAllViews();
 
-        for (TextView t : mBoardTextViewRepresentation) {
+        for (TextView t : mBoardUIRepresentation) {
             board.addView(t);
         }
 
         board.addView(mPlayerTurnText);
     }
 
-    private void updateBoard(ArrayList<Container> boardRepresentation) {
-        if (mBoardTextViewRepresentation != null) {
-            for (int i=0; i < boardRepresentation.size(); i++) {
+    private void updateBoard(ArrayList<Container> boardRepresentation, ArrayList<Action> atomicMoves) {
 
-                mBoardTextViewRepresentation.get(i).setText(boardRepresentation.get(i).toString());
+        /* Keep this code, could be an option to not have the animation
+        if (mBoardUIRepresentation != null) {
+            for (int i=0; i < boardRepresentation.size(); i++) {
+                mBoardUIRepresentation.get(i).setText(boardRepresentation.get(i).toString());
             }
         }
+        */
+        BowlAnimator bowlAnimator = new BowlAnimator(getActivity(), mBoardUIRepresentation);
+
+        if (bowlAnimator.getStatus() == AsyncTask.Status.PENDING) {
+            bowlAnimator.execute(atomicMoves);
+        } else if (bowlAnimator.getStatus() == AsyncTask.Status.RUNNING) {
+            bowlAnimator.addMoves(atomicMoves);
+        }
+
     }
 
     @Override
-    public void update(Observable observable, Object data) {
+     public void update(Observable observable, Object data) {
         // I'm interested in the Action containing the board update only
         ArrayList<Container> containers = null;
 
@@ -235,12 +243,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
         } else if (data instanceof BoardUpdated) {
             containers = ((BoardUpdated) data).getLoad();
-            updateBoard(containers);
+            updateBoard(containers, ((BoardUpdated) data).getAtomicMoves() );
         } else if (data instanceof Winner) {
-            updateBoard(((Winner) data).getboardStatus());
+            updateBoard(((Winner) data).getboardStatus(), null);
             updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
         } else if (data instanceof EvenGame) {
-            updateBoard(((EvenGame) data).getLoad());
+            updateBoard(((EvenGame) data).getLoad(), null);
             updatePlayingPlayerText("The game ended, even...Shame on you!"); //TODO put me in string.xml
         }
     }
@@ -266,7 +274,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         int bowlNumber = v.getId();
         if (bowlNumber < 6) {
             // TODO animation is working
-/*            final Button b = (Button) v;
+/*          final Button b = (Button) v;
             ValueAnimator animator = ValueAnimator.ofInt();
 
             ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(),

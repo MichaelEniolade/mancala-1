@@ -48,8 +48,6 @@ public class Bowl extends Button {
         setHeight(height);
 
         setTextSize(30f);
-
-
     }
 
 }
