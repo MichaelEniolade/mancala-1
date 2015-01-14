@@ -1,4 +1,4 @@
-package me.dacol.marco.mancala.gameUI.pieces;
+package me.dacol.marco.mancala.gameUI.board.pieces;
 
 import android.content.Context;
 import android.view.Gravity;

@@ -23,9 +23,9 @@ import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
-import me.dacol.marco.mancala.gameUI.pieces.Bowl;
-import me.dacol.marco.mancala.gameUI.pieces.PieceFactory;
-import me.dacol.marco.mancala.gameUI.pieces.Tray;
+import me.dacol.marco.mancala.gameUI.board.pieces.Bowl;
+import me.dacol.marco.mancala.gameUI.board.pieces.PieceFactory;
+import me.dacol.marco.mancala.gameUI.board.pieces.Tray;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,7 +65,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private static void addPlayers(Game game, BoardFragment fragment, boolean isHumanVsHuman) {
         // add players to the game
         try {
-            game.createPlayer(PlayerType.HUMAN, "1");
+            game.createPlayer(PlayerType.HUMAN, "1"); //TODO recover the player name from preferences
 
             if (isHumanVsHuman) {
                 game.createPlayer(PlayerType.HUMAN, "2");
