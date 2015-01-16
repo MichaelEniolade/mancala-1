@@ -26,8 +26,6 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getActionBar().hide();
-
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new NewGameFragment())
@@ -38,7 +36,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -67,7 +65,6 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
     private void openStatistics() {
         StatisticsFragment statisticsFragment = StatisticsFragment.newInstance(null, null);
-
         popUpNewFragment(statisticsFragment);
     }
 
