@@ -56,13 +56,15 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         BoardFragment fragment = new BoardFragment();
 
         // initialization of the statistic Helper
-        StatisticsHelper statisticsHelper = new StatisticsHelper(context);
+        StatisticsHelper statisticsHelper = StatisticsHelper.getInstance(context);
 
         // Initialize
         game.setup();
 
         // attach Fragment to the turn context
         game.getTurnContext().addObserver(fragment);
+
+        // attach statisticsHelper to the turnContext, it's safe because if it is already added nothing happens
         game.getTurnContext().addObserver(statisticsHelper);
 
         // add player

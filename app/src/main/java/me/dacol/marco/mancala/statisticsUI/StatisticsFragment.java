@@ -53,7 +53,7 @@ public class StatisticsFragment extends Fragment implements StatisticsCallerObje
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         StatisticsHelper mStatisticsHelper = new StatisticsHelper(getActivity());
-        mStatisticsHelper.getLoadAll(this);
+        mStatisticsHelper.loadAllStatistics(this);
     }
 
     @Override
