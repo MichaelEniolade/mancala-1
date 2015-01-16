@@ -5,5 +5,12 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="best_score">Best score:</string>
+    <string name="played_games">Played Games:</string>
+    <string name="win_games">Win games:</string>
+    <string name="even_games">Even games:</string>
+    <string name="lose_games">Lose games:</string>
+    <string name="title_HvH_games_stats">HvH</string>
+    <string name="title_HvC_games_stats">HvC</string>
 
 </resources>
