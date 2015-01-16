@@ -27,7 +27,7 @@ public class StatisticsFragment extends Fragment implements StatisticsCallerObje
     private OnFragmentInteractionListener mListener;
     private StatisticsHelper mStatisticsHelper;
 
-    public static StatisticsFragment newInstance(String param1, String param2) {
+    public static StatisticsFragment newInstance() {
         StatisticsFragment fragment = new StatisticsFragment();
 
         return fragment;
@@ -52,7 +52,7 @@ public class StatisticsFragment extends Fragment implements StatisticsCallerObje
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        StatisticsHelper mStatisticsHelper = new StatisticsHelper(getActivity());
+        StatisticsHelper mStatisticsHelper = StatisticsHelper.getInstance(getActivity());
         mStatisticsHelper.loadAllStatistics(this);
     }
 

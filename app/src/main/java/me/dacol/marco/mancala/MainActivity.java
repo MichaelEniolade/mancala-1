@@ -12,6 +12,7 @@ import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameUI.NewGameFragment;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.BoardFragment;
+import me.dacol.marco.mancala.preferences.PreferencesFragment;
 import me.dacol.marco.mancala.statisticsLib.DBContracts;
 import me.dacol.marco.mancala.statisticsUI.StatisticsFragment;
 
@@ -28,7 +29,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new NewGameFragment())
+                    .add(R.id.container, NewGameFragment.newInstance())
                     .commit();
         }
     }
@@ -64,8 +65,13 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
     }
 
     private void openStatistics() {
-        StatisticsFragment statisticsFragment = StatisticsFragment.newInstance(null, null);
+        StatisticsFragment statisticsFragment = StatisticsFragment.newInstance();
         popUpNewFragment(statisticsFragment);
+    }
+
+    private void openPreferences() {
+        PreferencesFragment preferenceFragment = new PreferencesFragment();
+        popUpNewFragment(preferenceFragment);
     }
 
     private void popUpNewFragment(Fragment boardFragment) {
@@ -83,6 +89,8 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
             startNewGame(DBContracts.GAME_TYPE_HvH);
         } else if (event == EventType.STATISTICS_BUTTON_PRESSED) {
             openStatistics();
+        } else if (event == EventType.PREFERENCES_BUTTON_PRESSED) {
+            openPreferences();
         }
     }
 
