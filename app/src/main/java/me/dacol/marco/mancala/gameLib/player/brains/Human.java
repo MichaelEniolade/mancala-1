@@ -27,7 +27,7 @@ public class Human extends BaseBrain implements OnFragmentInteractionListener {
 
     @Override
     public void onFragmentInteraction(EventType event, Object data) {
-        if ((event == EventType.CHOOSEN_BOWL) && (data instanceof Integer)) {
+        if ((event == EventType.CHOSEN_BOWL) && (data instanceof Integer)) {
             int choosenBowl = (Integer) data;
             mAttachedPlayer.onBrainInteraction(choosenBowl);
         }
