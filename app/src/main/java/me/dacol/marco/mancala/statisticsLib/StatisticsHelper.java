@@ -16,16 +16,14 @@ public class StatisticsHelper implements Observer {
 
     private Date mDate;
     private Context mContext;
-    private StatisticsRegister mStatisticsRegister;
 
     public StatisticsHelper(Context context) {
         mDate = new Date();
         mContext = context;
-        mStatisticsRegister = new StatisticsRegister(mContext, mDate);
     }
 
     public void register(ArrayList<Container> boardRepresentation) {
-        mStatisticsRegister.execute(boardRepresentation);
+        new StatisticsRegister(mContext, mDate).execute(boardRepresentation);
     }
 
     public void getLoadAll(StatisticsCallerObject callerObject) {
