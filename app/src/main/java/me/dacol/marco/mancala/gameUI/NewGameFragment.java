@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Switch;
 
 import me.dacol.marco.mancala.MainActivity;
 import me.dacol.marco.mancala.R;
@@ -58,11 +57,14 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
         View viewRoot = inflater.inflate(R.layout.fragment_new_game, container, false);
 
         // attach the fragment to the button
-        Button newGameButton = (Button) viewRoot.findViewById(R.id.new_game);
-        newGameButton.setOnClickListener(this);
+        Button newHvHGameButton = (Button) viewRoot.findViewById(R.id.new_HvH_game);
+        newHvHGameButton.setOnClickListener(this);
 
-        Switch aSwitch = (Switch) viewRoot.findViewById(R.id.switch1);
-        aSwitch.setOnClickListener(this);
+        Button newHvCGameButton = (Button) viewRoot.findViewById(R.id.new_HvC_game);
+        newHvCGameButton.setOnClickListener(this);
+
+        Button statisticsButton = (Button) viewRoot.findViewById(R.id.statistics);
+        statisticsButton.setOnClickListener(this);
 
         return viewRoot;
     }
@@ -105,10 +107,12 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         // TODO passare tutto il riferimento al bottone?
-        if (v.getId() == R.id.new_game) {
-            mListener.onFragmentInteraction(MainActivity.EventType.NEW_GAME_BUTTON_PRESSED, null);
-        } else if (v.getId() == R.id.switch1) {
-            mListener.onFragmentInteraction(MainActivity.EventType.TOGGLE_ENEMY_KIND, null);
+        if (v.getId() == R.id.new_HvH_game) {
+            mListener.onFragmentInteraction(MainActivity.EventType.NEW_HvH_GAME_BUTTON_PRESSED, null);
+        } else if (v.getId() == R.id.new_HvC_game) {
+            mListener.onFragmentInteraction(MainActivity.EventType.NEW_HvC_GAME_BUTTON_PRESSED, null);
+        } else if (v.getId() == R.id.statistics) {
+            mListener.onFragmentInteraction(MainActivity.EventType.STATISTICS_BUTTON_PRESSED, null);
         }
     }
 }

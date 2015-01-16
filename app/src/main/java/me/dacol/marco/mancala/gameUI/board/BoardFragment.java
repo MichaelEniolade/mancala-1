@@ -1,6 +1,7 @@
 package me.dacol.marco.mancala.gameUI.board;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.pieces.Bowl;
 import me.dacol.marco.mancala.gameUI.board.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.board.pieces.Tray;
+import me.dacol.marco.mancala.statisticsLib.StatisticsHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,14 +52,23 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      */
-    public static BoardFragment newInstance(Game game, boolean isHumanVsHuman) {
+    public static BoardFragment newInstance(Game game, boolean isHumanVsHuman, Context context) {
         BoardFragment fragment = new BoardFragment();
+
+        // initialization of the statistic Helper
+        StatisticsHelper statisticsHelper = new StatisticsHelper(context);
 
         // Initialize
         game.setup();
-        game.getTurnContext().addObserver(fragment);
 
+        // attach Fragment to the turn context
+        game.getTurnContext().addObserver(fragment);
+        game.getTurnContext().addObserver(statisticsHelper);
+
+        // add player
         addPlayers(game, fragment, isHumanVsHuman);
+
+        // start game
         game.start();
         return fragment;
     }
@@ -284,11 +295,11 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
             mPlayerBrainListeners.get(0)
                     .onFragmentInteraction(
-                            OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
+                            OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
         } else {
             mPlayerBrainListeners.get(1)
                     .onFragmentInteraction(
-                            OnFragmentInteractionListener.EventType.CHOOSEN_BOWL, bowlNumber);
+                            OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
         }
     }
 
