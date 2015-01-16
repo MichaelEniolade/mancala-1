@@ -12,19 +12,19 @@ import me.dacol.marco.mancala.gameLib.gameController.TurnContext;
 import me.dacol.marco.mancala.gameUI.NewGameFragment;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.BoardFragment;
+import me.dacol.marco.mancala.statisticsLib.DBContracts;
+import me.dacol.marco.mancala.statisticsUI.StatisticsFragment;
 
 
 public class MainActivity extends Activity implements OnFragmentInteractionListener {
 
     private Game mGame;
     private TurnContext mTurnContext;
-    private boolean mIsHumanVsHumanGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mIsHumanVsHumanGame = false;
 
         getActionBar().hide();
 
@@ -57,11 +57,18 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         return super.onOptionsItemSelected(item);
     }
 
-    private void startNewGame() {
-        BoardFragment boardFragment = BoardFragment.newInstance(Game.getInstance(), mIsHumanVsHumanGame);
+    private void startNewGame(String gameType) {
+        boolean isHumanVsHumanGame = (gameType.equals( DBContracts.GAME_TYPE_HvH ));
+        BoardFragment boardFragment = BoardFragment.newInstance(Game.getInstance(), isHumanVsHumanGame, this);
 
         // change the visualized fragment
         popUpNewFragment(boardFragment);
+    }
+
+    private void openStatistics() {
+        StatisticsFragment statisticsFragment = StatisticsFragment.newInstance(null, null);
+
+        popUpNewFragment(statisticsFragment);
     }
 
     private void popUpNewFragment(Fragment boardFragment) {
@@ -73,14 +80,13 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
     @Override
     public void onFragmentInteraction(EventType event, Object data) {
-        if (event == EventType.NEW_GAME_BUTTON_PRESSED) {
-            startNewGame();
-        } else if (event == EventType.TOGGLE_ENEMY_KIND) {
-            toggleEnemyKind();
+        if (event == EventType.NEW_HvC_GAME_BUTTON_PRESSED) {
+            startNewGame(DBContracts.GAME_TYPE_HvC);
+        } else if (event == EventType.NEW_HvH_GAME_BUTTON_PRESSED) {
+            startNewGame(DBContracts.GAME_TYPE_HvH);
+        } else if (event == EventType.STATISTICS_BUTTON_PRESSED) {
+            openStatistics();
         }
     }
 
-    private void toggleEnemyKind() {
-        mIsHumanVsHumanGame = !mIsHumanVsHumanGame;
-    }
 }
