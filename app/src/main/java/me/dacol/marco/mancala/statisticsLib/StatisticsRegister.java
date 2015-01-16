@@ -15,7 +15,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import me.dacol.marco.mancala.gameLib.board.Container;
-import me.dacol.marco.mancala.logging.Logger;
 import me.dacol.marco.mancala.statisticsLib.DBContracts.GamesHistoryEntry;
 import me.dacol.marco.mancala.statisticsLib.DBContracts.StatsHvCEntry;
 import me.dacol.marco.mancala.statisticsLib.DBContracts.StatsHvHEntry;
@@ -23,7 +22,7 @@ import me.dacol.marco.mancala.statisticsLib.DBContracts.StatsHvHEntry;
  * This class has the role of registering all the game statistics during a game
  * Listen to the TurnContext to intercept the game event and responds to them
  */
-public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Integer> {
+public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Void> {
     private static final String LOG_TAG = StatisticsRegister.class.getSimpleName();
 
     private Date mStartedGame;
@@ -35,7 +34,7 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, In
     }
 
     @Override
-    protected Integer doInBackground(ArrayList<Container>... params) {
+    protected Void doInBackground(ArrayList<Container>... params) {
         if (android.os.Debug.isDebuggerConnected()) {
             android.os.Debug.waitForDebugger();
         }
@@ -80,9 +79,9 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, In
         gamesHistoryContentValue.put(GamesHistoryEntry.COLUMN_NAME_GAME_TYPE, gameType);
 
         // - persist all the data in the DB
+        persistInDatabase(gamesHistoryContentValue, statsMap, gameType);
 
-
-        return persistInDatabase(gamesHistoryContentValue, statsMap, gameType);
+        return null;
     }
 
     private Map<String, Integer> loadKeyValueStatisticsFromDatabase(String gameType) {
@@ -103,18 +102,12 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, In
             while (cursor.moveToNext()) {
                 dbStatsMap.put(cursor.getString(0), cursor.getInt(1));
             }
-        } /*else {
-            dbStatsMap.put(DBContracts.STATS_KEY_PLAYED_GAME, 0);
-            dbStatsMap.put(DBContracts.STATS_KEY_BESTSCORE, 0);
-            dbStatsMap.put(DBContracts.STATS_KEY_WIN_GAME, 0);
-            dbStatsMap.put(DBContracts.STATS_KEY_EVEN_GAME, 0);
-            dbStatsMap.put(DBContracts.STATS_KEY_LOSE_GAME, 0);
-        }*/
+        }
 
         return dbStatsMap;
     }
 
-    private Integer persistInDatabase(ContentValues gamesHistoryContentValue,
+    private void persistInDatabase(ContentValues gamesHistoryContentValue,
                                    Map<String, Integer> statsMap,
                                    String gameType) {
 
@@ -130,21 +123,14 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, In
 
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
         // update the statistics, it is a bit more complicated, I've to iterate through the hashMap
-        int rowsUpdated = 0;
         for (Map.Entry<String, Integer> statistic : statsMap.entrySet()) {
             ContentValues entry = new ContentValues();
             entry.put(valueColumnName, statistic.getValue());
-            rowsUpdated = db.update(table, entry, keyColumnName + " =?", new String[]{statistic.getKey()});
+            db.update(table, entry, keyColumnName + " =?", new String[]{statistic.getKey()});
         }
         // persist last game information
         db.insert(GamesHistoryEntry.TABLE_NAME, null, gamesHistoryContentValue);
 
-        return rowsUpdated;
     }
 
-    @Override
-    protected void onPostExecute(Integer integer) {
-        super.onPostExecute(integer);
-        Logger.v(LOG_TAG, "Rows affected by update: " + integer.toString());
-    }
 }
