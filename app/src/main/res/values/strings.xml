@@ -12,5 +12,12 @@
     <string name="lose_games">Lose games:</string>
     <string name="title_HvH_games_stats">HvH</string>
     <string name="title_HvC_games_stats">HvC</string>
+    <string name="title_last_played_games">Last games</string>
+    <string name="list_date">Date:</string>
+    <string name="list_game_type">Game type:</string>
+    <string name="list_player_points">Your points:</string>
+    <string name="list_opponent_points">Opponent points:</string>
+    <string name="statistics_action_bar_title">Statistics</string>
+    <string name="statistics_back_button"><![CDATA[< Back]]></string>
 
 </resources>

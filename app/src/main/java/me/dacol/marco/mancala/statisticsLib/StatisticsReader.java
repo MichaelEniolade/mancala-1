@@ -46,7 +46,8 @@ public class StatisticsReader extends AsyncTask<Void, Void, List<Cursor>> {
         // query for all the last games played
         Cursor gamesHistory = db.query(
                 GamesHistoryEntry.TABLE_NAME,
-                new String[] { GamesHistoryEntry.COLUMN_NAME_DATE,
+                new String[] { GamesHistoryEntry._ID,
+                               GamesHistoryEntry.COLUMN_NAME_DATE,
                                GamesHistoryEntry.COLUMN_NAME_PLAYER_POINT,
                                GamesHistoryEntry.COLUMN_NAME_OPPONENT_POINT,
                                GamesHistoryEntry.COLUMN_NAME_GAME_TYPE },
