@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 import me.dacol.marco.mancala.MainActivity;
 import me.dacol.marco.mancala.R;
@@ -55,13 +55,13 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
         View viewRoot = inflater.inflate(R.layout.fragment_new_game, container, false);
 
         // attach the fragment to the button
-        Button newHvHGameButton = (Button) viewRoot.findViewById(R.id.new_HvH_game);
+        ImageButton newHvHGameButton = (ImageButton) viewRoot.findViewById(R.id.new_HvH_game);
         newHvHGameButton.setOnClickListener(this);
 
-        Button newHvCGameButton = (Button) viewRoot.findViewById(R.id.new_HvC_game);
+        ImageButton newHvCGameButton = (ImageButton) viewRoot.findViewById(R.id.new_HvC_game);
         newHvCGameButton.setOnClickListener(this);
 
-        Button statisticsButton = (Button) viewRoot.findViewById(R.id.statistics);
+        ImageButton statisticsButton = (ImageButton) viewRoot.findViewById(R.id.statistics);
         statisticsButton.setOnClickListener(this);
 
         return viewRoot;
