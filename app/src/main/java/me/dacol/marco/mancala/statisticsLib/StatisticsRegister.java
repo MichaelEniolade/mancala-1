@@ -1,4 +1,4 @@
-package me.dacol.marco.mancala.statistics;
+package me.dacol.marco.mancala.statisticsLib;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,20 +11,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import me.dacol.marco.mancala.gameLib.board.Container;
-import me.dacol.marco.mancala.statistics.DBContracts.GamesHistoryEntry;
-import me.dacol.marco.mancala.statistics.DBContracts.StatsHvCEntry;
-import me.dacol.marco.mancala.statistics.DBContracts.StatsHvHEntry;
+import me.dacol.marco.mancala.logging.Logger;
+import me.dacol.marco.mancala.statisticsLib.DBContracts.GamesHistoryEntry;
+import me.dacol.marco.mancala.statisticsLib.DBContracts.StatsHvCEntry;
+import me.dacol.marco.mancala.statisticsLib.DBContracts.StatsHvHEntry;
 /**
  * This class has the role of registering all the game statistics during a game
  * Listen to the TurnContext to intercept the game event and responds to them
  */
-public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Void> {
+public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Integer> {
+    private static final String LOG_TAG = StatisticsRegister.class.getSimpleName();
 
     private Date mStartedGame;
-    private boolean mIsFirstTurn;
     private DBHelper mDBHelper;
 
     public StatisticsRegister(Context context, Date startedGame) {
@@ -33,7 +35,11 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Vo
     }
 
     @Override
-    protected Void doInBackground(ArrayList<Container>... params) {
+    protected Integer doInBackground(ArrayList<Container>... params) {
+        if (android.os.Debug.isDebuggerConnected()) {
+            android.os.Debug.waitForDebugger();
+        }
+
         ArrayList<Container> boardRepresentation = params[0];
 
         // - first calculate the game data
@@ -43,7 +49,7 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Vo
                 DBContracts.GAME_TYPE_HvH : DBContracts.GAME_TYPE_HvC;
 
         // - retrieve the stored data
-        Map<String, Integer> statsMap = loadKeyValueFromDatabase(gameType);
+        Map<String, Integer> statsMap = loadKeyValueStatisticsFromDatabase(gameType);
 
         // - update the data where necessary
         // increment playedGames
@@ -65,7 +71,7 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Vo
             statsMap.put(DBContracts.STATS_KEY_BESTSCORE, playerScore);
 
         // - Create the set of data for the game history table
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
         ContentValues gamesHistoryContentValue = new ContentValues();
         gamesHistoryContentValue.put(GamesHistoryEntry.COLUMN_NAME_DATE, df.format(mStartedGame));
@@ -74,16 +80,16 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Vo
         gamesHistoryContentValue.put(GamesHistoryEntry.COLUMN_NAME_GAME_TYPE, gameType);
 
         // - persist all the data in the DB
-        persistInDatabase(gamesHistoryContentValue, statsMap, gameType);
 
-        return null;
+
+        return persistInDatabase(gamesHistoryContentValue, statsMap, gameType);
     }
 
-    private Map<String, Integer> loadKeyValueFromDatabase(String gameType) {
+    private Map<String, Integer> loadKeyValueStatisticsFromDatabase(String gameType) {
         String[] projection = new String[]{ StatsHvCEntry.COLUMN_NAME_KEY, StatsHvCEntry.COLUMN_NAME_VALUE };
         String table = StatsHvCEntry.TABLE_NAME;
 
-        if (gameType == DBContracts.GAME_TYPE_HvH) {
+        if (gameType.equals( DBContracts.GAME_TYPE_HvH )) {
             projection = new String[]{ StatsHvHEntry.COLUMN_NAME_KEY, StatsHvHEntry.COLUMN_NAME_VALUE };
             table = StatsHvHEntry.TABLE_NAME;
         }
@@ -92,37 +98,53 @@ public class StatisticsRegister extends AsyncTask<ArrayList<Container>, Void, Vo
         Cursor cursor = db.query(table, projection, null, null, null, null, null);
 
         Map<String, Integer> dbStatsMap = new HashMap<>();
-        while (cursor.moveToNext()) {
-            dbStatsMap.put(cursor.getString(0), cursor.getInt(1));
-        }
+
+        if (cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                dbStatsMap.put(cursor.getString(0), cursor.getInt(1));
+            }
+        } /*else {
+            dbStatsMap.put(DBContracts.STATS_KEY_PLAYED_GAME, 0);
+            dbStatsMap.put(DBContracts.STATS_KEY_BESTSCORE, 0);
+            dbStatsMap.put(DBContracts.STATS_KEY_WIN_GAME, 0);
+            dbStatsMap.put(DBContracts.STATS_KEY_EVEN_GAME, 0);
+            dbStatsMap.put(DBContracts.STATS_KEY_LOSE_GAME, 0);
+        }*/
 
         return dbStatsMap;
     }
 
-    private void persistInDatabase(ContentValues gamesHistoryContentValue,
+    private Integer persistInDatabase(ContentValues gamesHistoryContentValue,
                                    Map<String, Integer> statsMap,
-                                   String gameType)
-    {
+                                   String gameType) {
 
         String table = StatsHvCEntry.TABLE_NAME;
-        String keyColumnName = StatsHvCEntry.TABLE_NAME;
+        String keyColumnName = StatsHvCEntry.COLUMN_NAME_KEY;
         String valueColumnName = StatsHvCEntry.COLUMN_NAME_VALUE;
 
-        if (gameType.equals( DBContracts.GAME_TYPE_HvH )) {
+        if (gameType.equals(DBContracts.GAME_TYPE_HvH)) {
             table = StatsHvHEntry.TABLE_NAME;
             keyColumnName = StatsHvHEntry.COLUMN_NAME_KEY;
             valueColumnName = StatsHvHEntry.COLUMN_NAME_VALUE;
         }
 
         SQLiteDatabase db = mDBHelper.getWritableDatabase();
-        // update the statistics, it is a bit more complicated, I've to iterate throught the hashMap
+        // update the statistics, it is a bit more complicated, I've to iterate through the hashMap
+        int rowsUpdated = 0;
         for (Map.Entry<String, Integer> statistic : statsMap.entrySet()) {
             ContentValues entry = new ContentValues();
             entry.put(valueColumnName, statistic.getValue());
-            db.update(table, entry, keyColumnName + " = " + "'" + statistic.getKey(), null);
+            rowsUpdated = db.update(table, entry, keyColumnName + " =?", new String[]{statistic.getKey()});
         }
-
         // persist last game information
         db.insert(GamesHistoryEntry.TABLE_NAME, null, gamesHistoryContentValue);
+
+        return rowsUpdated;
+    }
+
+    @Override
+    protected void onPostExecute(Integer integer) {
+        super.onPostExecute(integer);
+        Logger.v(LOG_TAG, "Rows affected by update: " + integer.toString());
     }
 }

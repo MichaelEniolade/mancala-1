@@ -1,4 +1,4 @@
-package me.dacol.marco.mancala.statistics;
+package me.dacol.marco.mancala.statisticsLib;
 
 import android.provider.BaseColumns;
 
@@ -8,7 +8,7 @@ public final class DBContracts {
     public static final String GAME_TYPE_HvC = "HvC";
 
     // statistics key, are always the same that's why they are defined here
-    public static final String STATS_KEY_BESTSCORE = "bestscore";
+    public static final String STATS_KEY_BESTSCORE = "best_score";
     public static final String STATS_KEY_PLAYED_GAME = "played_games";
     public static final String STATS_KEY_WIN_GAME = "win_games";
     public static final String STATS_KEY_LOSE_GAME = "lose_games";
