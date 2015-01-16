@@ -10,7 +10,6 @@ import java.util.Observer;
 import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
-import me.dacol.marco.mancala.logging.Logger;
 
 public class StatisticsHelper implements Observer {
     private static final String LOG_TAG = StatisticsHelper.class.getSimpleName();
@@ -36,7 +35,6 @@ public class StatisticsHelper implements Observer {
     @Override
     public void update(Observable observable, Object data) {
         if (data instanceof Winner) {
-            Logger.v(LOG_TAG, "Winner, registro i dati");
             register(((Winner) data).getboardStatus());
         } else if (data instanceof EvenGame) {
             register(((EvenGame) data ).getLoad());
