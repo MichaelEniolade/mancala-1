@@ -2,9 +2,7 @@
 <resources>
 
     <string name="app_name">Mancala</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="best_score">Best score:</string>
     <string name="played_games">Played Games:</string>
     <string name="win_games">Win games:</string>
@@ -19,5 +17,15 @@
     <string name="list_opponent_points">Opponent points:</string>
     <string name="statistics_action_bar_title">Statistics</string>
     <string name="statistics_back_button"><![CDATA[< Back]]></string>
+    <string name="preferences_title">Preferences</string>
+    <string name="preferences_edit_text_name">Set your name</string>
+    <string name="preferences_dialog_name_title">Enter your name</string>
+    <string name="preferences_dialog_name_negative_button">Cancel</string>
+    <string name="preferences_dialog_name_positive_button">Save</string>
+    <string name="switch_player_bowl_color">Choose your bowls color</string>
+    <string name="switch_player_bowl_color_black">Black</string>
+    <string name="switch_player_bowl_color_white">White</string>
+
+
 
 </resources>

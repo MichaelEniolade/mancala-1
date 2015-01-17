@@ -2,7 +2,9 @@ package me.dacol.marco.mancala.gameUI.board;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +29,7 @@ import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.pieces.Bowl;
 import me.dacol.marco.mancala.gameUI.board.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.board.pieces.Tray;
+import me.dacol.marco.mancala.preferences.PreferencesFragment;
 import me.dacol.marco.mancala.statisticsLib.StatisticsHelper;
 
 /**
@@ -48,6 +51,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private TextView mPlayerTurnText;
     private String mStartingPlayerName;
 
+    private Context mContext;
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -68,22 +72,25 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         game.getTurnContext().addObserver(statisticsHelper);
 
         // add player
-        addPlayers(game, fragment, isHumanVsHuman);
+        addPlayers(game, fragment, isHumanVsHuman, context);
 
         // start game
         game.start();
         return fragment;
     }
 
-    private static void addPlayers(Game game, BoardFragment fragment, boolean isHumanVsHuman) {
-        // add players to the game
+    // creates and add players to the game, recovering player name from the preferences
+    private static void addPlayers(Game game, BoardFragment fragment, boolean isHumanVsHuman, Context context) {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String playerName = defaultSharedPreferences.getString(PreferencesFragment.KEY_PLAYER_NAME, "Player");
+
         try {
-            game.createPlayer(PlayerType.HUMAN, "1"); //TODO recover the player name from preferences
+            game.createPlayer(PlayerType.HUMAN, playerName);
 
             if (isHumanVsHuman) {
-                game.createPlayer(PlayerType.HUMAN, "2");
+                game.createPlayer(PlayerType.HUMAN, "Opponent");    // TODO put me in string.xml
             } else {
-                game.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "2");
+                game.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Opponent"); //TODO put me in string.xml
             }
 
         } catch (ToManyPlayerException e) {
@@ -115,6 +122,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // here i've to initialize the game
         setupBoard(mStartingBoard);
     }
 
@@ -169,7 +178,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 1,
                 5,
                 boardRepresentation.get(6).toString(),
-                1
+                1,
+                isHumanVsHuman
         );
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
@@ -198,7 +208,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 1,
                 0,
                 boardRepresentation.get(13).toString(),
-                2
+                2,
+                isHumanVsHuman
         );
 
         mBoardTextViewRepresentation.add(trayPlayerTwo);
