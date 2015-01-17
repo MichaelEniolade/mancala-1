@@ -1,7 +1,6 @@
 package me.dacol.marco.mancala.gameUI.board;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,12 +17,12 @@ import java.util.Observer;
 
 import me.dacol.marco.mancala.R;
 import me.dacol.marco.mancala.gameLib.board.Container;
-import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Winner;
+import me.dacol.marco.mancala.gameLib.player.Player;
 import me.dacol.marco.mancala.gameLib.player.PlayerType;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.pieces.Bowl;
@@ -47,72 +46,25 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private ArrayList<TextView> mBoardTextViewRepresentation;
 
-    private ArrayList<Container> mStartingBoard;
     private TextView mPlayerTurnText;
     private String mStartingPlayerName;
 
-    private Context mContext;
+    private Game mGame;
+    private boolean mIsHumanVsHuman;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      */
-    public static BoardFragment newInstance(Game game, boolean isHumanVsHuman, Context context) {
-        BoardFragment fragment = new BoardFragment();
+    public static BoardFragment newInstance(boolean isHumanVsHuman) {
+        Bundle args = new Bundle();
+        args.putBoolean("isHvH", isHumanVsHuman);
 
-        // initialization of the statistic Helper
-        StatisticsHelper statisticsHelper = StatisticsHelper.getInstance(context);
+        BoardFragment boardFragment = new BoardFragment();
 
-        // Initialize
-        game.setup();
+        boardFragment.setArguments(args);
 
-        // attach Fragment to the turn context
-        game.getTurnContext().addObserver(fragment);
-
-        // attach statisticsHelper to the turnContext, it's safe because if it is already added nothing happens
-        game.getTurnContext().addObserver(statisticsHelper);
-
-        // add player
-        addPlayers(game, fragment, isHumanVsHuman, context);
-
-        // start game
-        game.start();
-        return fragment;
-    }
-
-    // creates and add players to the game, recovering player name from the preferences
-    private static void addPlayers(Game game, BoardFragment fragment, boolean isHumanVsHuman, Context context) {
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String playerName = defaultSharedPreferences.getString(PreferencesFragment.KEY_PLAYER_NAME, "Player");
-
-        try {
-            game.createPlayer(PlayerType.HUMAN, playerName);
-
-            if (isHumanVsHuman) {
-                game.createPlayer(PlayerType.HUMAN, "Opponent");    // TODO put me in string.xml
-            } else {
-                game.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Opponent"); //TODO put me in string.xml
-            }
-
-        } catch (ToManyPlayerException e) {
-            // TODO falla risalire ancora fino ad arrivare alla main activity
-            e.printStackTrace();
-        }
-
-        connectBoardViewToPlayersBrain(fragment, game, isHumanVsHuman);
-
-    }
-
-    private static void connectBoardViewToPlayersBrain(BoardFragment boardFragment, Game game, boolean isHumanVsHuman) {
-        // attach players to the board
-        boardFragment.attachHumanPlayerBrain(
-                (OnFragmentInteractionListener) game.getPlayerNumber(0).getBrain()
-                , 0);
-
-        if (isHumanVsHuman) {
-            boardFragment.attachHumanPlayerBrain(
-                    (OnFragmentInteractionListener) game.getPlayerNumber(1).getBrain()
-                    , 1);
-        }
+        return boardFragment;
     }
 
     public BoardFragment() {
@@ -122,32 +74,79 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mBoardTextViewRepresentation = null;
+        mPlayerTurnText = null;
+        mStartingPlayerName = null;
 
-        // here i've to initialize the game
-        setupBoard(mStartingBoard);
+        Bundle args = getArguments();
+        mIsHumanVsHuman = args.getBoolean("isHvH");
+
+        mGame = Game.getInstance();
+
+        // initialize the statisticsHelper
+        StatisticsHelper statisticsHelper = StatisticsHelper.getInstance(getActivity());
+        
+        // initialize the game engine
+        mGame.setup();
+
+        // register the fragment and the statisticsHelper to the turnContext
+        mGame.getTurnContext().addObserver(this);
+        mGame.getTurnContext().addObserver(statisticsHelper);
+
+        // add players to the game
+        addPlayers();
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_board, container, false);
-        GridLayout board = (GridLayout) rootView.findViewById(R.id.boardView);
-
-        if (mStartingBoard != null) {
-            addToBoardView(board);
-        }
-
         return rootView;
     }
 
-    //TODO: serialize the event, so the UI can be updated more slowly
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // start the game after the view is setup, in this way i have no problem of null pointer exception
+        // when populating the layout
+        mGame.start();
+    }
+
+    // creates and add players to the game, recovering player name from the preferences
+    private void addPlayers() {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String playerName = defaultSharedPreferences.getString(PreferencesFragment.KEY_PLAYER_NAME, "Player"); // TODO put me in string.xml
+
+        Player player = mGame.createPlayer(PlayerType.HUMAN, playerName);
+
+        Player opponent;
+        if (mIsHumanVsHuman) {
+            opponent = mGame.createPlayer(PlayerType.HUMAN, "Opponent");    // TODO put me in string.xml
+        } else {
+            opponent = mGame.createPlayer(PlayerType.ARTIFICIAL_INTELLIGENCE, "Opponent"); //TODO put me in string.xml
+        }
+
+        connectBoardViewToPlayersBrain(player, opponent);
+
+    }
+
+    // attach players brain to the board, to capture the moves
+    private void connectBoardViewToPlayersBrain(Player player, Player opponent) {
+        attachHumanPlayerBrain(( OnFragmentInteractionListener) player.getBrain(), 0);
+
+        if (mIsHumanVsHuman) {
+            attachHumanPlayerBrain(( OnFragmentInteractionListener) opponent.getBrain(), 1);
+        }
+    }
+
     private void setupBoard(ArrayList<Container> boardRepresentation) {
 
         mBoardTextViewRepresentation = new ArrayList<TextView>();
         GridLayout.LayoutParams params;
 
-        // Here I've to check if the choosen game is human vs human, i need to attach
+        // Here I've to check if the chosen game is human vs human, i need to attach
         // the button to the player brain
         boolean isHumanVsHuman = false;
         if (boardRepresentation.get(7).getOwner().isHuman()) {
@@ -227,7 +226,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         mPlayerTurnText = textView;
 
         // This show the starting status of the board
-        updateBoard(boardRepresentation);
+        addToBoardView((GridLayout) getView().findViewById(R.id.board_grid_layout));
     }
 
     private void addToBoardView(GridLayout board) {
@@ -243,7 +242,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private void updateBoard(ArrayList<Container> boardRepresentation) {
         if (mBoardTextViewRepresentation != null) {
             for (int i=0; i < boardRepresentation.size(); i++) {
-
                 mBoardTextViewRepresentation.get(i).setText(boardRepresentation.get(i).toString());
             }
         }
@@ -255,7 +253,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         ArrayList<Container> containers = null;
 
         if (data instanceof ActivePlayer) {
-            mStartingBoard = ((ActivePlayer) data).getBoardRepresentation();
+            if (!boardIsInitialized()) {
+                setupBoard(((ActivePlayer) data).getBoardRepresentation());
+            }
             updatePlayingPlayerText(((ActivePlayer) data).getLoad().getName());
         } else if (data instanceof BoardUpdated) {
             containers = ((BoardUpdated) data).getLoad();
@@ -267,6 +267,10 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             updateBoard(((EvenGame) data).getLoad());
             updatePlayingPlayerText("The game ended, even...Shame on you!"); //TODO put me in string.xml
         }
+    }
+
+    private boolean boardIsInitialized() {
+        return (mBoardTextViewRepresentation != null);
     }
 
     private void updatePlayingPlayerText(String name) {
@@ -284,28 +288,10 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     // Interact with the Human Player Brain
-    //TODO maybe there is some way more elegant to do this
     @Override
     public void onClick(View v) {
         int bowlNumber = v.getId();
         if (bowlNumber < 6) {
-            // TODO animation is working
-/*            final Button b = (Button) v;
-            ValueAnimator animator = ValueAnimator.ofInt();
-
-            ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(),
-                    getResources().getColor( R.color.selectedBowl),
-                    getResources().getColor(R.color.playerOneBowl));
-            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    GradientDrawable bowlShape = (GradientDrawable) b.getBackground();
-                    bowlShape.setColor( (Integer)animation.getAnimatedValue() );
-                }
-            });
-            valueAnimator.setDuration(1000);
-            valueAnimator.start();*/
-
             mPlayerBrainListeners.get(0)
                     .onFragmentInteraction(
                             OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
@@ -316,9 +302,15 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         }
     }
 
+    /**
+     * This is an interface for your brain, each time your brain pick a bowl on the screen, thanks to
+     * this method the game library can know and refresh the view.
+     * @param brain listening brain of the human player
+     * @param playerNumber the position in which this listener has to be added
+     */
     public void attachHumanPlayerBrain(OnFragmentInteractionListener brain, int playerNumber) {
         if (mPlayerBrainListeners == null) {
-            mPlayerBrainListeners = new ArrayList<OnFragmentInteractionListener>();
+            mPlayerBrainListeners = new ArrayList<>();
         }
         mPlayerBrainListeners.add(playerNumber, brain);
     }

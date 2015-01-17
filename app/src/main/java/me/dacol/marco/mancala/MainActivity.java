@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
-import me.dacol.marco.mancala.gameLib.gameController.Game;
 import me.dacol.marco.mancala.gameUI.NewGameFragment;
 import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.BoardFragment;
@@ -30,7 +29,7 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
 
     private void startNewGame(String gameType) {
         boolean isHumanVsHumanGame = (gameType.equals( DBContracts.GAME_TYPE_HvH ));
-        BoardFragment boardFragment = BoardFragment.newInstance(Game.getInstance(), isHumanVsHumanGame, this);
+        BoardFragment boardFragment = BoardFragment.newInstance(isHumanVsHumanGame);
 
         // change the visualized fragment
         popUpNewFragment(boardFragment);

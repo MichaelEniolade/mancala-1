@@ -9,7 +9,6 @@ import java.util.Random;
 import me.dacol.marco.mancala.gameLib.board.Board;
 import me.dacol.marco.mancala.gameLib.board.StandardBoard;
 import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
-import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
@@ -94,24 +93,24 @@ public class Game implements Observer {
     }
 
     //---> Player methods
-    public void createPlayer(PlayerType type, String name)
-            throws ToManyPlayerException {
+    public Player createPlayer(PlayerType type, String name) {
 
         Player player = mPlayerFactory.makePlayer(type, name);
         addPlayer(player);
+
+        return player;
     }
 
     /**
-     * Register a new player in the game, and subscribe him to the turnContext object
+     * Register a new player in the game, and subscribe him to the turnContext object, max allowed
+     * players is two
      *
      * @param player
      */
-    private void addPlayer(Player player) throws ToManyPlayerException {
+    private void addPlayer(Player player) {
         if (mPlayers.size() < mNumberOfPlayers) {
             mPlayers.add(player);
             mTurnContext.addObserver(player);
-        } else {
-            throw new ToManyPlayerException("Maximum allowed number of player is: " + mNumberOfPlayers);
         }
     }
 
