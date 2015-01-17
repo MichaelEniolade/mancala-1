@@ -78,9 +78,10 @@ public class Board implements Observer, StandardBoard<Container> {
     private void move(MoveAction moveAction) {
         Move move = moveAction.getLoad();
         Container selectedContainer = mContainersManager.getContainer(move.getBowlNumber());
+        boolean anotherRound = false;
 
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
-            boolean anotherRound = spreadSeedFrom(move.getBowlNumber());
+            anotherRound = spreadSeedFrom(move.getBowlNumber());
 
             if (isGameEnded()) {
                 Action gameEnded;
@@ -95,6 +96,7 @@ public class Board implements Observer, StandardBoard<Container> {
                 postOnTurnContext(new BoardUpdated(getRepresentation(),
                         anotherRound, mContainersManager.getAtomicMoves()));
             }
+
         } else {
             postOnTurnContext(new InvalidMove(
                     move,
@@ -102,6 +104,8 @@ public class Board implements Observer, StandardBoard<Container> {
                     mActivePlayer
             ));
         }
+
+
     }
 
     private boolean isAValidMove(Player player, Container selectedContainer) {
@@ -184,7 +188,6 @@ public class Board implements Observer, StandardBoard<Container> {
 
         boolean isEnded = false;
 
-        //TODO this is a trick...future interation to review the player managment
         Player playerOne = mContainersManager.getOwnerOf(0);
         Player playerTwo = mContainersManager.getOwnerOf(7);
 

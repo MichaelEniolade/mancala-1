@@ -19,36 +19,38 @@ public class ArtificialIntelligence extends BaseBrain {
     @Override
     public void makeMove(ArrayList<Container> boardStatus, Player player) {
         // very easy strategy, check which are his container and then chose a random bowl_selected not empty.
-        int choosenBowl = 0;
+        int chosenBowl = 0;
 
         int remainingBowl = remainsOnlyOneBowlWithSeed(boardStatus);
-        if (remainingBowl == 1) {
-            choosenBowl = getABowlWithSeeds(boardStatus);
-        }
-        if (remainingBowl == 2) {
-            choosenBowl = getABowlWithSeeds(boardStatus);
-        }
-        if (remainingBowl >= 3) {
-            int randomNumber = mRandom.nextInt(mNumberOfBowl);
-
-            // The first six bowl_selected are the ones of the first player
-            // TODO extract in a method
-            if (boardStatus.get(0).getOwner() == player) {
-                choosenBowl = randomNumber;
-            } else {
-                // so my player bowls are the ones after the tray of player one, bowl_selected 1 of player2 is 6+1
-                // PAY ATTENTION! Here I'm passing the real position in the array of container, not only
-                // the bowl_selected number.
-                // This can be a problem...maybe.
-                choosenBowl = randomNumber + mNumberOfBowl + mNumberOfTray;
+        // if no bowl remains no moves can be done...
+        if (remainingBowl > 0) {
+            if (remainingBowl == 1) {
+                chosenBowl = getABowlWithSeeds(boardStatus);
             }
+            if (remainingBowl == 2) {
+                chosenBowl = getABowlWithSeeds(boardStatus);
+            }
+            if (remainingBowl >= 3) {
+                int randomNumber = mRandom.nextInt(mNumberOfBowl);
+
+                // The first six bowl_selected are the ones of the first player
+                if (boardStatus.get(0).getOwner() == player) {
+                    chosenBowl = randomNumber;
+                } else {
+                    // so my player bowls are the ones after the tray of player one, bowl_selected 1 of player2 is 6+1
+                    // PAY ATTENTION! Here I'm passing the real position in the array of container, not only
+                    // the bowl_selected number.
+                    // This can be a problem...maybe.
+                    chosenBowl = randomNumber + mNumberOfBowl + mNumberOfTray;
+                }
+            }
+
+            //reset the invalid status
+            if(mInvalidMove) toggleLastMoveCameUpInvalid();
+
+            mLastMove = chosenBowl;
+            mAttachedPlayer.onBrainInteraction(chosenBowl);
         }
-
-        //reset the invalid status
-        if(mInvalidMove) toggleLastMoveCameUpInvalid();
-
-        mLastMove = choosenBowl;
-        mAttachedPlayer.onBrainInteraction(choosenBowl);
     }
 
     private int getABowlWithSeeds(ArrayList<Container> boardStatus) {

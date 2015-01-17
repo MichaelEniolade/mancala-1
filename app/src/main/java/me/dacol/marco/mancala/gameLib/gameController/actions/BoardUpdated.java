@@ -29,7 +29,7 @@ public class BoardUpdated extends Action<ArrayList> {
 
     /**
      * Get the atomicMoves arraylist, which contains all the single moves done on the board update
-     * @return
+     * @return ArrayList with all the moves made to transition the board from the previous state to the actual
      */
     public ArrayList<Action> getAtomicMoves() {
         return mAtomicMoves;
