@@ -21,7 +21,7 @@ public class Tray extends TextView {
                 GridLayout.LayoutParams params,
                 String text,
                 boolean isHumanVsHuman,
-                int width)
+                float width)
     {
         super(context);
 
@@ -48,10 +48,10 @@ public class Tray extends TextView {
         setText(text);
         setGravity(Gravity.CENTER);
 
-        setWidth(width);
+        setWidth((int) width);
+        setHeight((int) width);
 
-        setTextColor(Color.WHITE);
-        setTextSize(40f);
+        setTextSize(getResources().getDimension(R.dimen.tray_text_size));
 
     }
 

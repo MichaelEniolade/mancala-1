@@ -21,8 +21,8 @@ public class Bowl extends Button {
                 GridLayout.LayoutParams params,
                 String text,
                 int id,
-                int width,
-                int height)
+                float width,
+                float height)
     {
         super(context);
 
@@ -57,10 +57,10 @@ public class Bowl extends Button {
         setText(text);
         setId(id);
 
-        setWidth(width);
-        setHeight(height);
+        setWidth((int) width);
+        setHeight((int) height);
 
-        setTextSize(30f);
+        setTextSize(getResources().getDimension(R.dimen.bowl_text_size));
 
 
     }

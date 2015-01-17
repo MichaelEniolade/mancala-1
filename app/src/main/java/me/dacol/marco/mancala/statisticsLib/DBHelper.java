@@ -41,23 +41,11 @@ public class DBHelper extends SQLiteOpenHelper {
                     StatsHvCEntry.COLUMN_NAME_VALUE + " INTEGER NOT NULL" +
                 " );";
 
-
-        final String SQL_INITIALIZE_HVC_STATS_TABLE = "" +
-                "INSERT INTO " + StatsHvCEntry.TABLE_NAME + " (" +
-                StatsHvCEntry.COLUMN_NAME_KEY + ", " +
-                StatsHvCEntry.COLUMN_NAME_VALUE +
-                " ) " +
-                "VALUES " +
-                "(" + DBContracts.STATS_KEY_PLAYED_GAME + ", 0)," +
-                "(" + DBContracts.STATS_KEY_BESTSCORE + ", 0)," +
-                "(" + DBContracts.STATS_KEY_WIN_GAME + ", 0)," +
-                "(" + DBContracts.STATS_KEY_EVEN_GAME + ", 0)," +
-                "(" + DBContracts.STATS_KEY_LOSE_GAME + ", 0);";
-
         db.execSQL(SQL_CREATE_LAST_GAMES_HISTORY_TABLE);
         db.execSQL(SQL_CREATE_HVH_STATS_TABLE);
         db.execSQL(SQL_CREATE_HVC_STATS_TABLE);
 
+        // generate compiled statement for populating the tables with the basic structure
         SQLiteStatement insertHvHStatement = db.compileStatement(
                 "INSERT INTO " + StatsHvHEntry.TABLE_NAME + "(" +
                         StatsHvHEntry.COLUMN_NAME_KEY + ", " +

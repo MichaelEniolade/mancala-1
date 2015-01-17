@@ -25,7 +25,11 @@
     <string name="switch_player_bowl_color">Choose your bowls color</string>
     <string name="switch_player_bowl_color_black">Black</string>
     <string name="switch_player_bowl_color_white">White</string>
-
+    <string name="player_turn">"PLAYER TURN: "</string>
+    <string name="opponent_name">Opponent</string>
+    <string name="player_default_name">Player</string>
+    <string name="the_winner_is">"THE WINNER IS: "</string>
+    <string name="the_game_ended_even">The game ended, even.</string>
 
 
 </resources>
