@@ -19,7 +19,7 @@ public class PieceFactory {
         return new Bowl(context, player, isHumanVsHuman, params, text, id, bowlDimension, bowlDimension);
     }
 
-    public static Tray generateTray(Context context, int row, int column, String text, int player) {
+    public static Tray generateTray(Context context, int row, int column, String text, int player, boolean isHumanVsHuman) {
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.rowSpec = GridLayout.spec(row);
@@ -28,7 +28,7 @@ public class PieceFactory {
 
         int trayDimension = convertFromDpsToPixel(context, DPS_WIDTH_DIMENSION);
 
-        return new Tray(context, player, params, text, trayDimension);
+        return new Tray(context, player, params, text, isHumanVsHuman, trayDimension);
     }
 
     private static int convertFromDpsToPixel(Context context, float dps) {
