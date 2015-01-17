@@ -11,5 +11,6 @@
     <dimen name="statistics_font_size_title">20sp</dimen>
     <dimen name="statistics_font_size">15sp</dimen>
     <dimen name="title_text_size">30sp</dimen>
+    <dimen name="table_view_margin">0dp</dimen>
 
 </resources>
