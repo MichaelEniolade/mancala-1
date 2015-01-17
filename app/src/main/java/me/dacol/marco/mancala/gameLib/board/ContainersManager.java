@@ -15,22 +15,36 @@ public class ContainersManager  {
     private ArrayList<Action> mAtomicMoves;
     private int mSelectedTray;
 
-    public ContainersManager(Player humanPlayer, Player opponentPlayer) {
+    public ContainersManager(Player humanPlayer, Player opponentPlayer, ArrayList<Integer> boardRepresentation) {
         mContainers = new ArrayList<Container>();
+        if (boardRepresentation == null) {
+            // Create the six bowl_selected of the human player
+            for (int position = 0; position < NUMBER_OF_BOWLS; position++) {
+                mContainers.add(new Bowl(humanPlayer));
+            }
 
-        // Create the six bowl_selected of the human player
-        for (int position = 0; position < NUMBER_OF_BOWLS; position++) {
-            mContainers.add(new Bowl(humanPlayer));
+            mContainers.add(new Tray(humanPlayer));
+
+            for (int position = 0; position < NUMBER_OF_BOWLS; position++) {
+                mContainers.add(new Bowl(opponentPlayer));
+            }
+
+            mContainers.add(new Tray(opponentPlayer));
+        } else {
+            // Create the six bowl_selected of the human player
+            for (int position = 0; position < NUMBER_OF_BOWLS; position++) {
+                mContainers.add(new Bowl(humanPlayer, boardRepresentation.get(position)));
+            }
+
+            mContainers.add(new Tray(humanPlayer, boardRepresentation.get(6)));
+
+            for (int position = 7; position < 7 + NUMBER_OF_BOWLS; position++) {
+                mContainers.add(new Bowl(opponentPlayer, boardRepresentation.get(position)));
+            }
+
+            mContainers.add(new Tray(opponentPlayer, boardRepresentation.get(13)));
+
         }
-
-        mContainers.add(new Tray(humanPlayer));
-
-        for (int position = 0; position < NUMBER_OF_BOWLS; position++) {
-            mContainers.add(new Bowl(opponentPlayer));
-        }
-
-        mContainers.add(new Tray(opponentPlayer));
-
         mAtomicMoves = new ArrayList<Action>();
     }
 

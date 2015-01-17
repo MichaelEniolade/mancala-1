@@ -78,4 +78,6 @@ public class Player implements Observer, AttachedPlayer {
     public void onBrainInteraction(int move) {
         sendMoveToBoard(move);
     }
+
+
 }

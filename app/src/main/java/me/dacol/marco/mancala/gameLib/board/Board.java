@@ -59,13 +59,14 @@ public class Board implements Observer, StandardBoard<Container> {
      * not mandatory, just a simplification for now.
      *
      */
-    public void buildBoard() {
+    public void buildBoard(ArrayList<Integer> boardRepresentation) {
         // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
         mContainersManager = new ContainersManager(
                 mPlayers.get(humanPlayerPosition),
-                mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 ));
+                mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 ),
+                boardRepresentation);
     }
 
     public Player getWinner() {

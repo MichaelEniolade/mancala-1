@@ -28,6 +28,7 @@ import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.pieces.Bowl;
 import me.dacol.marco.mancala.gameUI.board.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.board.pieces.Tray;
+import me.dacol.marco.mancala.logging.Logger;
 import me.dacol.marco.mancala.preferences.PreferencesFragment;
 import me.dacol.marco.mancala.statisticsLib.StatisticsHelper;
 
@@ -73,6 +74,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Logger.v(LOG_TAG, "oncreate"); //TODO eliminate me
         super.onCreate(savedInstanceState);
         mBoardTextViewRepresentation = null;
         mPlayerTurnText = null;
@@ -101,6 +103,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Logger.v(LOG_TAG, "oncreateView"); //TODO eliminate me
         View rootView = inflater.inflate(R.layout.fragment_board, container, false);
         return rootView;
     }
@@ -111,7 +114,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         // start the game after the view is setup, in this way i have no problem of null pointer exception
         // when populating the layout
-        mGame.start();
+        mGame.start(savedInstanceState);
     }
 
     // creates and add players to the game, recovering player name from the preferences
@@ -183,13 +186,13 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
 
-        for (int i = 5; i >= 0; i--) {
+        for (int i = 7; i <= 12; i++) {
             Bowl bowl = PieceFactory.generateBowl(
                     getActivity(),
                     0,
-                    i,
-                    boardRepresentation.get(12-1).toString(),
                     12-i,
+                    boardRepresentation.get(i).toString(),
+                    i,
                     2,
                     isHumanVsHuman
             );
@@ -313,5 +316,63 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             mPlayerBrainListeners = new ArrayList<>();
         }
         mPlayerBrainListeners.add(playerNumber, brain);
+    }
+
+    @Override
+    public void onPause() {
+        Logger.v(LOG_TAG, "onpaused"); //TODO elimiante me
+        super.onPause();
+
+
+    }
+
+    @Override
+    public void onResume() {
+        Logger.v(LOG_TAG, "onresume"); //TODO eliminate me
+
+        super.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        Logger.v(LOG_TAG, "onstop"); //TODO eliminate me
+
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        Logger.v(LOG_TAG, "ondestroy"); //TODO eliminate me
+
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Logger.v(LOG_TAG, "ondestroyview"); //TODO eliminate me
+
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Logger.v(LOG_TAG, "onsaveInstanceData"); //TODO eliminate me
+        super.onSaveInstanceState(outState);
+
+        // transform the boardRep in a array of int
+        ArrayList<Integer> boardRepresentation = new ArrayList<>();
+        for (TextView t : mBoardTextViewRepresentation) {
+            boardRepresentation.add( Integer.valueOf( t.getText().toString() ) );
+        }
+
+        // save tha playing player number
+        int playingPlayer = mGame.getPlayingPlayer();
+        // save the turn number
+        int turnNumber = mGame.getTurnNumber();
+
+        // put all int the outState Bundle
+        outState.putIntegerArrayList("boardRepresentation", boardRepresentation);
+        outState.putInt("playingPlayer", playingPlayer);
+        outState.putInt("turnNumber", turnNumber);
     }
 }

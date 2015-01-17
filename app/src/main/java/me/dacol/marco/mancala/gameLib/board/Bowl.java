@@ -5,8 +5,11 @@ import me.dacol.marco.mancala.gameLib.player.Player;
 public class Bowl extends Container {
 
     public Bowl(Player owner) {
-        super(owner);
-        mNumberOfSeeds = 3; //starting # of seeds in any bowl_selected
+        super(owner, 3);
+    }
+
+    public Bowl(Player owner, int numberOfSeeds) {
+        super(owner, numberOfSeeds);
     }
 
     // Grab all the seeds contained in a bowl_selected
