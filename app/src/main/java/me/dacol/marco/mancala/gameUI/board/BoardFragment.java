@@ -295,7 +295,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private void updateBoard(ArrayList<Container> boardRepresentation, ArrayList<Action> atomicMoves) {
         // User can choose as preference if the animation system is active or not
-        if (!mAreAnimationActive) {
+        if (!mAreAnimationActive || !mIsHumanVsHuman) {
             if (mBoardTextViewRepresentation != null) {
                 for (int i = 0; i < boardRepresentation.size(); i++) {
                     mBoardTextViewRepresentation.get(i).setText(boardRepresentation.get(i).toString());

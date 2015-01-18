@@ -21,7 +21,7 @@ public class ArtificialIntelligence extends BaseBrain {
 
     @Override
     public void makeMove(ArrayList<Container> boardStatus, Player player) {
-        new computeMove(mAttachedPlayer).execute(boardStatus);
+        new computeMoveBasic(mAttachedPlayer).execute(boardStatus);
     }
 
 
@@ -32,12 +32,19 @@ public class ArtificialIntelligence extends BaseBrain {
     }
 
 
-    private class computeMove extends AsyncTask<ArrayList<Container>, Void, Integer>{
+
+    private class computeMoveBasic extends AsyncTask<ArrayList<Container>, Void, Integer>{
 
         private AttachedPlayer mAttachedPlayer;
 
-        private computeMove(AttachedPlayer attachedPlayer) {
+        private computeMoveBasic(AttachedPlayer attachedPlayer) {
             mAttachedPlayer = attachedPlayer;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            mAttachedPlayer.onBrainInteraction(integer);
         }
 
         @Override
@@ -99,10 +106,93 @@ public class ArtificialIntelligence extends BaseBrain {
             return remainingBowlWithSeed;
         }
 
+
+    }
+
+    private class computeMoveAdv extends AsyncTask<ArrayList<Container>, Void, Integer> {
+
+        private AttachedPlayer mAttachedPlayer;
+
+        private computeMoveAdv(AttachedPlayer attachedPlayer) {
+            mAttachedPlayer = attachedPlayer;
+        }
+
         @Override
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             mAttachedPlayer.onBrainInteraction(integer);
         }
+
+        @Override
+        protected Integer doInBackground(ArrayList<Container>... params) {
+            if(android.os.Debug.isDebuggerConnected())
+                android.os.Debug.waitForDebugger();
+
+            ArrayList<Container> boardStatus = params[0];
+            int chosenBowl = -1;
+
+            chosenBowl = checkIfThereIsASureShot(boardStatus);
+            if (chosenBowl > -1) {
+                return chosenBowl;
+            }
+
+            chosenBowl = checkIfThereIsSomeBowlForStealing(boardStatus);
+            if (chosenBowl > -1) {
+                return chosenBowl;
+            }
+
+            chosenBowl = theFirstBowlWithSeeds(boardStatus);
+
+            return chosenBowl;
+        }
+
+        /**
+         * Gets the first bow with seeds
+         * @param boardStatus
+         * @return
+         */
+        private int theFirstBowlWithSeeds(ArrayList<Container> boardStatus) {
+            int chosenBowl = -1;
+            for (int i = 0; i < 6; i++) {
+                if (boardStatus.get(12 - i).getNumberOfSeeds() > 0) {
+                    chosenBowl = i;
+                }
+            }
+            return chosenBowl;
+        }
+
+        /**
+         * Check if there is a bowl with enought seeds to arrive in a bowl with zero seed and steal opponent seeds
+         * @param boardStatus
+         * @return int bowl number
+         */
+        private int checkIfThereIsSomeBowlForStealing(ArrayList<Container> boardStatus) {
+            for (int i = 0; i < 6; i++) {
+                int numberOfSeed = boardStatus.get(12-i).getNumberOfSeeds();
+                int arrivingBowl = (12 - i) + numberOfSeed;
+                if (arrivingBowl < 13) {
+                    if (boardStatus.get(arrivingBowl).getNumberOfSeeds() == 0) {
+                        return 12 - i;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        /**
+         * Checks if there is some bowl that can put a seed in the tray
+         * @param boardStatus
+         * @return int bowl number
+         */
+        private int checkIfThereIsASureShot(ArrayList<Container> boardStatus) {
+            for (int i = 0; i < 6; i++) {
+                if (boardStatus.get(12-i).getNumberOfSeeds() == i + 1) {
+                    return 12-i;
+                }
+            }
+            return -1;
+        }
+
+
     }
 }
