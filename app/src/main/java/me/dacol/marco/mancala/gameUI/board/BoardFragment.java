@@ -29,6 +29,7 @@ import me.dacol.marco.mancala.gameUI.animatior.BowlAnimator;
 import me.dacol.marco.mancala.gameUI.pieces.Bowl;
 import me.dacol.marco.mancala.gameUI.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.pieces.Tray;
+import me.dacol.marco.mancala.logging.Logger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,6 +50,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     private TextView mPlayerTurnText;
     private String mStartingPlayerName;
     private BowlAnimator mBowlAnimator;
+    private ArrayList<ArrayList> mAtomicMovesQueue;
 
     /**
      * Use this factory method to create a new instance of
@@ -101,6 +103,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupBoard(mStartingBoard);
+        mBowlAnimator = null;
+        mAtomicMovesQueue = new ArrayList<>();
     }
 
     @Override
@@ -223,12 +227,23 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             }
         }
         */
-        BowlAnimator bowlAnimator = new BowlAnimator(getActivity(), mBoardUIRepresentation);
 
-        if (bowlAnimator.getStatus() == AsyncTask.Status.PENDING) {
-            bowlAnimator.execute(atomicMoves);
-        } else if (bowlAnimator.getStatus() == AsyncTask.Status.RUNNING) {
-            bowlAnimator.addMoves(atomicMoves);
+
+        // never used so start a new one
+        if (mBowlAnimator == null) {
+            mBowlAnimator = new BowlAnimator(getActivity(), mBoardUIRepresentation);
+        }
+
+
+        if (mBowlAnimator.getStatus() == AsyncTask.Status.PENDING) {
+            Logger.v(LOG_TAG, "pending");
+            mBowlAnimator.execute(atomicMoves);
+        } else if (mBowlAnimator.getStatus() == AsyncTask.Status.RUNNING) {
+            Logger.v(LOG_TAG, "running");
+            mAtomicMovesQueue.add(atomicMoves);
+        } else {
+            Logger.v(LOG_TAG, "pending? : " + (mBowlAnimator));
+
         }
 
     }
