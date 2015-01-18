@@ -88,6 +88,5 @@ public class Bowl extends Button {
             // otherwise draw normal a normal button
             super.onDraw(canvas);
         }
-
     }
 }

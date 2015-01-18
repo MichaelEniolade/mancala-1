@@ -227,7 +227,8 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         TextView playerName = (TextView) getView().findViewById(R.id.player_name);
         playerName.setText(boardRepresentation.get(0).getOwner().getName());
 
-        TextView opponentName = (TextView) getView().findViewById(R.id.opponent_name);
+        OpponentLabel opponentName = (OpponentLabel) getView().findViewById(R.id.opponent_name);
+        opponentName.setIsHumanVsHuman(isHumanVsHuman);
         opponentName.setText(boardRepresentation.get(7).getOwner().getName());
 
         // This show the starting status of the board
