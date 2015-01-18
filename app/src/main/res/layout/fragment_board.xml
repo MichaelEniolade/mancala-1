@@ -21,6 +21,8 @@
                 tools:text="Opponent"
                 android:textStyle="bold"
                 android:gravity="left"
+                android:textSize="@dimen/board_text_size"
+
                 />
         </LinearLayout>
 
@@ -35,6 +37,19 @@
             android:useDefaultMargins="true"
             android:layout_centerInParent="true"
             >
+            <TextView
+                android:id="@+id/player_turn_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Player Turn:"
+                android:textStyle="bold"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:layout_columnSpan="4"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="@dimen/board_text_size"
+                />
 
         </GridLayout>
 
@@ -50,7 +65,9 @@
                 android:layout_height="wrap_content"
                 tools:text="PlayerOne"
                 android:textStyle="bold"
-                android:gravity="right" />
+                android:gravity="right"
+                android:textSize="@dimen/board_text_size"
+                />
         </LinearLayout>
     </RelativeLayout>
 

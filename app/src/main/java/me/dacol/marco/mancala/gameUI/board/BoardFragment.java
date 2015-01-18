@@ -1,10 +1,10 @@
 package me.dacol.marco.mancala.gameUI.board;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +28,7 @@ import me.dacol.marco.mancala.gameUI.OnFragmentInteractionListener;
 import me.dacol.marco.mancala.gameUI.board.pieces.Bowl;
 import me.dacol.marco.mancala.gameUI.board.pieces.PieceFactory;
 import me.dacol.marco.mancala.gameUI.board.pieces.Tray;
+import me.dacol.marco.mancala.logging.Logger;
 import me.dacol.marco.mancala.preferences.PreferencesFragment;
 import me.dacol.marco.mancala.statisticsLib.StatisticsHelper;
 
@@ -46,7 +47,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private ArrayList<TextView> mBoardTextViewRepresentation;
 
-    private TextView mPlayerTurnText;
+    //private TextView mPlayerTurnText;
     private String mStartingPlayerName;
 
     private Game mGame;
@@ -73,25 +74,18 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Logger.v(LOG_TAG, "oncreate");
         super.onCreate(savedInstanceState);
-        mBoardTextViewRepresentation = null;
-        mPlayerTurnText = null;
-        mStartingPlayerName = null;
+        //mPlayerTurnText = null;
 
         Bundle args = getArguments();
         mIsHumanVsHuman = args.getBoolean("isHvH");
 
         mGame = Game.getInstance();
-
-        // initialize the statisticsHelper
-        StatisticsHelper statisticsHelper = StatisticsHelper.getInstance(getActivity());
         
         // initialize the game engine
         mGame.setup();
 
-        // register the fragment and the statisticsHelper to the turnContext
-        mGame.getTurnContext().addObserver(this);
-        mGame.getTurnContext().addObserver(statisticsHelper);
 
         // add players to the game
         addPlayers();
@@ -101,18 +95,42 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Logger.v(LOG_TAG, "CreateView");
+
+        mBoardTextViewRepresentation = null;
+        mStartingPlayerName = null;
+
         View rootView = inflater.inflate(R.layout.fragment_board, container, false);
         return rootView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        Logger.v(LOG_TAG, "viewCreated");
+
         super.onViewCreated(view, savedInstanceState);
 
         // start the game after the view is setup, in this way i have no problem of null pointer exception
         // when populating the layout
-        mGame.start(savedInstanceState);
+
     }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Logger.v(LOG_TAG, "activityCreated");
+        // initialize the statisticsHelper
+        // register the fragment and the statisticsHelper to the turnContext
+        mGame.getTurnContext().addObserver(this);
+
+        StatisticsHelper statisticsHelper = StatisticsHelper.getInstance(getActivity());
+        mGame.getTurnContext().addObserver(statisticsHelper);
+
+        mGame.start(savedInstanceState);
+
+
+    }
+
 
     // creates and add players to the game, recovering player name from the preferences
     private void addPlayers() {
@@ -145,9 +163,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     private void setupBoard(ArrayList<Container> boardRepresentation) {
+        Logger.v(LOG_TAG, "setupBoard");
 
         mBoardTextViewRepresentation = new ArrayList<TextView>();
-        GridLayout.LayoutParams params;
 
         // Here I've to check if the chosen game is human vs human, i need to attach
         // the button to the player brain
@@ -220,39 +238,29 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
         mBoardTextViewRepresentation.add(trayPlayerTwo);
 
-        // Something in the middle
-        params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(1);
-        params.columnSpec = GridLayout.spec(1,4);
-        params.setGravity(Gravity.CENTER);
-
-        TextView textView = new TextView(getActivity());
+        TextView textView = (TextView) getView().findViewById(R.id.player_turn_text_view);
         textView.setText(getResources().getString(R.string.player_turn) + mStartingPlayerName);
-        textView.setTextSize(getResources().getDimension(R.dimen.board_text_size));
-        textView.setLayoutParams(params);
 
         TextView playerName = (TextView) getView().findViewById(R.id.player_name);
-        playerName.setTextSize(getResources().getDimension(R.dimen.board_text_size));
         playerName.setText(boardRepresentation.get(0).getOwner().getName());
 
         TextView opponentName = (TextView) getView().findViewById(R.id.opponent_name);
-        opponentName.setTextSize(getResources().getDimension(R.dimen.board_text_size));
         opponentName.setText(boardRepresentation.get(7).getOwner().getName());
 
-        mPlayerTurnText = textView;
+//        mPlayerTurnText = textView;
 
         // This show the starting status of the board
         addToBoardView((GridLayout) getView().findViewById(R.id.board_grid_layout));
     }
 
     private void addToBoardView(GridLayout board) {
-        board.removeAllViews();
+        //board.removeAllViews();
 
         for (TextView t : mBoardTextViewRepresentation) {
             board.addView(t);
         }
 
-        board.addView(mPlayerTurnText);
+       // board.addView(mPlayerTurnText);
     }
 
     private void updateBoard(ArrayList<Container> boardRepresentation) {
@@ -290,17 +298,14 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     private void updatePlayingPlayerText(String name) {
-        if (mPlayerTurnText != null) {
-            mPlayerTurnText.setText(getResources().getString(R.string.player_turn) + name);
-        } else {
-            mStartingPlayerName = name;
-        }
+        TextView playerTurnText = (TextView) getView().findViewById(R.id.player_turn_text_view);
+        playerTurnText.setText(getResources().getString(R.string.player_turn) + name);
+        mStartingPlayerName = name;
     }
 
     private void updatePlayingPlayerTextWithWinnerName(String name) {
-        if (mPlayerTurnText != null) {
-            mPlayerTurnText.setText(getResources().getString(R.string.the_winner_is) + name);
-        }
+        TextView playerTurnText = (TextView) getView().findViewById(R.id.player_turn_text_view);
+        playerTurnText.setText(getResources().getString(R.string.the_winner_is) + name);
     }
 
     // Interact with the Human Player Brain
@@ -344,11 +349,25 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // save tha playing player number
         int playingPlayer = mGame.getPlayingPlayer();
         // save the turn number
-        int turnNumber = mGame.getTurnNumber();
+        int turnNumber = mGame.getTurnNumber() - 1;
 
         // put all int the outState Bundle
         outState.putIntegerArrayList("boardRepresentation", boardRepresentation);
         outState.putInt("playingPlayer", playingPlayer);
         outState.putInt("turnNumber", turnNumber);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        Logger.v(LOG_TAG, "attach");
+        super.onAttach(activity);
+    }
+
+    @Override
+    public void onDetach() {
+        Logger.v(LOG_TAG, "deattach");
+        mBoardTextViewRepresentation = null;
+
+        super.onDetach();
     }
 }
