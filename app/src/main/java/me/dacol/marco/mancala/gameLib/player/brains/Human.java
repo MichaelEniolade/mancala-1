@@ -16,7 +16,6 @@ public class Human extends BaseBrain implements OnFragmentInteractionListener {
 
     @Override
     public void makeMove(ArrayList<Container> boardStatus, Player player) {
-        //Logger.v(LOG_TAG, "Human Player? Hey! That's me!"); //FIXME: Log
         // This is a real player, no need for a brain. He has a real Brain!
     }
 
@@ -27,7 +26,7 @@ public class Human extends BaseBrain implements OnFragmentInteractionListener {
 
     @Override
     public void onFragmentInteraction(EventType event, Object data) {
-        if ((event == EventType.CHOOSEN_BOWL) && (data instanceof Integer)) {
+        if ((event == EventType.CHOSEN_BOWL) && (data instanceof Integer)) {
             int choosenBowl = (Integer) data;
             mAttachedPlayer.onBrainInteraction(choosenBowl);
         }

@@ -6,7 +6,14 @@ import me.dacol.marco.mancala.gameLib.board.Container;
 
 public class EvenGame extends Action<ArrayList<Container>> {
 
-    public EvenGame(ArrayList<Container> load) {
+    private ArrayList<Action> mAtomicMoves;
+
+    public EvenGame(ArrayList<Container> load, ArrayList<Action> atomicMoves) {
         super(load);
+        mAtomicMoves = atomicMoves;
+    }
+
+    public ArrayList<Action> getAtomicMoves() {
+        return mAtomicMoves;
     }
 }

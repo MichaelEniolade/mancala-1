@@ -11,6 +11,11 @@ public abstract class Container {
         mOwner = owner;
     }
 
+    public Container(Player owner, int numberOfSeeds) {
+        mOwner = owner;
+        mNumberOfSeeds = numberOfSeeds;
+    }
+
     //Getters
     public int getNumberOfSeeds() {
         return mNumberOfSeeds;

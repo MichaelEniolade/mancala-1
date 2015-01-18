@@ -1,7 +1,6 @@
 package me.dacol.marco.mancala.gameUI.animatior;
 
 import android.animation.Animator;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -9,6 +8,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import me.dacol.marco.mancala.gameLib.board.Container;
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardEmptyBowl;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardPutInTray;
@@ -22,15 +22,14 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
 
     private ArrayList<TextView> mBowlUIRepresentation;
     private boolean mReactivateAllButton;
-    private Context mContext;
-    private ArrayList<Action> mMoveSequence;
-    private boolean checkme = false;
+    private boolean mThereAreMovesOnQueue;
+    private AsyncResponse mAsyncResponse;
 
-    public BowlAnimator(Context context, ArrayList<TextView> bowlUIRepresentation) {
-        mContext = context;
+    public BowlAnimator(ArrayList<TextView> bowlUIRepresentation, AsyncResponse asyncResponse) {
         mBowlUIRepresentation = bowlUIRepresentation;
         mReactivateAllButton = false;
-        mMoveSequence = new ArrayList<Action>();
+        mThereAreMovesOnQueue = false;
+        mAsyncResponse = asyncResponse;
     }
 
     @Override
@@ -57,10 +56,14 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
         // trova il bottone da animare
         // carica l'animazione
         // chiama onProggressUpdate, passandogli come parametro l'animazione
-        if (params[0] != null) {
-            mMoveSequence = params[0];
+        if(android.os.Debug.isDebuggerConnected())
+            android.os.Debug.waitForDebugger();
 
-            for (Action move : mMoveSequence) {
+        if (params[0] != null) {
+            ArrayList<Action> moveSequence = params[0];
+            ArrayList<Container> boardRepresentation = params[1];
+
+            for (Action move : moveSequence) {
                 TextView textView = null;
                 String newText = "";
 
@@ -84,13 +87,18 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
 
                 // sleep thread to see animation sequentially
                 try {
-                    Thread.sleep(250);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
-
+        // to separate the animation between player and computer
+        try {
+            Thread.sleep(600);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -104,7 +112,7 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
         final TextView container = (TextView) values[1];
 
         container.setText(newText);
-        container.animate().setDuration(300);
+        container.animate().setDuration(200);
 
         container.animate().setListener(new Animator.AnimatorListener() {
             @Override
@@ -137,7 +145,6 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-
         for (int i = 0; i < mBowlUIRepresentation.size(); i++) {
             if (mBowlUIRepresentation.get(i) instanceof Bowl) {
                 Bowl b = (Bowl) mBowlUIRepresentation.get(i);
@@ -149,40 +156,10 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
             }
         }
 
-        if(checkme) Logger.v(LOG_TAG, "true!");
+        mAsyncResponse.deliver();
+
+        if(mThereAreMovesOnQueue) {
+            Logger.v(LOG_TAG, "Going to execute the queue of moves");
+        }
     }
-
-    // this adds all the moves on the queue
-    public void addMoves(ArrayList<Action> atomicMoves) {
-        Logger.v(LOG_TAG, "chiamato!");
-        checkme = true;
-    }
-
-    /*
-    private ValueAnimator getAnimatorFor(TextView piece) {
-
-
-
-        final TextView textView = piece;
-        piece.animate().setDuration(1000);
-
-
-        return valueAnimator;
-
-        ValueAnimator animator = ValueAnimator.ofInt();
-
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(new,
-                80f,
-                60f; //TODO change me for player two
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                GradientDrawable bowlShape = (GradientDrawable) textView.getBackground();
-                bowlShape.setColor((Integer) animation.getAnimatedValue());
-            }
-        });
-        valueAnimator.setDuration(1000);
-
-    }
-    */
 }

@@ -41,7 +41,7 @@ public class Board implements Observer, StandardBoard<Container> {
     }
 
     public Board setup(TurnContext turnContext, int numberOfBowl, int numberOfTray) {
-        mNumberOfBowls = numberOfBowl; //TODO this is not so right, place two constants in the containerManager
+        mNumberOfBowls = numberOfBowl;
         mNumberOfTrays = numberOfTray;
         mTurnContext = turnContext;
         mEvenGame = false;
@@ -59,13 +59,14 @@ public class Board implements Observer, StandardBoard<Container> {
      * not mandatory, just a simplification for now.
      *
      */
-    public void buildBoard() {
+    public void buildBoard(ArrayList<Integer> boardRepresentation) {
         // One of the two player has to be an Human
         int humanPlayerPosition = mPlayers.get(0).isHuman() ? 0 : 1;
 
         mContainersManager = new ContainersManager(
                 mPlayers.get(humanPlayerPosition),
-                mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 ));
+                mPlayers.get( ( mPlayers.size() - humanPlayerPosition ) - 1 ),
+                boardRepresentation);
     }
 
     public Player getWinner() {
@@ -78,16 +79,17 @@ public class Board implements Observer, StandardBoard<Container> {
     private void move(MoveAction moveAction) {
         Move move = moveAction.getLoad();
         Container selectedContainer = mContainersManager.getContainer(move.getBowlNumber());
+        boolean anotherRound = false;
 
         if (isAValidMove(move.getPlayer(), selectedContainer)) {
-            boolean anotherRound = spreadSeedFrom(move.getBowlNumber());
+            anotherRound = spreadSeedFrom(move.getBowlNumber());
 
             if (isGameEnded()) {
                 Action gameEnded;
                 if (!mEvenGame) {
-                    gameEnded = new Winner(mWinner, getRepresentation());
+                    gameEnded = new Winner(mWinner, getRepresentation(), mContainersManager.getAtomicMoves());
                 }  else {
-                    gameEnded = new EvenGame(getRepresentation());
+                    gameEnded = new EvenGame(getRepresentation(), mContainersManager.getAtomicMoves());
                 }
 
                 postOnTurnContext(gameEnded);
@@ -95,13 +97,16 @@ public class Board implements Observer, StandardBoard<Container> {
                 postOnTurnContext(new BoardUpdated(getRepresentation(),
                         anotherRound, mContainersManager.getAtomicMoves()));
             }
-        } else {
+
+        } else if (!isGameEnded()) {
             postOnTurnContext(new InvalidMove(
                     move,
                     getRepresentation(),
                     mActivePlayer
             ));
         }
+
+
     }
 
     private boolean isAValidMove(Player player, Container selectedContainer) {
@@ -146,7 +151,8 @@ public class Board implements Observer, StandardBoard<Container> {
                 && (mContainersManager.getOwnerOf(bowlNumber) == player)
                 && (mContainersManager.getNumberOfSeedsOf(bowlNumber) == 0) )
         {
-            int wonSeeds = remainingSeeds;
+            mContainersManager.putASeedIn(bowlNumber);
+            int wonSeeds = mContainersManager.emptyBowl(bowlNumber);
             wonSeeds += mContainersManager.emptyOppositeBowl(bowlNumber);
             mContainersManager.putSeedsInTrayOf(player, wonSeeds);
         //TODO this can became a boolean method in the container manager
@@ -184,7 +190,6 @@ public class Board implements Observer, StandardBoard<Container> {
 
         boolean isEnded = false;
 
-        //TODO this is a trick...future interation to review the player managment
         Player playerOne = mContainersManager.getOwnerOf(0);
         Player playerTwo = mContainersManager.getOwnerOf(7);
 

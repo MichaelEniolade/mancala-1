@@ -2,25 +2,16 @@ package me.dacol.marco.mancala.gameUI;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Switch;
+import android.widget.ImageButton;
 
 import me.dacol.marco.mancala.MainActivity;
 import me.dacol.marco.mancala.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link NewGameFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class NewGameFragment extends Fragment implements View.OnClickListener {
     private static final String LOG_TAG = NewGameFragment.class.getSimpleName();
 
@@ -28,14 +19,9 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
 
     /**
      * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment NewGameFragment.
+     * this fragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static NewGameFragment newInstance(String param1, String param2) {
+    public static NewGameFragment newInstance() {
         NewGameFragment fragment = new NewGameFragment();
         // If this fragment need some arguments you have to make it via bundle
         return fragment;
@@ -43,28 +29,6 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
 
     public NewGameFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        goFullScreen();
-        View viewRoot = inflater.inflate(R.layout.fragment_new_game, container, false);
-
-        // attach the fragment to the button
-        Button newGameButton = (Button) viewRoot.findViewById(R.id.new_game);
-        newGameButton.setOnClickListener(this);
-
-        Switch aSwitch = (Switch) viewRoot.findViewById(R.id.switch1);
-        aSwitch.setOnClickListener(this);
-
-        return viewRoot;
     }
 
     @Override
@@ -79,36 +43,53 @@ public class NewGameFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View viewRoot = inflater.inflate(R.layout.fragment_new_game, container, false);
+
+        // attach the fragment to the button
+        ImageButton newHvHGameButton = (ImageButton) viewRoot.findViewById(R.id.new_HvH_game_button);
+        newHvHGameButton.setOnClickListener(this);
+
+        ImageButton newHvCGameButton = (ImageButton) viewRoot.findViewById(R.id.new_HvC_game_button);
+        newHvCGameButton.setOnClickListener(this);
+
+        ImageButton statisticsButton = (ImageButton) viewRoot.findViewById(R.id.statistics_button);
+        statisticsButton.setOnClickListener(this);
+
+        ImageButton preferencesButton = (ImageButton) viewRoot.findViewById(R.id.preferences_button);
+        preferencesButton.setOnClickListener(this);
+
+        return viewRoot;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
-    private void goFullScreen() {
-        int uiOption = getActivity().getWindow().getDecorView().getSystemUiVisibility();
-
-        if (Build.VERSION.SDK_INT >= 14) {
-            //uiOption ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        }
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            uiOption ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
-        }
-
-        if (Build.VERSION.SDK_INT >= 18) {
-            uiOption ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        }
-
-        getActivity().getWindow().getDecorView().setSystemUiVisibility(uiOption);
-    }
-
     @Override
     public void onClick(View v) {
-        // TODO passare tutto il riferimento al bottone?
-        if (v.getId() == R.id.new_game) {
-            mListener.onFragmentInteraction(MainActivity.EventType.NEW_GAME_BUTTON_PRESSED, null);
-        } else if (v.getId() == R.id.switch1) {
-            mListener.onFragmentInteraction(MainActivity.EventType.TOGGLE_ENEMY_KIND, null);
+        if (v.getId() == R.id.new_HvH_game_button) {
+            mListener.onFragmentInteraction(MainActivity.EventType.NEW_HvH_GAME_BUTTON_PRESSED, null);
+        } else if (v.getId() == R.id.new_HvC_game_button) {
+            mListener.onFragmentInteraction(MainActivity.EventType.NEW_HvC_GAME_BUTTON_PRESSED, null);
+        } else if (v.getId() == R.id.statistics_button) {
+            mListener.onFragmentInteraction(MainActivity.EventType.STATISTICS_BUTTON_PRESSED, null);
+        } else if (v.getId() == R.id.preferences_button) {
+            mListener.onFragmentInteraction(MainActivity.EventType.PREFERENCES_BUTTON_PRESSED, null);
         }
     }
 }

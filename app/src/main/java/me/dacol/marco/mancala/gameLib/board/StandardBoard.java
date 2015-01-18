@@ -11,7 +11,7 @@ public interface StandardBoard<T> extends Observer {
 
     public Board setup(TurnContext turnContext, int numberOfBowl, int numberOfTray);
     public Board registerPlayers(List<Player> players);
-    public void buildBoard();
+    public void buildBoard(ArrayList<Integer> boardRepresentation);
     public ArrayList<T> getRepresentation();
     public Player getWinner();
 

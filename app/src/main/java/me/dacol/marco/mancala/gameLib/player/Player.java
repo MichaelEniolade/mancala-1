@@ -17,7 +17,7 @@ public class Player implements Observer, AttachedPlayer {
 
     private static final String LOG_TAG = Player.class.getSimpleName();
 
-    private TurnContext mTurnContext; // TODO rimuovi TurnContext da qui...
+    private TurnContext mTurnContext;
     private Brain mBrain;
     private String mName;
 
@@ -78,4 +78,6 @@ public class Player implements Observer, AttachedPlayer {
     public void onBrainInteraction(int move) {
         sendMoveToBoard(move);
     }
+
+
 }

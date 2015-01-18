@@ -2,14 +2,34 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="me.dacol.marco.mancala.gameUI.board.BoardFragment">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/board_grid_layout"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            >
+            <me.dacol.marco.mancala.gameUI.board.OpponentLabel
+                android:id="@+id/opponent_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Opponent"
+                android:textStyle="bold"
+                android:gravity="left"
+                android:textSize="@dimen/board_text_size"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                />
+        </LinearLayout>
+
         <GridLayout
-            android:id="@+id/boardView"
+            android:id="@+id/board_grid_layout"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:columnCount="6"
             android:rowCount="3"
@@ -17,8 +37,40 @@
             android:useDefaultMargins="true"
             android:layout_centerInParent="true"
             >
+            <TextView
+                android:id="@+id/player_turn_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Player Turn:"
+                android:textStyle="bold"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:layout_columnSpan="4"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="@dimen/board_text_size"
+                />
 
         </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/board_grid_layout"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            >
+            <TextView
+                android:id="@+id/player_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="PlayerOne"
+                android:textStyle="bold"
+                android:gravity="right"
+                android:textSize="@dimen/board_text_size"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                />
+        </LinearLayout>
     </RelativeLayout>
 
 </FrameLayout>

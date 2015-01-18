@@ -1,5 +1,7 @@
 package me.dacol.marco.mancala.gameLib.gameController;
 
+import android.os.Bundle;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -8,8 +10,6 @@ import java.util.Random;
 
 import me.dacol.marco.mancala.gameLib.board.Board;
 import me.dacol.marco.mancala.gameLib.board.StandardBoard;
-import me.dacol.marco.mancala.gameLib.exceptions.NumberOfPlayersException;
-import me.dacol.marco.mancala.gameLib.exceptions.ToManyPlayerException;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
 import me.dacol.marco.mancala.gameLib.gameController.actions.BoardUpdated;
 import me.dacol.marco.mancala.gameLib.gameController.actions.EvenGame;
@@ -56,12 +56,12 @@ public class Game implements Observer {
      * Run before starting a game, has the job to initialize a new game
      */
     public void setup() {
-        mPlayingPlayer = 0;
-        mNextPlayer = 0;
+        mPlayingPlayer = -1;
+        mNextPlayer = -1;
         mTurnNumber = 0;
         mEnded = false;
         mPlayers = new ArrayList<Player>();
-        mBoard = Board.getInstance();;
+        mBoard = Board.getInstance();
         mTurnContext = TurnContext.getInstance();
         mAnotherRoundForPlayer = false;
 
@@ -75,16 +75,17 @@ public class Game implements Observer {
     /**
      * This starts the game loop, it will end when a player won or retreat from the game
      */
-    public void start() {
-        try {
-            initializeBoard();
-        } catch (NumberOfPlayersException e) {
-            e.printStackTrace();
+    public void start(Bundle savedState) {
+        if (savedState == null) {
+            initializeBoard(null);
+            nextTurn();
+        } else {
+            //TODO update test
+            mPlayingPlayer = savedState.getInt("playingPlayer");
+            mTurnNumber = savedState.getInt("turnNumber");
+            initializeBoard(savedState.getIntegerArrayList("boardRepresentation"));
+            nextTurn();
         }
-
-        chooseStartingPlayer();
-
-        nextTurn();
     }
 
     private void nextTurn() {
@@ -94,33 +95,39 @@ public class Game implements Observer {
     }
 
     //---> Player methods
-    public void createPlayer(PlayerType type, String name)
-            throws ToManyPlayerException {
+    public Player createPlayer(PlayerType type, String name) {
 
         Player player = mPlayerFactory.makePlayer(type, name);
         addPlayer(player);
+
+        return player;
     }
 
     /**
-     * Register a new player in the game, and subscribe him to the turnContext object
+     * Register a new player in the game, and subscribe him to the turnContext object, max allowed
+     * players is two
      *
      * @param player
      */
-    private void addPlayer(Player player) throws ToManyPlayerException {
+    private void addPlayer(Player player) {
         if (mPlayers.size() < mNumberOfPlayers) {
             mPlayers.add(player);
             mTurnContext.addObserver(player);
-        } else {
-            throw new ToManyPlayerException("Maximum allowed number of player is: " + mNumberOfPlayers);
         }
     }
 
     /***
-     * Select randomly the starting player, it supports only 2 players
+     * Select randomly the starting player, it supports only 2 players, if the game is resumed and
+     * a Playing player is already defined, then only nextPlayer will be set by this method
+     *
      */
-    private void chooseStartingPlayer() {
-        mPlayingPlayer = new Random().nextInt(mPlayers.size());
-        mNextPlayer = (mPlayers.size() -1) - mPlayingPlayer;
+    private void setStartingPlayer() {
+        if (mPlayingPlayer == -1) {
+            mPlayingPlayer = new Random().nextInt(mPlayers.size());
+        }
+
+        mNextPlayer = (mPlayers.size() - 1) - mPlayingPlayer;
+
     }
 
     // TODO extract this method to an interface so that will be the same on every object that can post on the TurnContext
@@ -130,9 +137,12 @@ public class Game implements Observer {
 
     /**
      * Switch the two player, right now it supports only a 2 player game
+     *
      */
     private void updatePlayingPlayer() {
-        if (!mAnotherRoundForPlayer) {
+        if (mNextPlayer == -1) {
+            setStartingPlayer();
+        } else if (!mAnotherRoundForPlayer) {
             int temp = mPlayingPlayer;
             mPlayingPlayer = mNextPlayer;
             mNextPlayer = temp;
@@ -141,17 +151,14 @@ public class Game implements Observer {
         }
     }
 
-    //---> Turn methods
-    private void initializeBoard() throws NumberOfPlayersException {
+    // initialization, if there is a previous boardRepresentation i set that board and start from there
+    // otherwise ii will initialize a complete new board
+    private void initializeBoard(ArrayList<Integer> boardRepresentation) {
         if (mPlayers.size() == mNumberOfPlayers) {
             mBoard.setup(mTurnContext, mNumberOfBowls, mNumberOfTrays)
                     .registerPlayers(mPlayers)
-                    .buildBoard();
-        } else {
-            throw new NumberOfPlayersException("Number of player is: " + mPlayers.size()
-                    + ", it should be: " + mNumberOfPlayers);
+                    .buildBoard(boardRepresentation);
         }
-
     }
 
     private void newTurn() {
@@ -206,5 +213,13 @@ public class Game implements Observer {
         } else if ((data instanceof Winner) || (data instanceof EvenGame)) {
             toggleEnd();
         }
+    }
+
+    public int getPlayingPlayer() {
+        return mPlayingPlayer;
+    }
+
+    public int getTurnNumber() {
+        return mTurnNumber;
     }
 }

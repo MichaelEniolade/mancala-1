@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="playerOneBowl">#8645A6</color>
-    <color name="playerTwoBowl">#75ACFF</color>
-    <color name="playerOneTray">#ff3b2451</color>
-    <color name="playerTwoTray">#ff272f51</color>
+    <color name="playerOneBowl">#ff000000</color>
+    <color name="playerTwoBowl">#ffffffff</color>
+    <color name="playerOneTray">#ff505050</color>
+    <color name="playerTwoTray">#ffafafaf</color>
     <color name="selectedBowl">#ffdfd70a</color>
 </resources>

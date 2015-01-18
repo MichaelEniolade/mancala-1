@@ -1,7 +1,7 @@
 package me.dacol.marco.mancala.gameLib.gameController;
 
+import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Stack;
 
 import me.dacol.marco.mancala.gameLib.gameController.actions.Action;
 import me.dacol.marco.mancala.gameLib.gameController.actions.ActivePlayer;
@@ -26,7 +26,7 @@ public class TurnContext extends Observable {
     // but these gives room from improvements like keep the game history
     // to allow the player to undo moves.
     // It can also improve statistics.
-    private Stack<Action> mActionList = new Stack<Action>();
+    private ArrayList<Action> mActionList = new ArrayList<Action>();
 
     // Singleton
     private static TurnContext sInstance = null;
@@ -40,15 +40,17 @@ public class TurnContext extends Observable {
 
     // Reinitialize the Action list at each turn in case it's not empty
     public void initialize() {
-        if (!mActionList.empty()) {
-            do {
-                mActionList.pop();
-            } while (!mActionList.empty());
-        }
+        mActionList.clear();
+        //if (!mActionList.empty()) {
+        //    do {
+        //        mActionList.pop();
+        //    } while (!mActionList.empty());
+        //}
     }
 
     public void push(Action action) {
-        mActionList.push(action);
+        mActionList.add(action);
+
         log(action, true);
 
         setChanged();
@@ -74,11 +76,13 @@ public class TurnContext extends Observable {
     }
 
     public Action pop() {
-        return mActionList.pop();
+        Action action = mActionList.get(0);
+        mActionList.remove(0);
+        return action;
     }
 
     public Action peek() {
-        return mActionList.peek();
+        return mActionList.get(0);
     }
 
     public int size() {

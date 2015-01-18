@@ -11,13 +11,7 @@ public class Logger {
             Log.v(tag, str);
         }
     }
-/*
-    public static void v(String tag, String str) {
-        if (Log.isLoggable(tag, Log.VERBOSE)) {
-            Log.v(tag, str);
-        }
-    }
-*/
+
     public static void d(String tag, String str) {
         if (Log.isLoggable(tag, Log.DEBUG)) {
             Log.d(tag, str);

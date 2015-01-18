@@ -1,0 +1,30 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <PreferenceCategory
+        android:title="@string/preferences_title">
+        <EditTextPreference
+            android:key="pref_key_player_name"
+            android:title="@string/preferences_edit_text_name"
+            android:defaultValue="Player"
+            android:dialogTitle="@string/preferences_dialog_name_title"
+            android:negativeButtonText="@string/preferences_dialog_name_negative_button"
+            android:positiveButtonText="@string/preferences_dialog_name_positive_button"
+        />
+
+        <SwitchPreference
+            android:key="pref_key_animation_on_off"
+            android:title="@string/preferences_animation_on_off"
+            android:defaultValue="false"
+            android:switchTextOff="@string/preference_animation_off"
+            android:switchTextOn="@string/preference_animation_on"
+            android:summaryOn="@string/preference_animation_subtitle_on"
+            android:summaryOff="@string/preference_animation_subtitle_off"
+        />
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

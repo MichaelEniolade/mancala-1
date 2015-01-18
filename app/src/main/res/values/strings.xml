@@ -2,8 +2,36 @@
 <resources>
 
     <string name="app_name">Mancala</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="best_score">Best score:</string>
+    <string name="played_games">Played Games:</string>
+    <string name="win_games">Win games:</string>
+    <string name="even_games">Even games:</string>
+    <string name="lose_games">Lose games:</string>
+    <string name="title_HvH_games_stats">HvH</string>
+    <string name="title_HvC_games_stats">HvC</string>
+    <string name="title_last_played_games">Last games</string>
+    <string name="list_date">Date:</string>
+    <string name="list_game_type">Game type:</string>
+    <string name="list_player_points">Your points:</string>
+    <string name="list_opponent_points">Opponent points:</string>
+    <string name="statistics_action_bar_title">Statistics</string>
+    <string name="statistics_back_button"><![CDATA[< Back]]></string>
+    <string name="preferences_title">Preferences</string>
+    <string name="preferences_edit_text_name">Set your name</string>
+    <string name="preferences_dialog_name_title">Enter your name</string>
+    <string name="preferences_dialog_name_negative_button">Cancel</string>
+    <string name="preferences_dialog_name_positive_button">Save</string>
+    <string name="preferences_animation_on_off">Enable or disable the animation</string>
+    <string name="preference_animation_on">On</string>
+    <string name="preference_animation_off">Off</string>
+    <string name="preference_animation_subtitle_on">Beta feature, can lose some bowl on the way</string>
+    <string name="preference_animation_subtitle_off">Instantaneous board refresh</string>
+    <string name="player_turn">"'s turn"</string>
+    <string name="opponent_name">Opponent</string>
+    <string name="player_default_name">Player</string>
+    <string name="the_winner_is">" win!"</string>
+    <string name="the_game_ended_even">It\'s even!</string>
+
 
 </resources>
