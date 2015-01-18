@@ -98,7 +98,7 @@ public class Board implements Observer, StandardBoard<Container> {
                         anotherRound, mContainersManager.getAtomicMoves()));
             }
 
-        } else {
+        } else if (!isGameEnded()) {
             postOnTurnContext(new InvalidMove(
                     move,
                     getRepresentation(),

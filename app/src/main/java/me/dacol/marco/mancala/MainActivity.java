@@ -2,6 +2,7 @@ package me.dacol.marco.mancala;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
@@ -45,6 +46,16 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
         popUpNewFragment(preferenceFragment);
     }
 
+    private void restartNewGame(BoardFragment activeBoardFragment) {
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().remove(activeBoardFragment);
+        fragmentManager.popBackStack();
+        fragmentManager.beginTransaction().commit();
+
+        BoardFragment newBoardFragment = BoardFragment.newInstance(activeBoardFragment.gameIsHumanVsHuman());
+        popUpNewFragment(newBoardFragment);
+    }
+
     private void popUpNewFragment(Fragment boardFragment) {
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.container, boardFragment);
@@ -62,7 +73,8 @@ public class MainActivity extends Activity implements OnFragmentInteractionListe
             openStatistics();
         } else if (event == EventType.PREFERENCES_BUTTON_PRESSED) {
             openPreferences();
+        } else if (event == EventType.RESTART_GAME_BUTTON_PRESSED) {
+            restartNewGame((BoardFragment) data);
         }
     }
-
 }

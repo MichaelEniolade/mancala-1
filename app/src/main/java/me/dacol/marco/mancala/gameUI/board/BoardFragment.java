@@ -5,10 +5,12 @@ import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -47,11 +49,12 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private ArrayList<TextView> mBoardTextViewRepresentation;
 
-    //private TextView mPlayerTurnText;
     private String mStartingPlayerName;
 
     private Game mGame;
+
     private boolean mIsHumanVsHuman;
+    private OnFragmentInteractionListener mFragmentInteractionListener;
 
     /**
      * Use this factory method to create a new instance of
@@ -74,7 +77,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Logger.v(LOG_TAG, "oncreate");
         super.onCreate(savedInstanceState);
         //mPlayerTurnText = null;
 
@@ -86,7 +88,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         // initialize the game engine
         mGame.setup();
 
-
         // add players to the game
         addPlayers();
 
@@ -95,8 +96,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Logger.v(LOG_TAG, "CreateView");
-
         mBoardTextViewRepresentation = null;
         mStartingPlayerName = null;
 
@@ -105,20 +104,9 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        Logger.v(LOG_TAG, "viewCreated");
-
-        super.onViewCreated(view, savedInstanceState);
-
-        // start the game after the view is setup, in this way i have no problem of null pointer exception
-        // when populating the layout
-
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Logger.v(LOG_TAG, "activityCreated");
+
         // initialize the statisticsHelper
         // register the fragment and the statisticsHelper to the turnContext
         mGame.getTurnContext().addObserver(this);
@@ -127,10 +115,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         mGame.getTurnContext().addObserver(statisticsHelper);
 
         mGame.start(savedInstanceState);
-
-
     }
-
 
     // creates and add players to the game, recovering player name from the preferences
     private void addPlayers() {
@@ -163,8 +148,6 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
     }
 
     private void setupBoard(ArrayList<Container> boardRepresentation) {
-        Logger.v(LOG_TAG, "setupBoard");
-
         mBoardTextViewRepresentation = new ArrayList<TextView>();
 
         // Here I've to check if the chosen game is human vs human, i need to attach
@@ -201,7 +184,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                 boardRepresentation.get(6).toString(),
                 1,
                 isHumanVsHuman,
-                getResources().getDimension(R.dimen.container_dsp_width_dimension)
+                getActivity().getResources().getDimension(R.dimen.container_dsp_width_dimension)
         );
 
         mBoardTextViewRepresentation.add(trayPlayerOne);
@@ -215,7 +198,7 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
                     i,
                     2,
                     isHumanVsHuman,
-                    getResources().getDimension(R.dimen.container_dsp_width_dimension)
+                    getActivity().getResources().getDimension(R.dimen.container_dsp_width_dimension)
             );
 
             if (isHumanVsHuman) {
@@ -247,20 +230,14 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
         TextView opponentName = (TextView) getView().findViewById(R.id.opponent_name);
         opponentName.setText(boardRepresentation.get(7).getOwner().getName());
 
-//        mPlayerTurnText = textView;
-
         // This show the starting status of the board
         addToBoardView((GridLayout) getView().findViewById(R.id.board_grid_layout));
     }
 
     private void addToBoardView(GridLayout board) {
-        //board.removeAllViews();
-
         for (TextView t : mBoardTextViewRepresentation) {
             board.addView(t);
         }
-
-       // board.addView(mPlayerTurnText);
     }
 
     private void updateBoard(ArrayList<Container> boardRepresentation) {
@@ -286,10 +263,10 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
             updateBoard(containers);
         } else if (data instanceof Winner) {
             updateBoard(((Winner) data).getboardStatus());
-            updatePlayingPlayerTextWithWinnerName(((Winner) data).getLoad().getName());
+            updateBoardForEndGame(((Winner) data).getLoad().getName(), true);
         } else if (data instanceof EvenGame) {
             updateBoard(((EvenGame) data).getLoad());
-            updatePlayingPlayerText(getResources().getString(R.string.the_game_ended_even));
+            updateBoardForEndGame(null, false);
         }
     }
 
@@ -299,27 +276,63 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     private void updatePlayingPlayerText(String name) {
         TextView playerTurnText = (TextView) getView().findViewById(R.id.player_turn_text_view);
-        playerTurnText.setText(getResources().getString(R.string.player_turn) + name);
+        playerTurnText.setText(name + getResources().getString(R.string.player_turn));
         mStartingPlayerName = name;
     }
 
-    private void updatePlayingPlayerTextWithWinnerName(String name) {
+    private void updateBoardForEndGame(String name, boolean winner) {
+        // Publish the winners name
         TextView playerTurnText = (TextView) getView().findViewById(R.id.player_turn_text_view);
-        playerTurnText.setText(getResources().getString(R.string.the_winner_is) + name);
+        if (winner) {
+            playerTurnText.setText(name + getResources().getString(R.string.the_winner_is));
+        } else {
+            updatePlayingPlayerText(getResources().getString(R.string.the_game_ended_even));
+        }
+
+        // Move the textView aside
+        GridLayout.LayoutParams textViewParams = new GridLayout.LayoutParams();
+        textViewParams.rowSpec = GridLayout.spec(1);
+        textViewParams.columnSpec = GridLayout.spec(1,2);
+        textViewParams.setGravity(Gravity.CENTER);
+
+        playerTurnText.setLayoutParams(textViewParams);
+
+        // show the ImageButton for another game
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.rowSpec = GridLayout.spec(1);
+        params.columnSpec = GridLayout.spec(3,2);
+        params.setGravity(Gravity.CENTER);
+        params.width = (int) getResources().getDimension(R.dimen.bowl_button_width);
+        params.height = (int) getResources().getDimension(R.dimen.bowl_button_width);
+
+        ImageButton imageButton = new ImageButton(getActivity());
+        imageButton.setLayoutParams(params);
+        imageButton.setImageResource(R.drawable.play_again);
+        imageButton.setOnClickListener(this);
+
+        // Add the imageButton to the boardLayout
+        GridLayout gridLayout = (GridLayout) getView().findViewById(R.id.board_grid_layout);
+        gridLayout.addView(imageButton);
     }
 
     // Interact with the Human Player Brain
     @Override
     public void onClick(View v) {
-        int bowlNumber = v.getId();
-        if (bowlNumber < 6) {
-            mPlayerBrainListeners.get(0)
-                    .onFragmentInteraction(
-                            OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
-        } else {
-            mPlayerBrainListeners.get(1)
-                    .onFragmentInteraction(
-                            OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
+        if (v instanceof Bowl) {
+            int bowlNumber = v.getId();
+            if (bowlNumber < 6) {
+                mPlayerBrainListeners.get(0)
+                        .onFragmentInteraction(
+                                OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
+            } else {
+                mPlayerBrainListeners.get(1)
+                        .onFragmentInteraction(
+                                OnFragmentInteractionListener.EventType.CHOSEN_BOWL, bowlNumber);
+            }
+        } else if (v instanceof ImageButton) {
+            mGame.getTurnContext().deleteObservers();
+            mFragmentInteractionListener.onFragmentInteraction(
+                    OnFragmentInteractionListener.EventType.RESTART_GAME_BUTTON_PRESSED, this);
         }
     }
 
@@ -359,15 +372,26 @@ public class BoardFragment extends Fragment implements Observer, View.OnClickLis
 
     @Override
     public void onAttach(Activity activity) {
-        Logger.v(LOG_TAG, "attach");
+        setTargetFragment(this, 0);
+        mFragmentInteractionListener = (OnFragmentInteractionListener) activity;
         super.onAttach(activity);
     }
 
     @Override
     public void onDetach() {
-        Logger.v(LOG_TAG, "deattach");
+        Logger.v(LOG_TAG, "deattached");
         mBoardTextViewRepresentation = null;
 
+        // need to delete the observers when detaching the fragment otherwise it will crash next
+        // time it is fired up, because the setup board will be called earlier than the
+        // onActivityCreated method, and the Context provided by getActivity() will result null
+        mGame.getTurnContext().deleteObservers();
+        mFragmentInteractionListener = null;
         super.onDetach();
     }
+
+    public boolean gameIsHumanVsHuman() {
+        return mIsHumanVsHuman;
+    }
+
 }
