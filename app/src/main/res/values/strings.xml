@@ -25,7 +25,7 @@
     <string name="preferences_animation_on_off">Enable or disable the animation</string>
     <string name="preference_animation_on">On</string>
     <string name="preference_animation_off">Off</string>
-    <string name="preference_animation_subtitle_on">Beta feature, can lose some bowl on the way</string>
+    <string name="preference_animation_subtitle_on">Beta feature, can lose some seeds on the way</string>
     <string name="preference_animation_subtitle_off">Instantaneous board refresh</string>
     <string name="player_turn">"'s turn"</string>
     <string name="opponent_name">Opponent</string>

@@ -68,18 +68,21 @@ public class BowlAnimator extends AsyncTask<ArrayList, Object, Void> {
                 String newText = "";
 
                 if (move instanceof BoardEmptyBowl) {
-                    textView = mBowlUIRepresentation.get(((BoardEmptyBowl) move).getLoad());
-                    newText = "0";
+                    BoardEmptyBowl m = (BoardEmptyBowl) move;
+                    textView = mBowlUIRepresentation.get(m.getLoad());
+                    newText = String.valueOf(m.getNumberOfSeeds());
                 } else if (move instanceof BoardPutInTray) {
-                    textView = mBowlUIRepresentation.get(((BoardPutInTray) move).getLoad());
-                    int actualNumberOfSeeds = Integer.valueOf(textView.getText().toString());
-                    actualNumberOfSeeds += ((BoardPutInTray) move).getNumberOfSeeds();
-                    newText = String.valueOf(actualNumberOfSeeds);
+                    BoardPutInTray m = (BoardPutInTray) move;
+                    textView = mBowlUIRepresentation.get( m.getLoad() );
+                    //int actualNumberOfSeeds = Integer.valueOf(textView.getText().toString());
+                    //actualNumberOfSeeds += ((BoardPutInTray) move).getNumberOfSeeds();
+                    newText = String.valueOf( m.getNumberOfSeeds() );
                 } else if (move instanceof BoardPutOneInContainer) {
-                    textView = mBowlUIRepresentation.get(((BoardPutOneInContainer) move).getLoad());
-                    int actualNumberOfSeeds = Integer.valueOf(textView.getText().toString());
-                    actualNumberOfSeeds += 1;
-                    newText = String.valueOf(actualNumberOfSeeds);
+                    BoardPutOneInContainer m = (BoardPutOneInContainer) move;
+                    textView = mBowlUIRepresentation.get( m.getLoad() );
+                    //int actualNumberOfSeeds = Integer.valueOf(textView.getText().toString());
+                    //actualNumberOfSeeds += 1;
+                    newText = String.valueOf( m.getNumberOfSeeds() );
                 }
 
                 //publishProgress(getAnimatorFor(textView), newText, textView);
