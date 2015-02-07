@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="container_dsp_width_dimension">75dp</dimen>
+    <dimen name="board_text_size">15sp</dimen>
+    <dimen name="bowl_text_size">15sp</dimen>
+    <dimen name="tray_text_size">20sp</dimen>
+
+</resources>

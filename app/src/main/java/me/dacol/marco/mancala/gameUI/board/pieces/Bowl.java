@@ -60,6 +60,8 @@ public class Bowl extends Button {
         setWidth((int) width);
         setHeight((int) height);
 
+
+
         setTextSize(getResources().getDimension(R.dimen.bowl_text_size));
 
 

@@ -21,11 +21,19 @@ public class PieceFactory {
      * @param dimension the size of the bowl
      * @return return Bowl ready to be added in the gridlayout
      */
-    public static Bowl generateBowl(Context context, int row, int column, String text, int id, int player, boolean isHumanVsHuman, float dimension) {
+    public static Bowl generateBowl(Context context,
+                                    int row,
+                                    int column,
+                                    String text,
+                                    int id,
+                                    int player,
+                                    boolean isHumanVsHuman,
+                                    float dimension)
+    {
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.rowSpec = GridLayout.spec(row);
         params.columnSpec = GridLayout.spec(column);
-
+        params.setGravity(Gravity.CENTER);
 
         //int bowlDimension = convertFromDpsToPixel(context, dimension);
 
@@ -43,12 +51,19 @@ public class PieceFactory {
      * @param dimension the size of the tray
      * @return return Tray ready to be added in the gridlayout
      */
-    public static Tray generateTray(Context context, int row, int column, String text, int player, boolean isHumanVsHuman, float dimension) {
+    public static Tray generateTray(Context context,
+                                    int row,
+                                    int column,
+                                    String text,
+                                    int player,
+                                    boolean isHumanVsHuman,
+                                    float dimension)
+    {
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.rowSpec = GridLayout.spec(row);
         params.columnSpec = GridLayout.spec(column);
-        params.setGravity(Gravity.CENTER_VERTICAL);
+        params.setGravity(Gravity.CENTER);
 
         //int trayDimension = convertFromDpsToPixel(context, dimension);
 
